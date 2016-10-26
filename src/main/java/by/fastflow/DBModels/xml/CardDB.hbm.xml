@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+
+    <class name="by.fastflow.DBModels.CardDB" table="card" schema="izh_scheme" catalog="db">
+        <id name="cardId">
+            <column name="card_id" sql-type="bigint"/>
+        </id>
+        <property name="userId">
+            <column name="user_id" sql-type="bigint" not-null="true"/>
+        </property>
+        <property name="moneyAmount">
+            <column name="money_amount" sql-type="bigint"/>
+        </property>
+    </class>
+</hibernate-mapping>

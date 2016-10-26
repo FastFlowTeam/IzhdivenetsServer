@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+
+    <class name="by.fastflow.DBModels.TaskPermissionsDB" table="task_permissions" schema="izh_scheme"
+           catalog="db">
+        <composite-id mapped="true" class="by.fastflow.DBModels.TaskPermissionsDBPK">
+            <key-property name="userId">
+                <column name="user_id" sql-type="bigint"/>
+            </key-property>
+            <key-property name="itemId">
+                <column name="item_id" sql-type="bigint"/>
+            </key-property>
+        </composite-id>
+    </class>
+</hibernate-mapping>

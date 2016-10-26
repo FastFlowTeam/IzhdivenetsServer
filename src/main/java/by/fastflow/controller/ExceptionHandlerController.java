@@ -1,5 +1,7 @@
 package by.fastflow.controller;
 
+import com.fasterxml.jackson.databind.util.JSONPObject;
+import jdk.nashorn.internal.ir.debug.JSONWriter;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -18,6 +20,6 @@ public class ExceptionHandlerController {
     public @ResponseBody
     String handleException(RestException e) {
         LOG.error("Ошибка: " + e.getMessage(), e);
-        return "Ошибка: " + e.getMessage();
+        return e.getErrorJson();
     }
 }

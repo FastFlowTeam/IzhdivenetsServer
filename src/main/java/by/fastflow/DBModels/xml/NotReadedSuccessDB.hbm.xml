@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+
+    <class name="by.fastflow.DBModels.NotReadedSuccessDB" table="not_readed_success" schema="izh_scheme"
+           catalog="db">
+        <composite-id mapped="true" class="by.fastflow.DBModels.NotReadedSuccessDBPK">
+            <key-property name="parentId">
+                <column name="parent_id" sql-type="bigint"/>
+            </key-property>
+            <key-property name="childId">
+                <column name="child_id" sql-type="bigint"/>
+            </key-property>
+            <key-property name="successId">
+                <column name="success_id" sql-type="bigint"/>
+            </key-property>
+        </composite-id>
+        <property name="number">
+            <column name="number" sql-type="bigint"/>
+        </property>
+    </class>
+</hibernate-mapping>

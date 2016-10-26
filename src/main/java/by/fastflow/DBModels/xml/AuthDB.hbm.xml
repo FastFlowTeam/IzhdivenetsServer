@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+
+    <class name="by.fastflow.DBModels.AuthDB" table="auth" schema="izh_scheme" catalog="db">
+        <id name="authId">
+            <column name="auth_id" sql-type="bigint"/>
+        </id>
+        <property name="type">
+            <column name="type" sql-type="bigint" not-null="true"/>
+        </property>
+        <property name="token">
+            <column name="token" sql-type="text" not-null="true"/>
+        </property>
+    </class>
+</hibernate-mapping>

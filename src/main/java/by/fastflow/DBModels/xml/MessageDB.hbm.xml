@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+
+    <class name="by.fastflow.DBModels.MessageDB" table="message" schema="izh_scheme" catalog="db">
+        <id name="messageId">
+            <column name="message_id" sql-type="bigint"/>
+        </id>
+        <property name="dialogId">
+            <column name="dialog_id" sql-type="bigint" not-null="true"/>
+        </property>
+        <property name="userId">
+            <column name="user_id" sql-type="bigint" not-null="true"/>
+        </property>
+        <property name="date">
+            <column name="date" sql-type="timestamp"/>
+        </property>
+        <property name="text">
+            <column name="text" sql-type="varchar(500)" length="500"/>
+        </property>
+        <property name="type">
+            <column name="type" sql-type="bigint"/>
+        </property>
+        <property name="link">
+            <column name="link" sql-type="varchar(200)" length="200"/>
+        </property>
+    </class>
+</hibernate-mapping>

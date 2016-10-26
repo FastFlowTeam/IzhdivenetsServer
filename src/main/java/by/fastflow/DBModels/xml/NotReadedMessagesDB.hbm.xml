@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+
+    <class name="by.fastflow.DBModels.NotReadedMessagesDB" table="not_readed_messages" schema="izh_scheme"
+           catalog="db">
+        <composite-id mapped="true" class="by.fastflow.DBModels.NotReadedMessagesDBPK">
+            <key-property name="userId">
+                <column name="user_id" sql-type="bigint"/>
+            </key-property>
+            <key-property name="dialogId">
+                <column name="dialog_id" sql-type="bigint"/>
+            </key-property>
+        </composite-id>
+        <property name="number">
+            <column name="number" sql-type="bigint"/>
+        </property>
+    </class>
+</hibernate-mapping>
