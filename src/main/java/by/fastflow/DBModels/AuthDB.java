@@ -1,5 +1,10 @@
 package by.fastflow.DBModels;
 
+import by.fastflow.utils.NextableId;
+import by.fastflow.utils.RestException;
+import by.fastflow.utils.UpdatableDB;
+import org.hibernate.Session;
+
 import javax.persistence.*;
 
 /**
@@ -7,9 +12,10 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "auth", schema = "izh_scheme", catalog = "db")
-public class AuthDB {
+public class AuthDB implements NextableId {
     private long authId;
-    private Long type;
+    private long type;
+    private long userId;
     private String token;
 
     @Id
@@ -23,12 +29,22 @@ public class AuthDB {
     }
 
     @Basic
+    @Column(name = "user_id", nullable = true)
+    public long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(long userId) {
+        this.userId = userId;
+    }
+
+    @Basic
     @Column(name = "type", nullable = true)
-    public Long getType() {
+    public long getType() {
         return type;
     }
 
-    public void setType(Long type) {
+    public void setType(long type) {
         this.type = type;
     }
 
@@ -50,7 +66,8 @@ public class AuthDB {
         AuthDB authDB = (AuthDB) o;
 
         if (authId != authDB.authId) return false;
-        if (type != null ? !type.equals(authDB.type) : authDB.type != null) return false;
+        if (type != authDB.type) return false;
+        if (userId != authDB.userId) return false;
         if (token != null ? !token.equals(authDB.token) : authDB.token != null) return false;
 
         return true;
@@ -59,8 +76,23 @@ public class AuthDB {
     @Override
     public int hashCode() {
         int result = (int) (authId ^ (authId >>> 32));
-        result = 31 * result + (type != null ? type.hashCode() : 0);
+        result = 31 * result + (int) (type ^ (type >>> 32));
+        result = 31 * result + (int) (userId ^ (userId >>> 32));
         result = 31 * result + (token != null ? token.hashCode() : 0);
         return result;
+    }
+
+    public static AuthDB createNew(Session session, int type, String token, long userId) {
+        AuthDB authDB = new AuthDB();
+        authDB.setToken(token);
+        authDB.setType((long) type);
+        authDB.setUserId(userId);
+        authDB.setNextId(session);
+        return authDB;
+    }
+
+    @Override
+    public void setNextId(Session session) {
+        authId = ((AuthDB) session.createQuery("from AuthDB ORDER BY authId DESC").setMaxResults(1).uniqueResult()).getAuthId() + 1;
     }
 }

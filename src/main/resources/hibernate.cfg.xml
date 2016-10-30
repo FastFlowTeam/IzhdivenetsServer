@@ -12,9 +12,9 @@
     <property name="connection.password">fastflow</property>-->
     <mapping resource="xml/UserDB.hbm.xml"/>
     <mapping class="by.fastflow.DBModels.UserDB"/>
-   <!-- <mapping class="by.fastflow.DBModels.AuthDB"/>
-    <mapping resource="by/fastflow/DBModels/xml/AuthDB.hbm.xml"/>
-    <mapping resource="by/fastflow/DBModels/xml/CardDB.hbm.xml"/>
+    <mapping class="by.fastflow.DBModels.AuthDB"/>
+    <mapping resource="xml/AuthDB.hbm.xml"/>
+    <!--<mapping resource="by/fastflow/DBModels/xml/CardDB.hbm.xml"/>
     <mapping class="by.fastflow.DBModels.CardDB"/>
     <mapping resource="by/fastflow/DBModels/xml/DialogDB.hbm.xml"/>
     <mapping class="by.fastflow.DBModels.DialogDB"/>
@@ -45,6 +45,6 @@
     <mapping resource="by/fastflow/DBModels/xml/WishListDB.hbm.xml"/>
     <mapping class="by.fastflow.DBModels.WishListDB"/>-->
     <!-- DB schema will be updated if needed -->
-    <!-- <property name="hbm2ddl.auto">update</property> -->
+    <!-- <property name="hbm2ddl.auto">updateBy</property> -->
   </session-factory>
 </hibernate-configuration>

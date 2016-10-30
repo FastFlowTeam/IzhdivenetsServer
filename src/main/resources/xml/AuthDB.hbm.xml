@@ -8,6 +8,9 @@
         <id name="authId">
             <column name="auth_id" sql-type="bigint"/>
         </id>
+        <property name="userId">
+            <column name="user_id" sql-type="bigint" not-null="true"/>
+        </property>
         <property name="type">
             <column name="type" sql-type="bigint" not-null="true"/>
         </property>

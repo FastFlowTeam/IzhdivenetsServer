@@ -8,4 +8,7 @@ public class Constants {
 
     public final static int USER_PARENT = 1;
     public final static int USER_CHILD = 2;
+
+    public final static int LOGIN_TYPE_VK = 1;
+    public final static int LOGIN_TYPE_FB = 2;
 }

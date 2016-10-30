@@ -1,8 +1,6 @@
 package by.fastflow.DBModels;
 
-import by.fastflow.utils.Constants;
-import by.fastflow.utils.ErrorConstants;
-import by.fastflow.utils.RestException;
+import by.fastflow.utils.*;
 import org.hibernate.Session;
 
 import javax.persistence.*;
@@ -13,7 +11,7 @@ import java.util.Calendar;
  */
 @Entity
 @Table(name = "user", schema = "izh_scheme", catalog = "db")
-public class UserDB {
+public class UserDB extends UpdatableDB<UserDB> implements NextableId{
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "user_id", nullable = false, unique = true)
@@ -23,6 +21,19 @@ public class UserDB {
     private String photo;
     private String chatName;
     private long type;
+
+    @Basic
+    @Column(name = "g_id", nullable = false)
+    private long gId;
+
+
+    public long getGId() {
+        return gId;
+    }
+
+    public void setGId(long gId) {
+        this.gId = gId;
+    }
 
     public long getUserId() {
         return userId;
@@ -81,6 +92,7 @@ public class UserDB {
 
         if (userId != userDB.userId) return false;
         if (type != userDB.type) return false;
+        if (gId != userDB.gId) return false;
         if (token != null ? !token.equals(userDB.token) : userDB.token != null) return false;
         if (photo != null ? !photo.equals(userDB.photo) : userDB.photo != null) return false;
         if (chatName != null ? !chatName.equals(userDB.chatName) : userDB.chatName != null) return false;
@@ -95,6 +107,7 @@ public class UserDB {
         result = 31 * result + (photo != null ? photo.hashCode() : 0);
         result = 31 * result + (chatName != null ? chatName.hashCode() : 0);
         result = 31 * result + (int) (type ^ (type >>> 32));
+        result = 31 * result + (int) (gId ^ (gId >>> 32));
         return result;
     }
 
@@ -105,11 +118,43 @@ public class UserDB {
             throw new RestException("Not having chat name", ErrorConstants.USER_CHAT_NAME);
     }
 
-    public void setUserNextId(Session session) {
+    @Override
+    public boolean havePermissionToModify(Session session, String token) {
+        return this.token.equals(token);
+    }
+
+    @Override
+    public UserDB anonimize() {
+        this.token = null;
+        this.gId = -1;
+        this.token = "";
+        return null;
+    }
+
+    @Override
+    public void setNextId(Session session) {
         userId = ((UserDB)session.createQuery("from UserDB ORDER BY userId DESC").setMaxResults(1).uniqueResult()).getUserId()+1;
     }
 
     public void updateToken(){
         token = hashCode()+Calendar.getInstance().getTimeInMillis()+""+userId;
+        gId = Calendar.getInstance().getTimeInMillis();
+        //todo по другому генерить
+    }
+
+    @Override
+    public void updateBy(UserDB up) {
+        this.chatName = up.chatName;
+        this.photo = up.photo;
+        updateToken();
+    }
+
+    public static UserDB createNew(Session session, String s, int type) {
+        UserDB userDB = new UserDB();
+        userDB.setNextId(session);
+        userDB.setChatName(s);
+        userDB.setType(type);
+        userDB.updateToken();
+        return userDB;
     }
 }

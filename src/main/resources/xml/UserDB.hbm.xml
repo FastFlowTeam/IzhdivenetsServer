@@ -20,5 +20,8 @@
         <property name="type">
             <column name="type" sql-type="bigint"/>
         </property>
+        <property name="gId">
+            <column name="g_id" sql-type="bigint"/>
+        </property>
     </class>
 </hibernate-mapping>
