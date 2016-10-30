@@ -27,11 +27,11 @@ public class UserDB extends UpdatableDB<UserDB> implements NextableId{
     private long gId;
 
 
-    public long getGId() {
+    public long getgId() {
         return gId;
     }
 
-    public void setGId(long gId) {
+    public void setgId(long gId) {
         this.gId = gId;
     }
 
