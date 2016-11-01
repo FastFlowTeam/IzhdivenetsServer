@@ -40,16 +40,16 @@ public class UserController extends ExceptionHandlerController<UserDB> {
             Session session = HibernateSessionFactory
                     .getSessionFactory()
                     .openSession();
-            List<UserDB> list = session.createQuery("from AuthDB where type = "+Constants.LOGIN_TYPE_VK+" and token = "+(userId+"")).list();
+            List<AuthDB> list = session.createQuery("from AuthDB where type = " + Constants.LOGIN_TYPE_VK + " and token = " + (userId + "")).list();
             UserDB userDB = null;
             session.beginTransaction();
-            if (list.size() == 0){
-                userDB = UserDB.createNew(session, userSettings.getFirstName()+" "+userSettings.getLastName(), type);
+            if (list.size() == 0) {
+                userDB = UserDB.createNew(session, userSettings.getFirstName() + " " + userSettings.getLastName(), type);
                 session.save(userDB);
-                AuthDB authDB = AuthDB.createNew(session, Constants.LOGIN_TYPE_VK, userId+"", userDB.getUserId());
+                AuthDB authDB = AuthDB.createNew(session, Constants.LOGIN_TYPE_VK, userId + "", userDB.getUserId());
                 session.save(authDB);
-            }else{
-                userDB = ((UserDB) session.load(UserDB.class, list.get(0).getUserId()));
+            } else {
+                userDB = UserDB.getUser(session, list.get(0).getUserId());
                 userDB.updateToken();
                 session.update(userDB);
             }
@@ -71,7 +71,7 @@ public class UserController extends ExceptionHandlerController<UserDB> {
             Session session = HibernateSessionFactory
                     .getSessionFactory()
                     .openSession();
-            return user.updateInBDWithToken(session, ((UserDB) session.load(UserDB.class, userId)), token);
+            return user.updateInBDWithToken(session, UserDB.getUser(session, userId), token);
         } catch (RestException re) {
             throw re;
         } catch (Exception e) {
@@ -88,11 +88,11 @@ public class UserController extends ExceptionHandlerController<UserDB> {
             Session session = HibernateSessionFactory
                     .getSessionFactory()
                     .openSession();
-            return ((UserDB) session.load(UserDB.class, userId)).delete(session, this, token);
+            return UserDB.getUser(session, userId, token).delete(session, this, token);
         } catch (RestException re) {
             throw re;
         } catch (ObjectNotFoundException e) {
-            throw new RestException("Not have item with this id", ErrorConstants.NOT_HAVE_ID);
+            throw new RestException(ErrorConstants.NOT_HAVE_ID);
         } catch (Exception e) {
             throw new RestException(e);
         }
@@ -106,9 +106,9 @@ public class UserController extends ExceptionHandlerController<UserDB> {
             Session session = HibernateSessionFactory
                     .getSessionFactory()
                     .openSession();
-            return Ajax.successResponse(((UserDB) session.load(UserDB.class, userId)).anonimize());
+            return Ajax.successResponse((UserDB.getUser(session, userId)).anonimize());
         } catch (ObjectNotFoundException e) {
-            throw new RestException("Not have item with this id", ErrorConstants.NOT_HAVE_ID);
+            throw new RestException(ErrorConstants.NOT_HAVE_ID);
         } catch (Exception e) {
             throw new RestException(e);
         }

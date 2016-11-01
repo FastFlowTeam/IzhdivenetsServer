@@ -8,17 +8,17 @@ import java.io.Serializable;
  * Created by KuSu on 22.10.2016.
  */
 public class RelationshipDBPK implements Serializable {
-    private long state;
+    private long recipientId;
     private long senderId;
 
-    @Column(name = "state", nullable = false)
+    @Column(name = "recipient_id", nullable = false)
     @Id
-    public long getState() {
-        return state;
+    public long getRecipientId() {
+        return recipientId;
     }
 
-    public void setState(long state) {
-        this.state = state;
+    public void setRecipientId(long recipientId) {
+        this.recipientId = recipientId;
     }
 
     @Column(name = "sender_id", nullable = false)
@@ -38,7 +38,7 @@ public class RelationshipDBPK implements Serializable {
 
         RelationshipDBPK that = (RelationshipDBPK) o;
 
-        if (state != that.state) return false;
+        if (recipientId != that.recipientId) return false;
         if (senderId != that.senderId) return false;
 
         return true;
@@ -46,8 +46,15 @@ public class RelationshipDBPK implements Serializable {
 
     @Override
     public int hashCode() {
-        int result = (int) (state ^ (state >>> 32));
+        int result = (int) (recipientId ^ (recipientId >>> 32));
         result = 31 * result + (int) (senderId ^ (senderId >>> 32));
         return result;
+    }
+
+    public static RelationshipDBPK newKey(UserDB sender, UserDB recipient) {
+        RelationshipDBPK key = new RelationshipDBPK();
+        key.setSenderId(sender.getUserId());
+        key.setRecipientId(recipient.getUserId());
+        return key;
     }
 }

@@ -9,6 +9,10 @@ public class Constants {
     public final static int USER_PARENT = 1;
     public final static int USER_CHILD = 2;
 
+    public static final long RELATIONSHIP_CREATE = 1;
+    public static final long RELATIONSHIP_CANCEL = 2;
+    public static final long RELATIONSHIP_ACCEPT = 3;
+
     public final static int LOGIN_TYPE_VK = 1;
     public final static int LOGIN_TYPE_FB = 2;
 }

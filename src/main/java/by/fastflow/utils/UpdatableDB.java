@@ -23,7 +23,7 @@ public abstract class UpdatableDB<T extends UpdatableDB> {
             session.close();
             return Ajax.successResponse(this);
         } else {
-            throw new RestException("Not have permission", ErrorConstants.PERMISSION_BY_TOKEN);
+            throw new RestException(ErrorConstants.PERMISSION_BY_TOKEN);
         }
     }
 
@@ -47,7 +47,7 @@ public abstract class UpdatableDB<T extends UpdatableDB> {
             session.close();
             return Ajax.emptyResponse();
         } else {
-            throw new RestException("Not have permission", ErrorConstants.PERMISSION_BY_TOKEN);
+            throw new RestException(ErrorConstants.PERMISSION_BY_TOKEN);
         }
     }
 

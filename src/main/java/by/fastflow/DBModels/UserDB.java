@@ -11,7 +11,7 @@ import java.util.Calendar;
  */
 @Entity
 @Table(name = "user", schema = "izh_scheme", catalog = "db")
-public class UserDB extends UpdatableDB<UserDB> implements NextableId{
+public class UserDB extends UpdatableDB<UserDB> implements NextableId {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "user_id", nullable = false, unique = true)
@@ -112,10 +112,10 @@ public class UserDB extends UpdatableDB<UserDB> implements NextableId{
     }
 
     public void validate() throws RestException {
-        if ((type != Constants.USER_CHILD)&&(type != Constants.USER_PARENT))
-            throw new RestException("Not having user type", ErrorConstants.USER_TYPE);
-        if ((chatName == null)||(chatName.isEmpty()))
-            throw new RestException("Not having chat name", ErrorConstants.USER_CHAT_NAME);
+        if ((type != Constants.USER_CHILD) && (type != Constants.USER_PARENT))
+            throw new RestException(ErrorConstants.USER_TYPE);
+        if ((chatName == null) || (chatName.isEmpty()))
+            throw new RestException(ErrorConstants.USER_CHAT_NAME);
     }
 
     @Override
@@ -133,11 +133,11 @@ public class UserDB extends UpdatableDB<UserDB> implements NextableId{
 
     @Override
     public void setNextId(Session session) {
-        userId = ((UserDB)session.createQuery("from UserDB ORDER BY userId DESC").setMaxResults(1).uniqueResult()).getUserId()+1;
+        userId = ((UserDB) session.createQuery("from UserDB ORDER BY userId DESC").setMaxResults(1).uniqueResult()).getUserId() + 1;
     }
 
-    public void updateToken(){
-        token = hashCode()+Calendar.getInstance().getTimeInMillis()+""+userId;
+    public void updateToken() {
+        token = hashCode() + Calendar.getInstance().getTimeInMillis() + "" + userId;
         gId = Calendar.getInstance().getTimeInMillis();
         //todo по другому генерить
     }
@@ -156,5 +156,19 @@ public class UserDB extends UpdatableDB<UserDB> implements NextableId{
         userDB.setType(type);
         userDB.updateToken();
         return userDB;
+    }
+
+    public static UserDB getUser(Session session, Long userId, String token) throws RestException {
+        UserDB user = getUser(session, userId);
+        if (!user.getToken().equals(token))
+            throw new RestException(ErrorConstants.NOT_CORRECT_TOKEN);
+        return user;
+    }
+
+    public static UserDB getUser(Session session, long userId) throws RestException {
+        UserDB user = ((UserDB) session.load(UserDB.class, userId));
+        if (user == null)
+            throw new RestException(ErrorConstants.NOT_HAVE_ID);
+        return user;
     }
 }

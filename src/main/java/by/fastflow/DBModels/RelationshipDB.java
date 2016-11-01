@@ -1,5 +1,7 @@
 package by.fastflow.DBModels;
 
+import by.fastflow.utils.Constants;
+
 import javax.persistence.*;
 
 /**
@@ -23,7 +25,7 @@ public class RelationshipDB {
         this.state = state;
     }
 
-    @Id
+    @Basic
     @Column(name = "sender_id", nullable = false)
     public long getSenderId() {
         return senderId;
@@ -33,7 +35,7 @@ public class RelationshipDB {
         this.senderId = senderId;
     }
 
-    @Basic
+    @Id
     @Column(name = "recipient_id", nullable = false)
     public long getRecipientId() {
         return recipientId;
@@ -63,5 +65,13 @@ public class RelationshipDB {
         result = 31 * result + (int) (senderId ^ (senderId >>> 32));
         result = 31 * result + (int) (recipientId ^ (recipientId >>> 32));
         return result;
+    }
+
+    public static RelationshipDB createNew(UserDB sender, UserDB recipient) {
+        RelationshipDB relationshipDB = new RelationshipDB();
+        relationshipDB.setRecipientId(recipient.getUserId());
+        relationshipDB.setSenderId(sender.getUserId());
+        relationshipDB.setState(Constants.RELATIONSHIP_CREATE);
+        return relationshipDB;
     }
 }

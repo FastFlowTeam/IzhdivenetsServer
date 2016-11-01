@@ -3,18 +3,17 @@
     "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
     "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 <hibernate-mapping>
-
     <class name="by.fastflow.DBModels.RelationshipDB" table="relationship" schema="izh_scheme" catalog="db">
         <composite-id mapped="true" class="by.fastflow.DBModels.RelationshipDBPK">
-            <key-property name="state">
-                <column name="state" sql-type="bigint"/>
+            <key-property name="recipientId">
+                <column name="recipient_id" sql-type="bigint"/>
             </key-property>
             <key-property name="senderId">
                 <column name="sender_id" sql-type="bigint"/>
             </key-property>
         </composite-id>
-        <property name="recipientId">
-            <column name="recipient_id" sql-type="bigint"/>
+        <property name="state">
+            <column name="state" sql-type="bigint"/>
         </property>
     </class>
 </hibernate-mapping>

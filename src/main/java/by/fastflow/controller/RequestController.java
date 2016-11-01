@@ -2,6 +2,8 @@ package by.fastflow.controller;
 
 import by.fastflow.Ajax;
 import by.fastflow.DBModels.AuthDB;
+import by.fastflow.DBModels.RelationshipDB;
+import by.fastflow.DBModels.RelationshipDBPK;
 import by.fastflow.DBModels.UserDB;
 import by.fastflow.repository.HibernateSessionFactory;
 import by.fastflow.utils.Constants;
@@ -30,17 +32,34 @@ public class RequestController extends ExceptionHandlerController<UserDB> {
     @RequestMapping(value = ADDRESS + "/create/{user_id}", method = RequestMethod.POST)
     public
     @ResponseBody
-    Map<String, Object> create(@PathVariable(value = "user_id") Long userId,
-                               @RequestHeader(value = "token") String token, @RequestParam(value = "recipient") long gId) throws RestException {
+    Map<String, Object> create(@RequestHeader(value = "token") String token, @PathVariable(value = "user_id") Long userId, @RequestParam(value = "secondUser") long gId) throws RestException {
         try {
-
+            Session session = HibernateSessionFactory
+                    .getSessionFactory()
+                    .openSession();
+            UserDB userF = UserDB.getUser(session, userId, token);
+            UserDB userS = null;
+            List<UserDB> list = session.createQuery("from UserDB where gId = " + gId).list();
+            if (list.size() == 0) {
+                throw new RestException(ErrorConstants.NOT_HAVE_GID);
+            } else {
+                if (userF.getType() == list.get(0).getType())
+                    throw new RestException(ErrorConstants.SAME_TYPE);
+                if (session.load(RelationshipDB.class, RelationshipDBPK.newKey(userF, list.get(0)))!= null)
+                    throw new RestException(ErrorConstants.HAVE_SAME_RELATIONSHIP);
+                if (session.load(RelationshipDB.class, RelationshipDBPK.newKey(list.get(0), userF))!= null)
+                    throw new RestException(ErrorConstants.HAVE_SAME_RELATIONSHIP);
+                session.beginTransaction();
+                session.save(RelationshipDB.createNew(userF, list.get(0)));
+                session.getTransaction().commit();
+            }
+            //// TODO: 02.11.2016 getListRequests
+            session.close();
             return Ajax.emptyResponse();
         } catch (Exception e) {
             throw new RestException(e);
         }
     }
-
-
 
 
     @RequestMapping(ADDRESS + "/test/")
