@@ -52,6 +52,4 @@ public abstract class UpdatableDB<T extends UpdatableDB> {
     }
 
     public abstract boolean havePermissionToModify(Session session, String token);
-
-    public abstract T anonimize();
 }

@@ -1,6 +1,7 @@
 package by.fastflow.DBModels;
 
 import by.fastflow.utils.Constants;
+import com.vk.api.sdk.objects.users.User;
 
 import javax.persistence.*;
 
@@ -12,10 +13,10 @@ import javax.persistence.*;
 @IdClass(RelationshipDBPK.class)
 public class RelationshipDB {
     private long state;
-    private long senderId;
-    private long recipientId;
+    private UserDB senderId;
+    private UserDB recipientId;
 
-    @Id
+    @Basic
     @Column(name = "state", nullable = false)
     public long getState() {
         return state;
@@ -25,23 +26,25 @@ public class RelationshipDB {
         this.state = state;
     }
 
-    @Basic
+    @Id
+    @ManyToOne
     @Column(name = "sender_id", nullable = false)
-    public long getSenderId() {
+    public UserDB getSenderId() {
         return senderId;
     }
 
-    public void setSenderId(long senderId) {
-        this.senderId = senderId;
-    }
-
     @Id
+    @ManyToOne
     @Column(name = "recipient_id", nullable = false)
-    public long getRecipientId() {
+    public UserDB getRecipientId() {
         return recipientId;
     }
 
-    public void setRecipientId(long recipientId) {
+    public void setSenderId(UserDB senderId) {
+        this.senderId = senderId;
+    }
+
+    public void setRecipientId(UserDB recipientId) {
         this.recipientId = recipientId;
     }
 
@@ -62,15 +65,15 @@ public class RelationshipDB {
     @Override
     public int hashCode() {
         int result = (int) (state ^ (state >>> 32));
-        result = 31 * result + (int) (senderId ^ (senderId >>> 32));
-        result = 31 * result + (int) (recipientId ^ (recipientId >>> 32));
+//        result = 31 * result + (int) (senderId ^ (senderId >>> 32));
+//        result = 31 * result + (int) (recipientId ^ (recipientId >>> 32));
         return result;
     }
 
     public static RelationshipDB createNew(UserDB sender, UserDB recipient) {
         RelationshipDB relationshipDB = new RelationshipDB();
-        relationshipDB.setRecipientId(recipient.getUserId());
-        relationshipDB.setSenderId(sender.getUserId());
+//        relationshipDB.setRecipientId(recipient.getUserId());
+//        relationshipDB.setSenderId(sender.getUserId());
         relationshipDB.setState(Constants.RELATIONSHIP_CREATE);
         return relationshipDB;
     }

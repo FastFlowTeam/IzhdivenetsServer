@@ -9,6 +9,8 @@ import by.fastflow.repository.HibernateSessionFactory;
 import by.fastflow.utils.Constants;
 import by.fastflow.utils.ErrorConstants;
 import by.fastflow.utils.RestException;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.vk.api.sdk.client.TransportClient;
 import com.vk.api.sdk.client.VkApiClient;
 import com.vk.api.sdk.client.actors.UserActor;
@@ -18,6 +20,8 @@ import org.hibernate.ObjectNotFoundException;
 import org.hibernate.Session;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -32,7 +36,7 @@ public class RequestController extends ExceptionHandlerController<UserDB> {
     @RequestMapping(value = ADDRESS + "/create/{user_id}", method = RequestMethod.POST)
     public
     @ResponseBody
-    Map<String, Object> create(@RequestHeader(value = "token") String token, @PathVariable(value = "user_id") Long userId, @RequestParam(value = "secondUser") long gId) throws RestException {
+    String create(@RequestHeader(value = "token") String token, @PathVariable(value = "user_id") Long userId, @RequestParam(value = "secondUser") long gId) throws RestException {
         try {
             Session session = HibernateSessionFactory
                     .getSessionFactory()
@@ -45,20 +49,65 @@ public class RequestController extends ExceptionHandlerController<UserDB> {
             } else {
                 if (userF.getType() == list.get(0).getType())
                     throw new RestException(ErrorConstants.SAME_TYPE);
-                if (session.load(RelationshipDB.class, RelationshipDBPK.newKey(userF, list.get(0)))!= null)
+                if (session.get(RelationshipDB.class, RelationshipDBPK.newKey(userF, list.get(0))) != null)
                     throw new RestException(ErrorConstants.HAVE_SAME_RELATIONSHIP);
-                if (session.load(RelationshipDB.class, RelationshipDBPK.newKey(list.get(0), userF))!= null)
+                if (session.get(RelationshipDB.class, RelationshipDBPK.newKey(list.get(0), userF)) != null)
                     throw new RestException(ErrorConstants.HAVE_SAME_RELATIONSHIP);
                 session.beginTransaction();
                 session.save(RelationshipDB.createNew(userF, list.get(0)));
                 session.getTransaction().commit();
             }
-            //// TODO: 02.11.2016 getListRequests
+            List<Object[]> list1 = getAllMyRelationship(session, userF.getUserId());
             session.close();
-            return Ajax.emptyResponse();
+            return Ajax.successResponseJson(generateJson(list1));
+        } catch (RestException re) {
+            throw re;
         } catch (Exception e) {
             throw new RestException(e);
         }
+    }
+
+    @RequestMapping(value = ADDRESS + "/my/{user_id}", method = RequestMethod.GET)
+    public
+    @ResponseBody
+    String getMy(@RequestHeader(value = "token") String token, @PathVariable(value = "user_id") Long userId) throws RestException {
+        try {
+            Session session = HibernateSessionFactory
+                    .getSessionFactory()
+                    .openSession();
+            UserDB userF = UserDB.getUser(session, userId, token);
+            List<Object[]> list = getAllMyRelationship(session, userF.getUserId());
+            session.close();
+            return Ajax.successResponseJson(generateJson(list));
+        } catch (RestException re) {
+            throw re;
+        } catch (Exception e) {
+            throw new RestException(e);
+        }
+    }
+
+    private JsonArray generateJson(List<Object[]> list) {
+        JsonArray array = new JsonArray();
+        for (Object[] objects : list) {
+            JsonObject jsonObject = new JsonObject();
+            jsonObject.addProperty("state", (BigInteger) objects[8]);
+            jsonObject.add("sender", UserDB.getJson((String) objects[0], (BigInteger) objects[1], (String) objects[2], (BigInteger) objects[3]));
+            jsonObject.add("recipient", UserDB.getJson((String) objects[4], (BigInteger) objects[5], (String) objects[6], (BigInteger) objects[7]));
+            array.add(jsonObject);
+        }
+        return array;
+    }
+
+    private List<Object[]> getAllMyRelationship(Session session, long userId) {
+        return session.createSQLQuery("SELECT " +
+                "u.chat_name as a0, u.type as a1, u.photo as a2, u.g_id as a3, " +
+                "s.chat_name as a4, s.type as a5, s.photo as a6, s.g_id as a7, " +
+                "r.state as a8 " +
+                "FROM izh_scheme.relationship r " +
+                "JOIN izh_scheme.user u ON u.user_id = recipient_id " +
+                "JOIN izh_scheme.user s ON s.user_id = sender_id " +
+                "WHERE r.sender_id = " + userId + " OR r.recipient_id = " + userId)
+                .list();
     }
 
 

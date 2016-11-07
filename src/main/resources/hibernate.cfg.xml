@@ -14,6 +14,9 @@
     <mapping class="by.fastflow.DBModels.UserDB"/>
     <mapping class="by.fastflow.DBModels.AuthDB"/>
     <mapping resource="xml/AuthDB.hbm.xml"/>
+    <mapping class="by.fastflow.DBModels.TaskListPermissionsDB"/>
+    <mapping class="by.fastflow.DBModels.RelationshipDB"/>
+    <mapping class="by.fastflow.DBModels.RelationshipDBPK"/>
     <!--<mapping resource="by/fastflow/DBModels/xml/CardDB.hbm.xml"/>
     <mapping class="by.fastflow.DBModels.CardDB"/>
     <mapping resource="by/fastflow/DBModels/xml/DialogDB.hbm.xml"/>
@@ -29,7 +32,6 @@
     <mapping resource="by/fastflow/DBModels/xml/PushDB.hbm.xml"/>
     <mapping class="by.fastflow.DBModels.PushDB"/>
     <mapping resource="by/fastflow/DBModels/xml/RelationshipDB.hbm.xml"/>
-    <mapping class="by.fastflow.DBModels.RelationshipDB"/>
     <mapping resource="by/fastflow/DBModels/xml/SuccessDB.hbm.xml"/>
     <mapping class="by.fastflow.DBModels.SuccessDB"/>
     <mapping resource="by/fastflow/DBModels/xml/TaskItemDB.hbm.xml"/>
@@ -37,7 +39,6 @@
     <mapping resource="by/fastflow/DBModels/xml/TaskListDB.hbm.xml"/>
     <mapping class="by.fastflow.DBModels.TaskListDB"/>
     <mapping resource="by/fastflow/DBModels/xml/TaskListPermissionsDB.hbm.xml"/>
-    <mapping class="by.fastflow.DBModels.TaskListPermissionsDB"/>
     <mapping resource="by/fastflow/DBModels/xml/TaskPermissionsDB.hbm.xml"/>
     <mapping class="by.fastflow.DBModels.TaskPermissionsDB"/>
     <mapping resource="by/fastflow/DBModels/xml/WishItemDB.hbm.xml"/>

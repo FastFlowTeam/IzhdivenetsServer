@@ -1,9 +1,11 @@
 package by.fastflow.DBModels;
 
 import by.fastflow.utils.*;
+import com.google.gson.JsonObject;
 import org.hibernate.Session;
 
 import javax.persistence.*;
+import java.math.BigInteger;
 import java.util.Calendar;
 
 /**
@@ -124,22 +126,12 @@ public class UserDB extends UpdatableDB<UserDB> implements NextableId {
     }
 
     @Override
-    public UserDB anonimize() {
-        this.token = null;
-        this.gId = -1;
-        this.token = "";
-        return null;
-    }
-
-    @Override
     public void setNextId(Session session) {
         userId = ((UserDB) session.createQuery("from UserDB ORDER BY userId DESC").setMaxResults(1).uniqueResult()).getUserId() + 1;
     }
 
     public void updateToken() {
         token = hashCode() + Calendar.getInstance().getTimeInMillis() + "" + userId;
-        gId = Calendar.getInstance().getTimeInMillis();
-        //todo по другому генерить
     }
 
     @Override
@@ -154,6 +146,8 @@ public class UserDB extends UpdatableDB<UserDB> implements NextableId {
         userDB.setNextId(session);
         userDB.setChatName(s);
         userDB.setType(type);
+        userDB.gId = Calendar.getInstance().getTimeInMillis();
+        //todo по другому генерить
         userDB.updateToken();
         return userDB;
     }
@@ -170,5 +164,14 @@ public class UserDB extends UpdatableDB<UserDB> implements NextableId {
         if (user == null)
             throw new RestException(ErrorConstants.NOT_HAVE_ID);
         return user;
+    }
+
+    public static JsonObject getJson(String chatName, BigInteger type, String photo, BigInteger gId) {
+        JsonObject json = new JsonObject();
+        json.addProperty("chatName", chatName);
+        json.addProperty("type", type);
+        json.addProperty("photo", photo);
+        json.addProperty("gId", gId);
+        return json;
     }
 }

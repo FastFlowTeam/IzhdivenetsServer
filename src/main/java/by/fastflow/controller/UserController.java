@@ -56,6 +56,8 @@ public class UserController extends ExceptionHandlerController<UserDB> {
             session.getTransaction().commit();
             session.close();
             return Ajax.successResponse(userDB);
+        } catch (RestException re) {
+            throw re;
         } catch (Exception e) {
             throw new RestException(e);
         }
@@ -97,7 +99,7 @@ public class UserController extends ExceptionHandlerController<UserDB> {
             throw new RestException(e);
         }
     }
-
+/*
     @RequestMapping(value = ADDRESS + "/getUserInfo/{user_id}", method = RequestMethod.PUT)
     public
     @ResponseBody
@@ -107,12 +109,14 @@ public class UserController extends ExceptionHandlerController<UserDB> {
                     .getSessionFactory()
                     .openSession();
             return Ajax.successResponse((UserDB.getUser(session, userId)).anonimize());
+        } catch (RestException re) {
+            throw re;
         } catch (ObjectNotFoundException e) {
             throw new RestException(ErrorConstants.NOT_HAVE_ID);
         } catch (Exception e) {
             throw new RestException(e);
         }
-    }
+    }*/
 
     @RequestMapping(ADDRESS + "/test/")
     String home() {
