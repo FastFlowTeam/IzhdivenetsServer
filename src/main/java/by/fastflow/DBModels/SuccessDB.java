@@ -116,4 +116,17 @@ public class SuccessDB {
         result = 31 * result + (int) (state ^ (state >>> 32));
         return result;
     }
+
+    public void validate() throws RestException {
+        if ((title == null) || (title.isEmpty())||(title.length()>30))
+            throw new RestException(ErrorConstants.EMPTY_SUCCESS_TITLE);
+        if ((state != Constatnts.SUCCESS_READED)&& (state != Constants.SUCCESS_NOT_READED))
+            throw new RestException(ErrorConstants.WRONG_SUCCESS_STATE);
+        if (photo.length()>200)
+            throw new RestException(ErrorConstants.LONG_SUCCESS_PHOTO);
+        if (description.length()>200)
+            throw new RestException(ErrorConstants.LONG_SUCCESS_DESCRIPTION);
+        if (link.length()>200)
+            throw new RestException(ErrorConstants.LONG_SUCCESS_LINK);
+    }
 }

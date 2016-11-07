@@ -116,4 +116,19 @@ public class MessageDB {
         result = 31 * result + (link != null ? link.hashCode() : 0);
         return result;
     }
+    public void validate() throws RestException {
+        Date d = new Date(date)
+        Calendar Current_Calendar = Calendar.getInstance();
+        Date Current_Date = Current_Calendar.getTime();
+        if (d>Current_Date)
+            throw new RestException(ErrorConstants.MESSAGE_DATE_CONFLICTS);
+        if ((text==null)||(text.isEmpty()))
+            throw new RestException(ErrorConstants.EMPTY_MESSAGE);
+        if(text.length()>500)
+            throw new RestException(ErrorConstants.TOO_LONG_MESSAGE);
+        if((type!=Constants.MESSAGE_TYPE_SYSTEM)&&(type!=MESSAGE_TYPE_USER))
+            throw new RestException(ErrorConstants.MESSAGE_TYPE);
+        if (link.length()>200)
+            throw new RestException(ErrorConstants.LONG_MESSAGE_LINK);
+    }
 }

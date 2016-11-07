@@ -82,6 +82,14 @@ public class AuthDB implements NextableId {
         return result;
     }
 
+    public void validate() throws RestException {
+        if (type != Constants.LOGIN_TYPE_FB)&&(type != Constants.LOGIN_TYPE_VK)
+            throw new RestException(ErrorConstants.AUTH_TYPE);
+        if ((token==null)||(token.isEmpty())||((token.length()>200)))
+            throw new RestException(ErrorConstants.EMPTY_TOKEN);
+
+    }
+
     public static AuthDB createNew(Session session, int type, String token, long userId) {
         AuthDB authDB = new AuthDB();
         authDB.setToken(token);

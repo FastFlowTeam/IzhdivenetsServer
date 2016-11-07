@@ -116,8 +116,12 @@ public class UserDB extends UpdatableDB<UserDB> implements NextableId {
     public void validate() throws RestException {
         if ((type != Constants.USER_CHILD) && (type != Constants.USER_PARENT))
             throw new RestException(ErrorConstants.USER_TYPE);
-        if ((chatName == null) || (chatName.isEmpty()))
+        if ((chatName == null) || (chatName.isEmpty())||(chatName.length()>30))
             throw new RestException(ErrorConstants.USER_CHAT_NAME);
+        if ((token == null) || (token.isEmpty())||(token.length()>200))
+            throw new RestException(ErrorConstants.EMPTY_TOKEN);
+        if (photo.length()>200)
+            throw new RestException(ErrorConstants.LONG_USER_PHOTO);
     }
 
     @Override

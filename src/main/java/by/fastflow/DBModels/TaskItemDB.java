@@ -128,4 +128,15 @@ public class TaskItemDB {
         result = 31 * result + (int) (target ^ (target >>> 32));
         return result;
     }
+
+    public void validate() throws RestException {
+        if ((title == null) || (title.isEmpty())||title.length()>30)
+            throw new RestException(ErrorConstants.EMPTY_TASK_TITLE);
+        if (description.length()>200)
+            throw new RestException(ErrorConstants.LONG_TASK_DESCRIPTION);
+        if ((cost == null) || (cost.isEmpty())||cost.length()>30)
+            throw new RestException(ErrorConstants.EMPTY_TASK_COST);
+        if((state!=Constants.TASK_ITEM_VISIBLE)&&(state!=Constants.TASK_ITEM_INVISIBLE)&&(state!=Constants.TASK_ITEM_IN_PROGRESS)&&(state!=COnstants.TASK_ITEM_DONE))
+            throw new RestException(ErrorConstants.WRONG_TASK_STATE);
+    }
 }

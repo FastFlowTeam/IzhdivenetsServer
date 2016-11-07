@@ -102,4 +102,15 @@ public class TaskListDB {
         result = 31 * result + (int) (canWork ^ (canWork >>> 32));
         return result;
     }
+
+    public void validate() throws RestException {
+        if ((name == null) || (name.isEmpty())||name.length()>30)
+        throw new RestException(ErrorConstants.EMPTY_TASK_LIST_NAME);
+        if((visibility!=Constants.TASK_LIST_ALL)&&(visibility!=Constants.TASK_LIST_NOBODY)&&(visibility!=Constants.TASK_LIST_ALLOWED_USERS))
+            throw new RestException(ErrorConstants.WRONG_TASK_LIST_VISIBILITY);
+        if((canWork!=Constants.TASK_LIST_ALL)&&(canWork!=Constants.TASK_LIST_NOBODY)&&(canWork!=Constants.TASK_LIST_ALLOWED_USERS))
+            throw new RestException(ErrorConstants.WRONG_TASK_LIST_CAN_WORK);
+        if (description.length()>200)
+            throw new RestException(ErrorConstants.WRONG_TASK_LIST_DESCRIPTION);
+    }
 }

@@ -141,4 +141,22 @@ public class WishItemDB {
         result = 31 * result + (listId != null ? listId.hashCode() : 0);
         return result;
     }
+
+    public void validate() throws RestException {
+        if ((title == null) || ((title.isEmpty())||(title.length()>30))
+        throw new RestException(ErrorConstants.EMPTY_WISH_ITEM_TITLE);
+        if((visibility!=Constants.WISH_ITEM_VISIBLE)&&(visibility!=Constants.WISH_ITEM_INVISIBLE))
+            throw new RestException(ErrorConstants.WRONG_WISH_ITEM_VISIBILITY);
+        if((cost<0)||(cost>10000000000))
+            throw new RestException(ErrorConstants.WRONG_WISH_COST);
+        if(!(Constants.wish_rates.contains(wantRate)))
+            throw new RestException(ErrorConstants.WRONG_WANT_RATE);
+        if (comment.length()>200)
+            throw new RestException(ErrorConstants.LONG_WISH_COMMENT);
+        if (link).length()>200)
+            throw new RestException(ErrorConstants.LONG_WISH_LINK);
+        if (photo.length()>200)
+            throw new RestException(ErrorConstants.LONG_WISH_PHOTO);
+
+    }
 }

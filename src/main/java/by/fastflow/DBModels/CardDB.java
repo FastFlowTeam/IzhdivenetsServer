@@ -9,7 +9,7 @@ import javax.persistence.*;
 @Table(name = "card", schema = "izh_scheme", catalog = "db")
 public class CardDB {
     private long cardId;
-    private Long userId;
+    private long userId;
     private long moneyAmount;
 
     @Id
@@ -62,5 +62,12 @@ public class CardDB {
         result = 31 * result + (userId != null ? userId.hashCode() : 0);
         result = 31 * result + (int) (moneyAmount ^ (moneyAmount >>> 32));
         return result;
+    }
+
+    public void validate() throws RestException {
+        if ((moneyAmount == null)||(moneyAmount.isEmpty()))
+            throw new RestException(ErrorConstants.EMPTY_CARD_MONEY);
+        if (moneyAmount<0||moneyAmount>10000000000)
+            throw new RestException(ErrorConstants.NEGATIVE_CARD_MONEY);
     }
 }

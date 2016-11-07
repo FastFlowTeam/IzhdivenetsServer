@@ -50,4 +50,11 @@ public class DialogDB {
         result = 31 * result + (name != null ? name.hashCode() : 0);
         return result;
     }
+    public void validate() throws RestException {
+
+        if ((name == null) || (name.isEmpty())|| (name.length()>30))
+            throw new RestException(ErrorConstants.EMPTY_DIALOG_NAME);
+
+    }
+
 }

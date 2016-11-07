@@ -63,4 +63,13 @@ public class PushDB {
         result = 31 * result + (userId != null ? userId.hashCode() : 0);
         return result;
     }
+
+    public void validate() throws RestException {
+        if ((token == null) || ((token.isEmpty()))
+        throw new RestException(ErrorConstants.EMPTY_PUSH_TOKEN);
+        if(!(Constants.device_types.contains(device))
+            throw new RestException(ErrorConstants.WRONG_DEVICE);
+        if (token.length()>200)
+            throw new RestException(ErrorConstants.LONG_TOKEN);
+    }
 }
