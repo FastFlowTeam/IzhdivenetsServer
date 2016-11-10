@@ -1,4 +1,8 @@
-package by.fastflow.DBModels;
+package by.fastflow.DBModels.xml;
+
+import by.fastflow.utils.Constants;
+import by.fastflow.utils.ErrorConstants;
+import by.fastflow.utils.RestException;
 
 import javax.persistence.*;
 
@@ -65,9 +69,9 @@ public class PushDB {
     }
 
     public void validate() throws RestException {
-        if ((token == null) || ((token.isEmpty()))
+        if ((token == null) || (token.isEmpty()))
         throw new RestException(ErrorConstants.EMPTY_PUSH_TOKEN);
-        if(!(Constants.device_types.contains(device))
+        if(!Constants.device_types.contains(device))
             throw new RestException(ErrorConstants.WRONG_DEVICE);
         if (token.length()>200)
             throw new RestException(ErrorConstants.LONG_TOKEN);

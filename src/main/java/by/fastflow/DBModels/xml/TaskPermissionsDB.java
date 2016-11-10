@@ -1,18 +1,19 @@
-package by.fastflow.DBModels;
+package by.fastflow.DBModels.xml;
 
-import javax.persistence.Column;
-import javax.persistence.Id;
-import java.io.Serializable;
+import javax.persistence.*;
 
 /**
  * Created by KuSu on 22.10.2016.
  */
-public class TaskPermissionsDBPK implements Serializable {
+@Entity
+@Table(name = "task_permissions", schema = "izh_scheme", catalog = "db")
+@IdClass(TaskPermissionsDBPK.class)
+public class TaskPermissionsDB {
     private long userId;
     private long itemId;
 
-    @Column(name = "user_id", nullable = false)
     @Id
+    @Column(name = "user_id", nullable = false)
     public long getUserId() {
         return userId;
     }
@@ -21,8 +22,8 @@ public class TaskPermissionsDBPK implements Serializable {
         this.userId = userId;
     }
 
-    @Column(name = "item_id", nullable = false)
     @Id
+    @Column(name = "item_id", nullable = false)
     public long getItemId() {
         return itemId;
     }
@@ -36,7 +37,7 @@ public class TaskPermissionsDBPK implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        TaskPermissionsDBPK that = (TaskPermissionsDBPK) o;
+        TaskPermissionsDB that = (TaskPermissionsDB) o;
 
         if (userId != that.userId) return false;
         if (itemId != that.itemId) return false;

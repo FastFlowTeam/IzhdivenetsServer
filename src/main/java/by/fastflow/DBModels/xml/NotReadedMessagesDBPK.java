@@ -1,4 +1,4 @@
-package by.fastflow.DBModels;
+package by.fastflow.DBModels.xml;
 
 import javax.persistence.Column;
 import javax.persistence.Id;

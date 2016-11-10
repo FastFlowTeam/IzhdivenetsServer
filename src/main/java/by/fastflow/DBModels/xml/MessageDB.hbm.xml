@@ -4,7 +4,7 @@
     "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 <hibernate-mapping>
 
-    <class name="by.fastflow.DBModels.MessageDB" table="message" schema="izh_scheme" catalog="db">
+    <class name="by.fastflow.DBModels.xml.MessageDB" table="message" schema="izh_scheme" catalog="db">
         <id name="messageId">
             <column name="message_id" sql-type="bigint"/>
         </id>

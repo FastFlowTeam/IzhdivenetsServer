@@ -42,7 +42,6 @@ public class ErrorConstants {
     public static final int WRONG_NOT_READED_SUCCESS_NUMBER = 35;
     public static final int EMPTY_NOT_READED_MESSAGES_NUMBER = 36;
     public static final int WRONG_NOT_READED_MESSAGES_NUMBER = 37;
-    public static final int WRONG_NOT_READED_MESSAGES_NUMBER = 37;
     public static final int WRONG_TEXT_SIZE = 38;
     public static final int LONG_MESSAGE_LINK = 39;
     public static final int LONG_SUCCESS_DESCRIPTION = 40;
@@ -55,8 +54,8 @@ public class ErrorConstants {
     public static final int LONG_WISH_LINK = 47;
     public static final int LONG_WISH_PHOTO = 48;
     public static final int LONG_WISH_LIST_DESCRIPTION = 49;
-
-
-
-
+    public static final int WRONG_RELATIONSHIP_STATE = 50;
+    public static final int NOT_HAVE_SAME_RELATIONSHIP = 51;
+    public static final int NOT_CORRECT_USER_TYPE = 52;
+    public static final int LONG_TOKEN = 53;
 }

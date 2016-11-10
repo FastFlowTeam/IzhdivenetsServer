@@ -1,4 +1,7 @@
-package by.fastflow.DBModels;
+package by.fastflow.DBModels.xml;
+
+import by.fastflow.utils.ErrorConstants;
+import by.fastflow.utils.RestException;
 
 import javax.persistence.*;
 
@@ -51,7 +54,7 @@ public class CardDB {
 
         if (cardId != cardDB.cardId) return false;
         if (moneyAmount != cardDB.moneyAmount) return false;
-        if (userId != null ? !userId.equals(cardDB.userId) : cardDB.userId != null) return false;
+        if (userId != cardDB.userId) return false;
 
         return true;
     }
@@ -59,15 +62,13 @@ public class CardDB {
     @Override
     public int hashCode() {
         int result = (int) (cardId ^ (cardId >>> 32));
-        result = 31 * result + (userId != null ? userId.hashCode() : 0);
+        result = 31 * result + (int) (userId ^ (userId >>> 32));
         result = 31 * result + (int) (moneyAmount ^ (moneyAmount >>> 32));
         return result;
     }
 
     public void validate() throws RestException {
-        if ((moneyAmount == null)||(moneyAmount.isEmpty()))
-            throw new RestException(ErrorConstants.EMPTY_CARD_MONEY);
-        if (moneyAmount<0||moneyAmount>10000000000)
+        if (moneyAmount<0||moneyAmount>1000000000)
             throw new RestException(ErrorConstants.NEGATIVE_CARD_MONEY);
     }
 }

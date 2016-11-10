@@ -114,19 +114,24 @@ public class UserDB extends UpdatableDB<UserDB> implements NextableId {
     }
 
     public void validate() throws RestException {
-        if ((type != Constants.USER_CHILD) && (type != Constants.USER_PARENT))
+        if (!Constants.user_types.contains(type))
             throw new RestException(ErrorConstants.USER_TYPE);
         if ((chatName == null) || (chatName.isEmpty())||(chatName.length()>30))
             throw new RestException(ErrorConstants.USER_CHAT_NAME);
-        if ((token == null) || (token.isEmpty())||(token.length()>200))
-            throw new RestException(ErrorConstants.EMPTY_TOKEN);
-        if (photo.length()>200)
+        if ((photo != null) && (photo.length()>200))
             throw new RestException(ErrorConstants.LONG_USER_PHOTO);
     }
 
     @Override
-    public boolean havePermissionToModify(Session session, String token) {
-        return this.token.equals(token);
+    public void havePermissionToModify(Session session, String token) throws RestException {
+        if (!this.getToken().equals(token)) {
+            throw new RestException(ErrorConstants.PERMISSION_BY_TOKEN);
+        }
+    }
+
+    @Override
+    public void havePermissionToDelete(Session session, String token) throws RestException {
+        havePermissionToModify(session, token);
     }
 
     @Override
@@ -177,5 +182,13 @@ public class UserDB extends UpdatableDB<UserDB> implements NextableId {
         json.addProperty("photo", photo);
         json.addProperty("gId", gId);
         return json;
+    }
+
+    public boolean isChild() {
+        return type == Constants.USER_CHILD;
+    }
+
+    public boolean isParent() {
+        return type == Constants.USER_PARENT;
     }
 }

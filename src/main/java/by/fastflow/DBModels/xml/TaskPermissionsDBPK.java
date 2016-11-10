@@ -1,19 +1,18 @@
-package by.fastflow.DBModels;
+package by.fastflow.DBModels.xml;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Id;
+import java.io.Serializable;
 
 /**
  * Created by KuSu on 22.10.2016.
  */
-@Entity
-@Table(name = "task_list_permissions", schema = "izh_scheme", catalog = "db")
-@IdClass(TaskListPermissionsDBPK.class)
-public class TaskListPermissionsDB {
+public class TaskPermissionsDBPK implements Serializable {
     private long userId;
-    private long listId;
+    private long itemId;
 
-    @Id
     @Column(name = "user_id", nullable = false)
+    @Id
     public long getUserId() {
         return userId;
     }
@@ -22,14 +21,14 @@ public class TaskListPermissionsDB {
         this.userId = userId;
     }
 
+    @Column(name = "item_id", nullable = false)
     @Id
-    @Column(name = "list_id", nullable = false)
-    public long getListId() {
-        return listId;
+    public long getItemId() {
+        return itemId;
     }
 
-    public void setListId(long listId) {
-        this.listId = listId;
+    public void setItemId(long itemId) {
+        this.itemId = itemId;
     }
 
     @Override
@@ -37,10 +36,10 @@ public class TaskListPermissionsDB {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        TaskListPermissionsDB that = (TaskListPermissionsDB) o;
+        TaskPermissionsDBPK that = (TaskPermissionsDBPK) o;
 
         if (userId != that.userId) return false;
-        if (listId != that.listId) return false;
+        if (itemId != that.itemId) return false;
 
         return true;
     }
@@ -48,7 +47,7 @@ public class TaskListPermissionsDB {
     @Override
     public int hashCode() {
         int result = (int) (userId ^ (userId >>> 32));
-        result = 31 * result + (int) (listId ^ (listId >>> 32));
+        result = 31 * result + (int) (itemId ^ (itemId >>> 32));
         return result;
     }
 }

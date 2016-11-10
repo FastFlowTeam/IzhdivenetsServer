@@ -1,5 +1,9 @@
 package by.fastflow.DBModels;
 
+import by.fastflow.utils.*;
+import com.google.gson.JsonObject;
+import org.hibernate.Session;
+
 import javax.persistence.*;
 
 /**
@@ -7,7 +11,7 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "success", schema = "izh_scheme", catalog = "db")
-public class SuccessDB {
+public class SuccessDB extends UpdatableDB<SuccessDB> implements NextableId {
     private long successId;
     private long userId;
     private String title;
@@ -117,16 +121,65 @@ public class SuccessDB {
         return result;
     }
 
+    @Override
+    public void updateBy(SuccessDB up) {
+        title = up.title;
+        description = up.description;
+        photo = up.photo;
+        link = up.link;
+    }
+
     public void validate() throws RestException {
-        if ((title == null) || (title.isEmpty())||(title.length()>30))
+        if ((title == null) || (title.isEmpty()) || (title.length() > 30))
             throw new RestException(ErrorConstants.EMPTY_SUCCESS_TITLE);
-        if ((state != Constatnts.SUCCESS_READED)&& (state != Constants.SUCCESS_NOT_READED))
+        if (!Constants.success_types.contains(state))
             throw new RestException(ErrorConstants.WRONG_SUCCESS_STATE);
-        if (photo.length()>200)
+        if ((photo != null) && photo.length() > 200)
             throw new RestException(ErrorConstants.LONG_SUCCESS_PHOTO);
-        if (description.length()>200)
+        if ((description != null) && description.length() > 200)
             throw new RestException(ErrorConstants.LONG_SUCCESS_DESCRIPTION);
-        if (link.length()>200)
+        if ((link != null) && link.length() > 200)
             throw new RestException(ErrorConstants.LONG_SUCCESS_LINK);
+    }
+
+    @Override
+    public void havePermissionToModify(Session session, String token) throws RestException {
+        UserDB.getUser(session, userId, token);
+    }
+
+    @Override
+    public void havePermissionToDelete(Session session, String token) throws RestException {
+        UserDB.getUser(session, userId, token);
+    }
+
+    public static SuccessDB getSuccess(Session session, Long successId) throws RestException {
+        SuccessDB success = ((SuccessDB) session.load(SuccessDB.class, successId));
+        if (success == null)
+            throw new RestException(ErrorConstants.NOT_HAVE_ID);
+        return success;
+    }
+
+    @Override
+    public void setNextId(Session session) {
+        successId = ((SuccessDB) session.createQuery("from SuccessDB ORDER BY successId DESC").setMaxResults(1).uniqueResult()).getSuccessId() + 1;
+    }
+
+    public static JsonObject getJson(SuccessDB s) {
+        JsonObject object = new JsonObject();
+        object.addProperty("successId", s.successId);
+        object.addProperty("title", s.title);
+        object.addProperty("description", s.description);
+        object.addProperty("photo", s.photo);
+        object.addProperty("link", s.link);
+        object.addProperty("state", s.state);
+        return object;
+    }
+
+    public boolean isNotRead() {
+        return state == Constants.SUCCESS_NOT_READED;
+    }
+
+    public void read() {
+        state = Constants.SUCCESS_READED;
     }
 }

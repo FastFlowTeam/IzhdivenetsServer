@@ -73,7 +73,9 @@ public class UserController extends ExceptionHandlerController<UserDB> {
             Session session = HibernateSessionFactory
                     .getSessionFactory()
                     .openSession();
-            return user.updateInBDWithToken(session, UserDB.getUser(session, userId), token);
+            UserDB up = user.updateInBDWithToken(session, UserDB.getUser(session, userId), token);
+            session.close();
+            return Ajax.successResponse(up);
         } catch (RestException re) {
             throw re;
         } catch (Exception e) {
@@ -90,7 +92,8 @@ public class UserController extends ExceptionHandlerController<UserDB> {
             Session session = HibernateSessionFactory
                     .getSessionFactory()
                     .openSession();
-            return UserDB.getUser(session, userId, token).delete(session, this, token);
+            UserDB.getUser(session, userId, token).delete(session, token);
+            return Ajax.emptyResponse();
         } catch (RestException re) {
             throw re;
         } catch (ObjectNotFoundException e) {

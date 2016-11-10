@@ -4,7 +4,7 @@
     "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 <hibernate-mapping>
 
-    <class name="by.fastflow.DBModels.TaskListDB" table="task_list" schema="izh_scheme" catalog="db">
+    <class name="by.fastflow.DBModels.xml.TaskListDB" table="task_list" schema="izh_scheme" catalog="db">
         <id name="listId">
             <column name="list_id" sql-type="bigint"/>
         </id>

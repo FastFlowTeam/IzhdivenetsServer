@@ -4,9 +4,9 @@
     "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 <hibernate-mapping>
 
-    <class name="by.fastflow.DBModels.NotReadedMessagesDB" table="not_readed_messages" schema="izh_scheme"
+    <class name="by.fastflow.DBModels.xml.NotReadedMessagesDB" table="not_readed_messages" schema="izh_scheme"
            catalog="db">
-        <composite-id mapped="true" class="by.fastflow.DBModels.NotReadedMessagesDBPK">
+        <composite-id mapped="true" class="by.fastflow.DBModels.xml.NotReadedMessagesDBPK">
             <key-property name="userId">
                 <column name="user_id" sql-type="bigint"/>
             </key-property>

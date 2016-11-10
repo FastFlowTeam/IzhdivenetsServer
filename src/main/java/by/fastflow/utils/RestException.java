@@ -54,10 +54,12 @@ public class RestException extends Exception {
                 return "Token is empty or too long";
             case ErrorConstants.NOT_CORRECT_TOKEN:
                 return "Not correct token";
+            case ErrorConstants.NOT_CORRECT_USER_TYPE:
+                return "Not correct user type";
             case ErrorConstants.NOT_HAVE_GID:
                 return "No such gId";
             case ErrorConstants.NOT_HAVE_ID:
-                return "No such user";
+                return "No such id";
             case ErrorConstants.PERMISSION_BY_TOKEN:
                 return "Not have permission for this";
             case ErrorConstants.SAME_TYPE:
@@ -68,6 +70,8 @@ public class RestException extends Exception {
                 return "Not set user type";
             case ErrorConstants.HAVE_SAME_RELATIONSHIP:
                 return "You have relationship with this user";
+            case ErrorConstants.NOT_HAVE_SAME_RELATIONSHIP:
+                return "You not have relationship with this user";
             case ErrorConstants.EMPTY_CARD_MONEY:
                 return "Card money amount is empty";
             case ErrorConstants.NEGATIVE_CARD_MONEY:
@@ -150,6 +154,8 @@ public class RestException extends Exception {
                 return "Wish photo link is too long";
             case ErrorConstants.LONG_WISH_LIST_DESCRIPTION:
                 return "Wish list description is too long";
+            case ErrorConstants.WRONG_RELATIONSHIP_STATE:
+                return "Relationship state is not defined correctly";
         }
     }
 }

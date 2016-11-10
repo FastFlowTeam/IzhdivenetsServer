@@ -1,4 +1,7 @@
-package by.fastflow.DBModels;
+package by.fastflow.DBModels.xml;
+
+import by.fastflow.utils.ErrorConstants;
+import by.fastflow.utils.RestException;
 
 import javax.persistence.*;
 
@@ -51,10 +54,8 @@ public class DialogDB {
         return result;
     }
     public void validate() throws RestException {
-
         if ((name == null) || (name.isEmpty())|| (name.length()>30))
             throw new RestException(ErrorConstants.EMPTY_DIALOG_NAME);
-
     }
 
 }

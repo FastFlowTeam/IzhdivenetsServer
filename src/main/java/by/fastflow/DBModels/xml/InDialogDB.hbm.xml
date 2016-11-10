@@ -4,8 +4,8 @@
     "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 <hibernate-mapping>
 
-    <class name="by.fastflow.DBModels.InDialogDB" table="in_dialog" schema="izh_scheme" catalog="db">
-        <composite-id mapped="true" class="by.fastflow.DBModels.InDialogDBPK">
+    <class name="by.fastflow.DBModels.xml.InDialogDB" table="in_dialog" schema="izh_scheme" catalog="db">
+        <composite-id mapped="true" class="by.fastflow.DBModels.xml.InDialogDBPK">
             <key-property name="dialogId">
                 <column name="dialog_id" sql-type="bigint"/>
             </key-property>

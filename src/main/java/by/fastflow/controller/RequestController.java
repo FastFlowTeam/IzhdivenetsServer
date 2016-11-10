@@ -1,7 +1,6 @@
 package by.fastflow.controller;
 
 import by.fastflow.Ajax;
-import by.fastflow.DBModels.AuthDB;
 import by.fastflow.DBModels.RelationshipDB;
 import by.fastflow.DBModels.RelationshipDBPK;
 import by.fastflow.DBModels.UserDB;
@@ -11,19 +10,11 @@ import by.fastflow.utils.ErrorConstants;
 import by.fastflow.utils.RestException;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.vk.api.sdk.client.TransportClient;
-import com.vk.api.sdk.client.VkApiClient;
-import com.vk.api.sdk.client.actors.UserActor;
-import com.vk.api.sdk.httpclient.HttpTransportClient;
-import com.vk.api.sdk.objects.account.UserSettings;
-import org.hibernate.ObjectNotFoundException;
 import org.hibernate.Session;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by KuSu on 01.07.2016.
@@ -42,7 +33,6 @@ public class RequestController extends ExceptionHandlerController<UserDB> {
                     .getSessionFactory()
                     .openSession();
             UserDB userF = UserDB.getUser(session, userId, token);
-            UserDB userS = null;
             List<UserDB> list = session.createQuery("from UserDB where gId = " + gId).list();
             if (list.size() == 0) {
                 throw new RestException(ErrorConstants.NOT_HAVE_GID);
@@ -57,14 +47,18 @@ public class RequestController extends ExceptionHandlerController<UserDB> {
                 session.save(RelationshipDB.createNew(userF, list.get(0)));
                 session.getTransaction().commit();
             }
-            List<Object[]> list1 = getAllMyRelationship(session, userF.getUserId());
-            session.close();
-            return Ajax.successResponseJson(generateJson(list1));
+            return all(session, userF);
         } catch (RestException re) {
             throw re;
         } catch (Exception e) {
             throw new RestException(e);
         }
+    }
+
+    private String all(Session session, UserDB userF) {
+        List<Object[]> list = getAllMyRelationship(session, userF.getUserId());
+        session.close();
+        return Ajax.successResponseJson(generateJson(list));
     }
 
     @RequestMapping(value = ADDRESS + "/my/{user_id}", method = RequestMethod.GET)
@@ -76,15 +70,72 @@ public class RequestController extends ExceptionHandlerController<UserDB> {
                     .getSessionFactory()
                     .openSession();
             UserDB userF = UserDB.getUser(session, userId, token);
-            List<Object[]> list = getAllMyRelationship(session, userF.getUserId());
-            session.close();
-            return Ajax.successResponseJson(generateJson(list));
+            return all(session, userF);
         } catch (RestException re) {
             throw re;
         } catch (Exception e) {
             throw new RestException(e);
         }
     }
+
+    @RequestMapping(value = ADDRESS + "/update/{user_id}", method = RequestMethod.PUT)
+    public
+    @ResponseBody
+    String update(@RequestHeader(value = "token") String token, @PathVariable(value = "user_id") Long userId, @RequestParam(value = "secondUser") long gId, @RequestParam(value = "state") int state) throws RestException {
+        try {
+            Session session = HibernateSessionFactory
+                    .getSessionFactory()
+                    .openSession();
+            UserDB userF = UserDB.getUser(session, userId, token);
+            List<UserDB> list = session.createQuery("from UserDB where gId = " + gId).list();
+            if (list.size() == 0) {
+                throw new RestException(ErrorConstants.NOT_HAVE_GID);
+            } else {
+                RelationshipDB relationshipDB = (RelationshipDB) session.get(RelationshipDB.class, RelationshipDBPK.newKey(list.get(0), userF));
+                if (relationshipDB == null)
+                    throw new RestException(ErrorConstants.NOT_HAVE_SAME_RELATIONSHIP);
+                RelationshipDB.createNew(list.get(0), userF, state).updateInBDWithToken(session, relationshipDB, token);
+            }
+            return all(session, userF);
+        } catch (RestException re) {
+            throw re;
+        } catch (Exception e) {
+            throw new RestException(e);
+        }
+    }
+
+    @RequestMapping(value = ADDRESS + "/delete/{user_id}", method = RequestMethod.DELETE)
+    public
+    @ResponseBody
+    String delete(@RequestHeader(value = "token") String token, @PathVariable(value = "user_id") Long userId, @RequestParam(value = "secondUser") long gId) throws RestException {
+        try {
+            Session session = HibernateSessionFactory
+                    .getSessionFactory()
+                    .openSession();
+            UserDB userF = UserDB.getUser(session, userId, token);
+            List<UserDB> list = session.createQuery("from UserDB where gId = " + gId).list();
+            if (list.size() == 0) {
+                throw new RestException(ErrorConstants.NOT_HAVE_GID);
+            } else {
+                RelationshipDB relationshipDB1 = (RelationshipDB) session.get(RelationshipDB.class, RelationshipDBPK.newKey(list.get(0), userF));
+                RelationshipDB relationshipDB2 = (RelationshipDB) session.get(RelationshipDB.class, RelationshipDBPK.newKey(list.get(0), userF));
+                if (relationshipDB1 == null) {
+                    if (relationshipDB2 == null)
+                        throw new RestException(ErrorConstants.NOT_HAVE_SAME_RELATIONSHIP);
+                    else
+                        relationshipDB2.delete(session, token);
+                } else {
+                    relationshipDB1.delete(session, token);
+                }
+            }
+            return all(session, userF);
+        } catch (RestException re) {
+            throw re;
+        } catch (Exception e) {
+            throw new RestException(e);
+        }
+    }
+
 
     private JsonArray generateJson(List<Object[]> list) {
         JsonArray array = new JsonArray();

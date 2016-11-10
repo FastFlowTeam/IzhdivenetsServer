@@ -1,4 +1,4 @@
-package by.fastflow.DBModels;
+package by.fastflow.DBModels.xml;
 
 import javax.persistence.*;
 
@@ -63,12 +63,5 @@ public class NotReadedMessagesDB {
         result = 31 * result + (int) (dialogId ^ (dialogId >>> 32));
         result = 31 * result + (int) (number ^ (number >>> 32));
         return result;
-    }
-    public void validate() throws RestException {
-        if ((number == null) || ((number.isEmpty()))
-        throw new RestException(ErrorConstants.EMPTY_NOT_READED_MESSAGES_NUMBER);
-        if ((number < 0) || ((number>1000000))
-        throw new RestException(ErrorConstants.WRONG_NOT_READED_MESSAGES_NUMBER);
-
     }
 }

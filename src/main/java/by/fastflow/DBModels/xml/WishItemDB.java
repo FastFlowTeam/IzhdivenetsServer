@@ -1,4 +1,8 @@
-package by.fastflow.DBModels;
+package by.fastflow.DBModels.xml;
+
+import by.fastflow.utils.Constants;
+import by.fastflow.utils.ErrorConstants;
+import by.fastflow.utils.RestException;
 
 import javax.persistence.*;
 
@@ -143,18 +147,22 @@ public class WishItemDB {
     }
 
     public void validate() throws RestException {
-        if ((title == null) || ((title.isEmpty())||(title.length()>30))
+        if ((title == null) || ((title.isEmpty())||(title.length()>30)))
         throw new RestException(ErrorConstants.EMPTY_WISH_ITEM_TITLE);
-        if((visibility!=Constants.WISH_ITEM_VISIBLE)&&(visibility!=Constants.WISH_ITEM_INVISIBLE))
+        //// TODO: 10.11.2016
+        if((visibility!= Constants.WISH_ITEM_VISIBLE)&&(visibility!=Constants.WISH_ITEM_INVISIBLE))
             throw new RestException(ErrorConstants.WRONG_WISH_ITEM_VISIBILITY);
-        if((cost<0)||(cost>10000000000))
+        if((cost<0)||(cost>1000000000))
             throw new RestException(ErrorConstants.WRONG_WISH_COST);
         if(!(Constants.wish_rates.contains(wantRate)))
             throw new RestException(ErrorConstants.WRONG_WANT_RATE);
+        //// TODO: 10.11.2016
         if (comment.length()>200)
             throw new RestException(ErrorConstants.LONG_WISH_COMMENT);
-        if (link).length()>200)
+        //// TODO: 10.11.2016
+        if (link.length()>200)
             throw new RestException(ErrorConstants.LONG_WISH_LINK);
+        //// TODO: 10.11.2016
         if (photo.length()>200)
             throw new RestException(ErrorConstants.LONG_WISH_PHOTO);
 

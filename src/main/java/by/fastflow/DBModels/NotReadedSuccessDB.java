@@ -77,11 +77,12 @@ public class NotReadedSuccessDB {
         result = 31 * result + (int) (number ^ (number >>> 32));
         return result;
     }
-    public void validate() throws RestException {
-        if ((number == null) || ((number.isEmpty()))
-        throw new RestException(ErrorConstants.EMPTY_NOT_READED_SUCCESS_NUMBER);
-        if ((number < 0) || ((number>1000000))
-        throw new RestException(ErrorConstants.WRONG_NOT_READED_SUCCESS_NUMBER);
 
-    }
+//    public void validate() throws RestException {
+//        if ((number == null) || ((number.isEmpty()))
+//        throw new RestException(ErrorConstants.EMPTY_NOT_READED_SUCCESS_NUMBER);
+//        if ((number < 0) || ((number>1000000))
+//        throw new RestException(ErrorConstants.WRONG_NOT_READED_SUCCESS_NUMBER);
+//
+//    }
 }
