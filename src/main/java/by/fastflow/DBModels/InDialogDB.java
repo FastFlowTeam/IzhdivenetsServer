@@ -1,4 +1,6 @@
-package by.fastflow.DBModels.xml;
+package by.fastflow.DBModels;
+
+import by.fastflow.DBModels.pk.InDialogDBPK;
 
 import javax.persistence.*;
 
@@ -11,6 +13,11 @@ import javax.persistence.*;
 public class InDialogDB {
     private long dialogId;
     private long userId;
+
+    public InDialogDB(Long user, long dialogId) {
+        this.userId = user;
+        this.dialogId = dialogId;
+    }
 
     @Id
     @Column(name = "dialog_id", nullable = false)

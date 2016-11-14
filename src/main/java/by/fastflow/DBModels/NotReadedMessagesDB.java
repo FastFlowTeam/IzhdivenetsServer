@@ -1,4 +1,6 @@
-package by.fastflow.DBModels.xml;
+package by.fastflow.DBModels;
+
+import by.fastflow.DBModels.pk.NotReadedMessagesDBPK;
 
 import javax.persistence.*;
 

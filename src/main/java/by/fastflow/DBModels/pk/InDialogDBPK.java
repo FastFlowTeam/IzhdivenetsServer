@@ -1,4 +1,4 @@
-package by.fastflow.DBModels.xml;
+package by.fastflow.DBModels.pk;
 
 import javax.persistence.Column;
 import javax.persistence.Id;
@@ -7,18 +7,13 @@ import java.io.Serializable;
 /**
  * Created by KuSu on 22.10.2016.
  */
-public class NotReadedMessagesDBPK implements Serializable {
-    private long userId;
+public class InDialogDBPK implements Serializable {
     private long dialogId;
+    private long userId;
 
-    @Column(name = "user_id", nullable = false)
-    @Id
-    public long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(long userId) {
+    public InDialogDBPK(Long userId, Long dialogId) {
         this.userId = userId;
+        this.dialogId = dialogId;
     }
 
     @Column(name = "dialog_id", nullable = false)
@@ -31,23 +26,33 @@ public class NotReadedMessagesDBPK implements Serializable {
         this.dialogId = dialogId;
     }
 
+    @Column(name = "user_id", nullable = false)
+    @Id
+    public long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(long userId) {
+        this.userId = userId;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        NotReadedMessagesDBPK that = (NotReadedMessagesDBPK) o;
+        InDialogDBPK that = (InDialogDBPK) o;
 
-        if (userId != that.userId) return false;
         if (dialogId != that.dialogId) return false;
+        if (userId != that.userId) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = (int) (userId ^ (userId >>> 32));
-        result = 31 * result + (int) (dialogId ^ (dialogId >>> 32));
+        int result = (int) (dialogId ^ (dialogId >>> 32));
+        result = 31 * result + (int) (userId ^ (userId >>> 32));
         return result;
     }
 }

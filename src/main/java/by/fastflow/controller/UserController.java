@@ -23,7 +23,7 @@ import java.util.Map;
  * Created by KuSu on 01.07.2016.
  */
 @RestController
-public class UserController extends ExceptionHandlerController<UserDB> {
+public class UserController extends ExceptionHandlerController{
 
     private static final String ADDRESS = Constants.DEF_SERVER + "user";
 
@@ -96,8 +96,6 @@ public class UserController extends ExceptionHandlerController<UserDB> {
             return Ajax.emptyResponse();
         } catch (RestException re) {
             throw re;
-        } catch (ObjectNotFoundException e) {
-            throw new RestException(ErrorConstants.NOT_HAVE_ID);
         } catch (Exception e) {
             throw new RestException(e);
         }

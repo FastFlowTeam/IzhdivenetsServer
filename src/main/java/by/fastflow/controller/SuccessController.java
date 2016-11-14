@@ -1,20 +1,17 @@
 package by.fastflow.controller;
 
 import by.fastflow.Ajax;
-import by.fastflow.DBModels.SuccessDB;
-import by.fastflow.DBModels.UserDB;
+import by.fastflow.DBModels.*;
+import by.fastflow.DBModels.pk.NotReadedSuccessDBPK;
 import by.fastflow.repository.HibernateSessionFactory;
 import by.fastflow.utils.Constants;
 import by.fastflow.utils.ErrorConstants;
 import by.fastflow.utils.RestException;
 import com.google.gson.JsonArray;
-import com.vk.api.sdk.objects.users.UserLim;
 import org.hibernate.ObjectNotFoundException;
 import org.hibernate.Session;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -22,7 +19,7 @@ import java.util.Map;
  * Created by KuSu on 01.07.2016.
  */
 @RestController
-public class SuccessController extends ExceptionHandlerController<SuccessDB> {
+public class SuccessController extends ExceptionHandlerController {
 
     private static final String ADDRESS = Constants.DEF_SERVER + "success";
 
@@ -67,6 +64,9 @@ public class SuccessController extends ExceptionHandlerController<SuccessDB> {
             session.beginTransaction();
             session.save(success);
             session.getTransaction().commit();
+
+            updateNotReaded(session, user);
+
             session.close();
             return Ajax.successResponse(success);
         } catch (RestException re) {
@@ -75,6 +75,23 @@ public class SuccessController extends ExceptionHandlerController<SuccessDB> {
             throw new RestException(e);
         }
     }
+
+    private void updateNotReaded(Session session, UserDB child) {
+        List<Object[]> list = RequestController.getAllMyAcceptedRelationship(session, child.getUserId());
+        for (Object[] objects : list) {
+            NotReadedSuccessDB not = (NotReadedSuccessDB) session.get(NotReadedSuccessDB.class, new NotReadedSuccessDBPK(
+                    Constants.convertL(Constants.convertL(objects[0]) == child.getUserId() ? objects[1] : objects[0]), child.getUserId()));
+            if (not == null) {
+                not = new NotReadedSuccessDB(Constants.convertL(Constants.convertL(objects[0]) == child.getUserId() ? objects[1] : objects[0]), child.getUserId(), 1);
+            } else {
+                not.moreNotRead();
+            }
+            session.beginTransaction();
+            session.saveOrUpdate(not);
+            session.getTransaction().commit();
+        }
+    }
+
 
     private String allMy(Session session, UserDB user, int START_NUM) {
         List<SuccessDB> list = session.createQuery("from SuccessDB order by successId DESC where userId = " + user.getUserId()).setFirstResult(START_NUM).setMaxResults(Constants.PAGE_RESULT).list();
@@ -85,8 +102,8 @@ public class SuccessController extends ExceptionHandlerController<SuccessDB> {
         return Ajax.successResponseJson(array);
     }
 
-    private String allNotMy(Session session, UserDB user, int START_NUM) {
-        List<SuccessDB> list = session.createQuery("from SuccessDB order by successId DESC where userId = " + user.getUserId()).setFirstResult(START_NUM).setMaxResults(Constants.PAGE_RESULT).list();
+    private String allNotMy(Session session, UserDB user, UserDB child, int START_NUM) {
+        List<SuccessDB> list = session.createQuery("from SuccessDB order by successId DESC where userId = " + child.getUserId()).setFirstResult(START_NUM).setMaxResults(Constants.PAGE_RESULT).list();
         JsonArray array = new JsonArray();
         for (SuccessDB item : list) {
             array.add(SuccessDB.getJson(item));
@@ -97,54 +114,54 @@ public class SuccessController extends ExceptionHandlerController<SuccessDB> {
                 session.getTransaction().commit();
             }
         }
-        // TODO: 10.11.2016 прочитать их все в нот рид
+        ReadAll(session, user, child);
         session.close();
         return Ajax.successResponseJson(array);
     }
 
-//    private String allNotMy(Session session, UserDB user, int START_NUM) {
-//        List<Object[]> objects = getMyChild(session, user.getUserId());
-//        List<SuccessDB> list = new ArrayList<>();
-//        if (objects.size() > 0)
-//            list.addAll(session.createQuery(
-//                    "from SuccessDB order by successId DESC where userId = " + getStringIds(objects, user.getUserId()))
-//                    .setFirstResult(START_NUM).setMaxResults(Constants.PAGE_RESULT).list());
-//        JsonArray array = new JsonArray();
-//        for (SuccessDB item : list)
-//            array.add(SuccessDB.getJson(item));
-//        session.close();
-//        // TODO: 10.11.2016 прочитать их все и обновить в этой табле и в нот рид
-//        return Ajax.successResponseJson(array);
-//    }
-//
-//    private String getStringIds(List<Object[]> objects, long userId) {
-//        String res = getId(objects.get(0), userId) + "";
-//        for (int i = 1; i < objects.size(); i++)
-//            res += " or userId = " + getId(objects.get(i), userId);
-//        return res;
-//    }
-//
-//    private long getId(Object[] objects, long userId) {
-//        if (convertToLong(objects[0]) == userId)
-//            return convertToLong(objects[1]);
-//        else
-//            return convertToLong(objects[0]);
-//    }
-//
-//    private long convertToLong(Object object) {
-//        return ((BigInteger) object).longValue();
-//    }
-//
-//    private List<Object[]> getMyChild(Session session, long userId) {
-//        return session.createSQLQuery("SELECT " +
-//                "u.user_id as a0, " +
-//                "s.user_id as a1 " +
-//                "FROM izh_scheme.relationship r " +
-//                "JOIN izh_scheme.user u ON u.user_id = recipient_id " +
-//                "JOIN izh_scheme.user s ON s.user_id = sender_id " +
-//                "WHERE r.sender_id = " + userId + " OR r.recipient_id = " + userId)
-//                .list();
-//    }
+    private void ReadAll(Session session, UserDB user, UserDB child) {
+        NotReadedSuccessDB not = (NotReadedSuccessDB) session.get(NotReadedSuccessDB.class, new NotReadedSuccessDBPK(user, child));
+        if (not == null) {
+            not = new NotReadedSuccessDB(user, child, 0);
+        }
+        not.readAll();
+        session.beginTransaction();
+        session.saveOrUpdate(not);
+        session.getTransaction().commit();
+    }
+
+    @RequestMapping(value = ADDRESS + "/praised/{user_id}/{success_id}", method = RequestMethod.PUT)
+    public
+    @ResponseBody
+    Map<String, Object> praised(@PathVariable(value = "success_id") Long successId,
+                                @PathVariable(value = "user_id") Long userId,
+                                @RequestHeader(value = "token") String token) throws RestException {
+        try {
+            Session session = HibernateSessionFactory
+                    .getSessionFactory()
+                    .openSession();
+            SuccessDB successDB = SuccessDB.getSuccess(session, successId);
+
+            UserDB user = UserDB.getUser(session, userId, token);
+            UserDB child = UserDB.getUser(session, successDB.getUserId());
+
+            RequestController.haveRelationship(session, user, child);
+
+            session.beginTransaction();
+            successDB.praised();
+            session.update(successDB);
+            session.getTransaction().commit();
+
+            session.close();
+            return Ajax.emptyResponse();
+        } catch (RestException re) {
+            throw re;
+        } catch (ObjectNotFoundException e) {
+            throw new RestException(ErrorConstants.NOT_HAVE_ID);
+        } catch (Exception e) {
+            throw new RestException(e);
+        }
+    }
 
     @RequestMapping(value = ADDRESS + "/getAll/{user_id}/{page}", method = RequestMethod.GET)
     public
@@ -183,8 +200,34 @@ public class SuccessController extends ExceptionHandlerController<SuccessDB> {
             if (!user.isParent())
                 throw new RestException(ErrorConstants.NOT_CORRECT_USER_TYPE);
 
-            // TODO: 11.11.2016 проверить возможность
-            return allNotMy(session, child, page * Constants.PAGE_RESULT);
+            RequestController.haveRelationship(session, user, child);
+
+            return allNotMy(session, user, child, page * Constants.PAGE_RESULT);
+        } catch (RestException re) {
+            throw re;
+        } catch (Exception e) {
+            throw new RestException(e);
+        }
+    }
+
+    @RequestMapping(value = ADDRESS + "/getAllChilds/{user_id}/", method = RequestMethod.GET)
+    public
+    @ResponseBody
+    String getAllChilds(@PathVariable(value = "user_id") Long userId,
+                        @RequestHeader(value = "token") String token) throws RestException {
+        try {
+            Session session = HibernateSessionFactory
+                    .getSessionFactory()
+                    .openSession();
+            UserDB user = UserDB.getUser(session, userId, token);
+            if (!user.isParent())
+                throw new RestException(ErrorConstants.NOT_CORRECT_USER_TYPE);
+
+            List<Object[]> list = RequestController.getAllMyAcceptedRelationship(session, userId);
+            for (Object[] objects : list) {
+                // TODO: 13.11.2016
+            }
+            return "{}";
         } catch (RestException re) {
             throw re;
         } catch (Exception e) {

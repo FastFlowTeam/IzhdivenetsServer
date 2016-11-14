@@ -91,6 +91,10 @@ public class AuthDB implements NextableId {
 
     @Override
     public void setNextId(Session session) {
-        authId = ((AuthDB) session.createQuery("from AuthDB ORDER BY authId DESC").setMaxResults(1).uniqueResult()).getAuthId() + 1;
+        try {
+            authId = ((AuthDB) session.createQuery("from AuthDB ORDER BY authId DESC").setMaxResults(1).uniqueResult()).getAuthId() + 1;
+        } catch (Exception e) {
+            authId = 1;
+        }
     }
 }

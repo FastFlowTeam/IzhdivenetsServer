@@ -153,7 +153,7 @@ public class SuccessDB extends UpdatableDB<SuccessDB> implements NextableId {
     }
 
     public static SuccessDB getSuccess(Session session, Long successId) throws RestException {
-        SuccessDB success = ((SuccessDB) session.load(SuccessDB.class, successId));
+        SuccessDB success = ((SuccessDB) session.get(SuccessDB.class, successId));
         if (success == null)
             throw new RestException(ErrorConstants.NOT_HAVE_ID);
         return success;
@@ -161,7 +161,11 @@ public class SuccessDB extends UpdatableDB<SuccessDB> implements NextableId {
 
     @Override
     public void setNextId(Session session) {
-        successId = ((SuccessDB) session.createQuery("from SuccessDB ORDER BY successId DESC").setMaxResults(1).uniqueResult()).getSuccessId() + 1;
+        try {
+            successId = ((SuccessDB) session.createQuery("from SuccessDB ORDER BY successId DESC").setMaxResults(1).uniqueResult()).getSuccessId() + 1;
+        } catch (Exception e) {
+            successId = 1;
+        }
     }
 
     public static JsonObject getJson(SuccessDB s) {
@@ -181,5 +185,9 @@ public class SuccessDB extends UpdatableDB<SuccessDB> implements NextableId {
 
     public void read() {
         state = Constants.SUCCESS_READED;
+    }
+
+    public void praised() {
+        state = Constants.SUCCESS_PRAISED;
     }
 }

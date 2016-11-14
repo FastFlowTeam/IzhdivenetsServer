@@ -1,4 +1,6 @@
-package by.fastflow.DBModels;
+package by.fastflow.DBModels.pk;
+
+import by.fastflow.DBModels.UserDB;
 
 import javax.persistence.Column;
 import javax.persistence.Id;
@@ -10,7 +12,16 @@ import java.io.Serializable;
 public class NotReadedSuccessDBPK implements Serializable {
     private long parentId;
     private long childId;
-    private long successId;
+
+    public NotReadedSuccessDBPK(UserDB user, UserDB child) {
+        this.parentId = user.getUserId();
+        this.childId = child.getUserId();
+    }
+
+    public NotReadedSuccessDBPK(long l, long childUserId) {
+        parentId = l;
+        childId = childUserId;
+    }
 
     @Column(name = "parent_id", nullable = false)
     @Id
@@ -33,14 +44,6 @@ public class NotReadedSuccessDBPK implements Serializable {
     }
 
     @Column(name = "success_id", nullable = false)
-    @Id
-    public long getSuccessId() {
-        return successId;
-    }
-
-    public void setSuccessId(long successId) {
-        this.successId = successId;
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -51,7 +54,6 @@ public class NotReadedSuccessDBPK implements Serializable {
 
         if (parentId != that.parentId) return false;
         if (childId != that.childId) return false;
-        if (successId != that.successId) return false;
 
         return true;
     }
@@ -60,7 +62,6 @@ public class NotReadedSuccessDBPK implements Serializable {
     public int hashCode() {
         int result = (int) (parentId ^ (parentId >>> 32));
         result = 31 * result + (int) (childId ^ (childId >>> 32));
-        result = 31 * result + (int) (successId ^ (successId >>> 32));
         return result;
     }
 }

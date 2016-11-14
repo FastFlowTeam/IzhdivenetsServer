@@ -1,5 +1,7 @@
 package by.fastflow.DBModels;
 
+import by.fastflow.DBModels.pk.NotReadedSuccessDBPK;
+
 import javax.persistence.*;
 
 /**
@@ -11,8 +13,22 @@ import javax.persistence.*;
 public class NotReadedSuccessDB {
     private long parentId;
     private long childId;
-    private long successId;
     private long number;
+
+    public NotReadedSuccessDB(UserDB user, UserDB child, int num) {
+        parentId = user.getUserId();
+        childId = child.getUserId();
+        number = num;
+    }
+
+    public NotReadedSuccessDB(long l, long userId, int num) {
+        parentId = l;
+        childId = userId;
+        number = num;
+    }
+
+    public NotReadedSuccessDB() {
+    }
 
     @Id
     @Column(name = "parent_id", nullable = false)
@@ -34,16 +50,6 @@ public class NotReadedSuccessDB {
         this.childId = childId;
     }
 
-    @Id
-    @Column(name = "success_id", nullable = false)
-    public long getSuccessId() {
-        return successId;
-    }
-
-    public void setSuccessId(long successId) {
-        this.successId = successId;
-    }
-
     @Basic
     @Column(name = "number", nullable = false)
     public long getNumber() {
@@ -63,7 +69,6 @@ public class NotReadedSuccessDB {
 
         if (parentId != that.parentId) return false;
         if (childId != that.childId) return false;
-        if (successId != that.successId) return false;
         if (number != that.number) return false;
 
         return true;
@@ -73,16 +78,15 @@ public class NotReadedSuccessDB {
     public int hashCode() {
         int result = (int) (parentId ^ (parentId >>> 32));
         result = 31 * result + (int) (childId ^ (childId >>> 32));
-        result = 31 * result + (int) (successId ^ (successId >>> 32));
         result = 31 * result + (int) (number ^ (number >>> 32));
         return result;
     }
 
-//    public void validate() throws RestException {
-//        if ((number == null) || ((number.isEmpty()))
-//        throw new RestException(ErrorConstants.EMPTY_NOT_READED_SUCCESS_NUMBER);
-//        if ((number < 0) || ((number>1000000))
-//        throw new RestException(ErrorConstants.WRONG_NOT_READED_SUCCESS_NUMBER);
-//
-//    }
+    public void readAll() {
+        number = 0;
+    }
+
+    public void moreNotRead() {
+        number++;
+    }
 }

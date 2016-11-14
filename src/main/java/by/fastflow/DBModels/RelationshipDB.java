@@ -1,5 +1,6 @@
 package by.fastflow.DBModels;
 
+import by.fastflow.DBModels.pk.RelationshipDBPK;
 import by.fastflow.utils.Constants;
 import by.fastflow.utils.ErrorConstants;
 import by.fastflow.utils.RestException;
@@ -106,5 +107,9 @@ public class RelationshipDB extends UpdatableDB<RelationshipDB> {
         UserDB userDB2 = UserDB.getUser(session, senderId.getUserId());
         if ((!userDB1.getToken().equals(token)) && (!userDB2.getToken().equals(token)))
             throw new RestException(ErrorConstants.PERMISSION_BY_TOKEN);
+    }
+
+    public boolean notAccepted() {
+        return state != Constants.RELATIONSHIP_ACCEPT;
     }
 }

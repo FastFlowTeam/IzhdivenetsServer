@@ -116,9 +116,9 @@ public class UserDB extends UpdatableDB<UserDB> implements NextableId {
     public void validate() throws RestException {
         if (!Constants.user_types.contains(type))
             throw new RestException(ErrorConstants.USER_TYPE);
-        if ((chatName == null) || (chatName.isEmpty())||(chatName.length()>30))
+        if ((chatName == null) || (chatName.isEmpty()) || (chatName.length() > 30))
             throw new RestException(ErrorConstants.USER_CHAT_NAME);
-        if ((photo != null) && (photo.length()>200))
+        if ((photo != null) && (photo.length() > 200))
             throw new RestException(ErrorConstants.LONG_USER_PHOTO);
     }
 
@@ -136,7 +136,11 @@ public class UserDB extends UpdatableDB<UserDB> implements NextableId {
 
     @Override
     public void setNextId(Session session) {
-        userId = ((UserDB) session.createQuery("from UserDB ORDER BY userId DESC").setMaxResults(1).uniqueResult()).getUserId() + 1;
+        try {
+            userId = ((UserDB) session.createQuery("from UserDB ORDER BY userId DESC").setMaxResults(1).uniqueResult()).getUserId() + 1;
+        } catch (Exception e) {
+            userId = 1;
+        }
     }
 
     public void updateToken() {
@@ -169,7 +173,7 @@ public class UserDB extends UpdatableDB<UserDB> implements NextableId {
     }
 
     public static UserDB getUser(Session session, long userId) throws RestException {
-        UserDB user = ((UserDB) session.load(UserDB.class, userId));
+        UserDB user = ((UserDB) session.get(UserDB.class, userId));
         if (user == null)
             throw new RestException(ErrorConstants.NOT_HAVE_ID);
         return user;

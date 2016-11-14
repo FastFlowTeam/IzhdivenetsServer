@@ -25,16 +25,6 @@ public abstract class UpdatableDB<T extends UpdatableDB> {
 
     public abstract void validate() throws RestException;
 
-//    public Map<String, Object> updateInBD(Session session, T up) throws RestException {
-//        validate();
-//        up.updateBy(this);
-//        session.beginTransaction();
-//        session.update(up);
-//        session.getTransaction().commit();
-//        session.close();
-//        return Ajax.successResponse(this);
-//    }
-
     public void delete(Session session, String token) throws RestException {
         havePermissionToDelete(session, token);
         session.beginTransaction();

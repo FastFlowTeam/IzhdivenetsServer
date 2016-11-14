@@ -2,7 +2,7 @@ package by.fastflow.controller;
 
 import by.fastflow.Ajax;
 import by.fastflow.DBModels.RelationshipDB;
-import by.fastflow.DBModels.RelationshipDBPK;
+import by.fastflow.DBModels.pk.RelationshipDBPK;
 import by.fastflow.DBModels.UserDB;
 import by.fastflow.repository.HibernateSessionFactory;
 import by.fastflow.utils.Constants;
@@ -20,14 +20,14 @@ import java.util.List;
  * Created by KuSu on 01.07.2016.
  */
 @RestController
-public class RequestController extends ExceptionHandlerController<UserDB> {
+public class RequestController extends ExceptionHandlerController{
 
     private static final String ADDRESS = Constants.DEF_SERVER + "request";
 
     @RequestMapping(value = ADDRESS + "/create/{user_id}", method = RequestMethod.POST)
     public
     @ResponseBody
-    String create(@RequestHeader(value = "token") String token, @PathVariable(value = "user_id") Long userId, @RequestParam(value = "secondUser") long gId) throws RestException {
+    String create(@RequestHeader(value = "token") String token, @PathVariable(value = "user_id") Long userId, @RequestParam(value = "gId") long gId) throws RestException {
         try {
             Session session = HibernateSessionFactory
                     .getSessionFactory()
@@ -56,7 +56,7 @@ public class RequestController extends ExceptionHandlerController<UserDB> {
     }
 
     private String all(Session session, UserDB userF) {
-        List<Object[]> list = getAllMyRelationship(session, userF.getUserId());
+        List<Object[]> list = getAllMyRelationshipForJSON(session, userF.getUserId());
         session.close();
         return Ajax.successResponseJson(generateJson(list));
     }
@@ -149,7 +149,7 @@ public class RequestController extends ExceptionHandlerController<UserDB> {
         return array;
     }
 
-    private List<Object[]> getAllMyRelationship(Session session, long userId) {
+    public static List<Object[]> getAllMyRelationshipForJSON(Session session, long userId) {
         return session.createSQLQuery("SELECT " +
                 "u.chat_name as a0, u.type as a1, u.photo as a2, u.g_id as a3, " +
                 "s.chat_name as a4, s.type as a5, s.photo as a6, s.g_id as a7, " +
@@ -161,6 +161,29 @@ public class RequestController extends ExceptionHandlerController<UserDB> {
                 .list();
     }
 
+    public static List<Object[]> getAllMyAcceptedRelationship(Session session, long userId) {
+        return session.createSQLQuery("SELECT " +
+                "u.user_id as a0, " +
+                "s.user_id as a1 " +
+                "u.g_id as a2, " +
+                "s.g_id as a3 " +
+                "FROM izh_scheme.relationship r " +
+                "JOIN izh_scheme.user u ON u.user_id = recipient_id " +
+                "JOIN izh_scheme.user s ON s.user_id = sender_id " +
+                "WHERE r.state = "+Constants.RELATIONSHIP_ACCEPT+
+                " AND ( r.sender_id = " + userId + " OR r.recipient_id = " + userId+" )")
+                .list();
+    }
+
+    public static void haveRelationship(Session session, UserDB user, UserDB child) throws RestException {
+        RelationshipDB relationship = (RelationshipDB) session.get(RelationshipDB.class, RelationshipDBPK.newKey(user, child));
+        if (relationship == null)
+            relationship = (RelationshipDB) session.get(RelationshipDB.class, RelationshipDBPK.newKey(child, user));
+        if (relationship == null)
+            throw new RestException(ErrorConstants.HAVE_SAME_RELATIONSHIP);
+        if (relationship.notAccepted())
+            throw new RestException(ErrorConstants.PERMISSION_BY_TOKEN);
+    }
 
     @RequestMapping(ADDRESS + "/test/")
     String home() {

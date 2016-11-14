@@ -11,7 +11,7 @@ import by.fastflow.utils.RestException;
  * Created by KuSu on 01.07.2016.
  */
 @Controller
-public abstract class ExceptionHandlerController<T extends UpdatableDB> {
+public abstract class ExceptionHandlerController {
 
     private static final Logger LOG = Logger.getLogger(ExceptionHandlerController.class);
 
