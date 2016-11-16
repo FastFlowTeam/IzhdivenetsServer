@@ -11,6 +11,11 @@ public class NotReadedMessagesDBPK implements Serializable {
     private long userId;
     private long dialogId;
 
+    public NotReadedMessagesDBPK(long userId, long dialogId) {
+        this.userId = userId;
+        this.dialogId = dialogId;
+    }
+
     @Column(name = "user_id", nullable = false)
     @Id
     public long getUserId() {

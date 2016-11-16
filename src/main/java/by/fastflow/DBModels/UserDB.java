@@ -13,7 +13,7 @@ import java.util.Calendar;
  */
 @Entity
 @Table(name = "user", schema = "izh_scheme", catalog = "db")
-public class UserDB extends UpdatableDB<UserDB> implements NextableId {
+public class UserDB extends UpdatableDB<UserDB> {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "user_id", nullable = false, unique = true)
@@ -33,16 +33,18 @@ public class UserDB extends UpdatableDB<UserDB> implements NextableId {
         return gId;
     }
 
-    public void setgId(long gId) {
+    public UserDB setgId(long gId) {
         this.gId = gId;
+        return this;
     }
 
     public long getUserId() {
         return userId;
     }
 
-    public void setUserId(long userId) {
+    public UserDB setUserId(long userId) {
         this.userId = userId;
+        return this;
     }
 
     @Basic
@@ -51,8 +53,9 @@ public class UserDB extends UpdatableDB<UserDB> implements NextableId {
         return token;
     }
 
-    public void setToken(String token) {
+    public UserDB setToken(String token) {
         this.token = token;
+        return this;
     }
 
     @Basic
@@ -61,8 +64,9 @@ public class UserDB extends UpdatableDB<UserDB> implements NextableId {
         return photo;
     }
 
-    public void setPhoto(String photo) {
+    public UserDB setPhoto(String photo) {
         this.photo = photo;
+        return this;
     }
 
     @Basic
@@ -71,8 +75,9 @@ public class UserDB extends UpdatableDB<UserDB> implements NextableId {
         return chatName;
     }
 
-    public void setChatName(String chatName) {
+    public UserDB setChatName(String chatName) {
         this.chatName = chatName;
+        return this;
     }
 
     @Basic
@@ -81,8 +86,9 @@ public class UserDB extends UpdatableDB<UserDB> implements NextableId {
         return type;
     }
 
-    public void setType(long type) {
+    public UserDB setType(long type) {
         this.type = type;
+        return this;
     }
 
     @Override
@@ -125,7 +131,7 @@ public class UserDB extends UpdatableDB<UserDB> implements NextableId {
     @Override
     public void havePermissionToModify(Session session, String token) throws RestException {
         if (!this.getToken().equals(token)) {
-            throw new RestException(ErrorConstants.PERMISSION_BY_TOKEN);
+            throw new RestException(ErrorConstants.NOT_NAVE_PERMISSION);
         }
     }
 
@@ -135,16 +141,18 @@ public class UserDB extends UpdatableDB<UserDB> implements NextableId {
     }
 
     @Override
-    public void setNextId(Session session) {
+    public UserDB setNextId(Session session) {
         try {
             userId = ((UserDB) session.createQuery("from UserDB ORDER BY userId DESC").setMaxResults(1).uniqueResult()).getUserId() + 1;
         } catch (Exception e) {
             userId = 1;
         }
+        return this;
     }
 
-    public void updateToken() {
+    public UserDB updateToken() {
         token = hashCode() + Calendar.getInstance().getTimeInMillis() + "" + userId;
+        return this;
     }
 
     @Override
@@ -154,15 +162,17 @@ public class UserDB extends UpdatableDB<UserDB> implements NextableId {
         updateToken();
     }
 
-    public static UserDB createNew(Session session, String s, int type) {
-        UserDB userDB = new UserDB();
-        userDB.setNextId(session);
-        userDB.setChatName(s);
-        userDB.setType(type);
-        userDB.gId = Calendar.getInstance().getTimeInMillis();
+    public static UserDB createNew(String s, int type) {
+        return new UserDB()
+                .setChatName(s)
+                .setType(type)
+                .setgId(GenerateGID())
+                .updateToken();
+    }
+
+    public static long GenerateGID() {
         //todo по другому генерить
-        userDB.updateToken();
-        return userDB;
+        return Calendar.getInstance().getTimeInMillis();
     }
 
     public static UserDB getUser(Session session, Long userId, String token) throws RestException {

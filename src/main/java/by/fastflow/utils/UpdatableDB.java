@@ -9,7 +9,7 @@ import java.util.Map;
 /**
  * Created by KuSu on 27.10.2016.
  */
-public abstract class UpdatableDB<T extends UpdatableDB> {
+public abstract class UpdatableDB<T extends UpdatableDB> extends NextableId<T> {
 
     public abstract void updateBy(T up);
 

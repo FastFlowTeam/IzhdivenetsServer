@@ -20,7 +20,7 @@ import java.util.List;
  * Created by KuSu on 01.07.2016.
  */
 @RestController
-public class RequestController extends ExceptionHandlerController{
+public class RequestController extends ExceptionHandlerController {
 
     private static final String ADDRESS = Constants.DEF_SERVER + "request";
 
@@ -170,8 +170,8 @@ public class RequestController extends ExceptionHandlerController{
                 "FROM izh_scheme.relationship r " +
                 "JOIN izh_scheme.user u ON u.user_id = recipient_id " +
                 "JOIN izh_scheme.user s ON s.user_id = sender_id " +
-                "WHERE r.state = "+Constants.RELATIONSHIP_ACCEPT+
-                " AND ( r.sender_id = " + userId + " OR r.recipient_id = " + userId+" )")
+                "WHERE r.state = " + Constants.RELATIONSHIP_ACCEPT +
+                " AND ( r.sender_id = " + userId + " OR r.recipient_id = " + userId + " )")
                 .list();
     }
 
@@ -182,7 +182,7 @@ public class RequestController extends ExceptionHandlerController{
         if (relationship == null)
             throw new RestException(ErrorConstants.HAVE_SAME_RELATIONSHIP);
         if (relationship.notAccepted())
-            throw new RestException(ErrorConstants.PERMISSION_BY_TOKEN);
+            throw new RestException(ErrorConstants.NOT_NAVE_PERMISSION);
     }
 
     @RequestMapping(ADDRESS + "/test/")

@@ -26,8 +26,9 @@ public class RelationshipDB extends UpdatableDB<RelationshipDB> {
         return state;
     }
 
-    public void setState(int state) {
+    public RelationshipDB setState(int state) {
         this.state = state;
+        return this;
     }
 
     @Id
@@ -45,12 +46,14 @@ public class RelationshipDB extends UpdatableDB<RelationshipDB> {
     }
 
 
-    public void setSenderId(UserDB senderId) {
+    public RelationshipDB setSenderId(UserDB senderId) {
         this.senderId = senderId;
+        return this;
     }
 
-    public void setRecipientId(UserDB recipientId) {
+    public RelationshipDB setRecipientId(UserDB recipientId) {
         this.recipientId = recipientId;
+        return this;
     }
 
     @Override
@@ -74,11 +77,10 @@ public class RelationshipDB extends UpdatableDB<RelationshipDB> {
     }
 
     public static RelationshipDB createNew(UserDB sender, UserDB recipient, int state) {
-        RelationshipDB relationshipDB = new RelationshipDB();
-        relationshipDB.setRecipientId(recipient);
-        relationshipDB.setSenderId(sender);
-        relationshipDB.setState(state);
-        return relationshipDB;
+        return new RelationshipDB()
+                .setRecipientId(recipient)
+                .setSenderId(sender)
+                .setState(state);
     }
 
     public static RelationshipDB createNew(UserDB sender, UserDB recipient) {
@@ -106,10 +108,15 @@ public class RelationshipDB extends UpdatableDB<RelationshipDB> {
         UserDB userDB1 = UserDB.getUser(session, recipientId.getUserId());
         UserDB userDB2 = UserDB.getUser(session, senderId.getUserId());
         if ((!userDB1.getToken().equals(token)) && (!userDB2.getToken().equals(token)))
-            throw new RestException(ErrorConstants.PERMISSION_BY_TOKEN);
+            throw new RestException(ErrorConstants.NOT_NAVE_PERMISSION);
     }
 
     public boolean notAccepted() {
         return state != Constants.RELATIONSHIP_ACCEPT;
+    }
+
+    @Override
+    public RelationshipDB setNextId(Session session) {
+        return null;
     }
 }

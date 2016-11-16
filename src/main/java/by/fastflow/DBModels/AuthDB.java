@@ -10,7 +10,7 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "auth", schema = "izh_scheme", catalog = "db")
-public class AuthDB implements NextableId {
+public class AuthDB extends NextableId {
     private long authId;
     private long type;
     private long userId;
@@ -32,8 +32,9 @@ public class AuthDB implements NextableId {
         return userId;
     }
 
-    public void setUserId(long userId) {
+    public AuthDB setUserId(long userId) {
         this.userId = userId;
+        return this;
     }
 
     @Basic
@@ -42,8 +43,9 @@ public class AuthDB implements NextableId {
         return type;
     }
 
-    public void setType(long type) {
+    public AuthDB setType(long type) {
         this.type = type;
+        return this;
     }
 
     @Basic
@@ -52,8 +54,9 @@ public class AuthDB implements NextableId {
         return token;
     }
 
-    public void setToken(String token) {
+    public AuthDB setToken(String token) {
         this.token = token;
+        return this;
     }
 
     @Override
@@ -81,20 +84,20 @@ public class AuthDB implements NextableId {
     }
 
     public static AuthDB createNew(Session session, int type, String token, long userId) {
-        AuthDB authDB = new AuthDB();
-        authDB.setToken(token);
-        authDB.setType((long) type);
-        authDB.setUserId(userId);
-        authDB.setNextId(session);
-        return authDB;
+        return new AuthDB()
+                .setToken(token)
+                .setType((long) type)
+                .setUserId(userId)
+                .setNextId(session);
     }
 
     @Override
-    public void setNextId(Session session) {
+    public AuthDB setNextId(Session session) {
         try {
             authId = ((AuthDB) session.createQuery("from AuthDB ORDER BY authId DESC").setMaxResults(1).uniqueResult()).getAuthId() + 1;
         } catch (Exception e) {
             authId = 1;
         }
+        return this;
     }
 }

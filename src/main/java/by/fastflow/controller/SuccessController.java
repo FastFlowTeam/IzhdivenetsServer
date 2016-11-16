@@ -43,7 +43,7 @@ public class SuccessController extends ExceptionHandlerController {
         }
     }
 
-    @RequestMapping(value = ADDRESS + "/create/{user_id}", method = RequestMethod.PUT)
+    @RequestMapping(value = ADDRESS + "/create/{user_id}", method = RequestMethod.POST)
     public
     @ResponseBody
     Map<String, Object> create(@PathVariable(value = "user_id") Long userId,
@@ -56,13 +56,13 @@ public class SuccessController extends ExceptionHandlerController {
             UserDB user = UserDB.getUser(session, userId, token);
             if (!user.isChild())
                 throw new RestException(ErrorConstants.NOT_CORRECT_USER_TYPE);
-            success.validate();
-            success.setUserId(userId);
-            success.setState(Constants.SUCCESS_NOT_READED);
-            success.setNextId(session);
 
+            success.validate();
             session.beginTransaction();
-            session.save(success);
+            session.save(success
+                    .setUserId(userId)
+                    .setState(Constants.SUCCESS_NOT_READED)
+                    .setNextId(session));
             session.getTransaction().commit();
 
             updateNotReaded(session, user);
@@ -82,7 +82,8 @@ public class SuccessController extends ExceptionHandlerController {
             NotReadedSuccessDB not = (NotReadedSuccessDB) session.get(NotReadedSuccessDB.class, new NotReadedSuccessDBPK(
                     Constants.convertL(Constants.convertL(objects[0]) == child.getUserId() ? objects[1] : objects[0]), child.getUserId()));
             if (not == null) {
-                not = new NotReadedSuccessDB(Constants.convertL(Constants.convertL(objects[0]) == child.getUserId() ? objects[1] : objects[0]), child.getUserId(), 1);
+                not = NotReadedSuccessDB
+                        .createNew(Constants.convertL(Constants.convertL(objects[0]) == child.getUserId() ? objects[1] : objects[0]), child.getUserId(), 1);
             } else {
                 not.moreNotRead();
             }
@@ -107,7 +108,7 @@ public class SuccessController extends ExceptionHandlerController {
         JsonArray array = new JsonArray();
         for (SuccessDB item : list) {
             array.add(SuccessDB.getJson(item));
-            if (item.isNotRead()) {
+            if (item.notRead()) {
                 item.read();
                 session.beginTransaction();
                 session.update(item);
@@ -122,7 +123,8 @@ public class SuccessController extends ExceptionHandlerController {
     private void ReadAll(Session session, UserDB user, UserDB child) {
         NotReadedSuccessDB not = (NotReadedSuccessDB) session.get(NotReadedSuccessDB.class, new NotReadedSuccessDBPK(user, child));
         if (not == null) {
-            not = new NotReadedSuccessDB(user, child, 0);
+            not = NotReadedSuccessDB
+                    .createNew(user.getUserId(), child.getUserId(), 0);
         }
         not.readAll();
         session.beginTransaction();
@@ -235,7 +237,7 @@ public class SuccessController extends ExceptionHandlerController {
         }
     }
 
-    @RequestMapping(value = ADDRESS + "/delete/{success_id}", method = RequestMethod.PUT)
+    @RequestMapping(value = ADDRESS + "/delete/{success_id}", method = RequestMethod.DELETE)
     public
     @ResponseBody
     Map<String, Object> delete(@PathVariable(value = "success_id") Long successId,

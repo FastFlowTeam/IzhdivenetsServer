@@ -14,9 +14,10 @@ public class InDialogDB {
     private long dialogId;
     private long userId;
 
-    public InDialogDB(Long user, long dialogId) {
-        this.userId = user;
-        this.dialogId = dialogId;
+    public static InDialogDB createNew(Long user, long dialogId) {
+        return new InDialogDB()
+                .setUserId(user)
+                .setDialogId(dialogId);
     }
 
     @Id
@@ -25,8 +26,9 @@ public class InDialogDB {
         return dialogId;
     }
 
-    public void setDialogId(long dialogId) {
+    public InDialogDB setDialogId(long dialogId) {
         this.dialogId = dialogId;
+        return this;
     }
 
     @Id
@@ -35,8 +37,9 @@ public class InDialogDB {
         return userId;
     }
 
-    public void setUserId(long userId) {
+    public InDialogDB setUserId(long userId) {
         this.userId = userId;
+        return this;
     }
 
     @Override

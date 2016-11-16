@@ -1,7 +1,9 @@
-package by.fastflow.DBModels.xml;
+package by.fastflow.DBModels;
 
 import by.fastflow.utils.ErrorConstants;
+import by.fastflow.utils.NextableId;
 import by.fastflow.utils.RestException;
+import org.hibernate.Session;
 
 import javax.persistence.*;
 
@@ -10,7 +12,7 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "card", schema = "izh_scheme", catalog = "db")
-public class CardDB {
+public class CardDB extends NextableId {
     private long cardId;
     private long userId;
     private long moneyAmount;
@@ -21,8 +23,9 @@ public class CardDB {
         return cardId;
     }
 
-    public void setCardId(long cardId) {
+    public CardDB setCardId(long cardId) {
         this.cardId = cardId;
+        return this;
     }
 
     @Basic
@@ -31,8 +34,9 @@ public class CardDB {
         return userId;
     }
 
-    public void setUserId(Long userId) {
+    public CardDB setUserId(Long userId) {
         this.userId = userId;
+        return this;
     }
 
     @Basic
@@ -41,8 +45,9 @@ public class CardDB {
         return moneyAmount;
     }
 
-    public void setMoneyAmount(long moneyAmount) {
+    public CardDB setMoneyAmount(long moneyAmount) {
         this.moneyAmount = moneyAmount;
+        return this;
     }
 
     @Override
@@ -68,7 +73,33 @@ public class CardDB {
     }
 
     public void validate() throws RestException {
-        if (moneyAmount<0||moneyAmount>1000000000)
+        if (moneyAmount < 0 || moneyAmount > 1000000000)
             throw new RestException(ErrorConstants.NEGATIVE_CARD_MONEY);
+    }
+
+    @Override
+    public CardDB setNextId(Session session) {
+        try {
+            cardId = ((CardDB) session.createQuery("from CardDB ORDER BY cardId DESC").setMaxResults(1).uniqueResult()).getUserId() + 1;
+        } catch (Exception e) {
+            cardId = 1;
+        }
+        return this;
+    }
+
+    public static CardDB createNew(long userId, int i) {
+        return new CardDB()
+                .setUserId(userId)
+                .setMoneyAmount(i);
+    }
+
+    public CardDB sub(long money) {
+        moneyAmount -= money;
+        return this;
+    }
+
+    public CardDB add(long money) {
+        moneyAmount += money;
+        return this;
     }
 }

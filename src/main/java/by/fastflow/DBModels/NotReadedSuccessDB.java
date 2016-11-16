@@ -15,16 +15,11 @@ public class NotReadedSuccessDB {
     private long childId;
     private long number;
 
-    public NotReadedSuccessDB(UserDB user, UserDB child, int num) {
-        parentId = user.getUserId();
-        childId = child.getUserId();
-        number = num;
-    }
-
-    public NotReadedSuccessDB(long l, long userId, int num) {
-        parentId = l;
-        childId = userId;
-        number = num;
+    public static NotReadedSuccessDB createNew(long l, long userId, int num) {
+        return new NotReadedSuccessDB()
+                .setChildId(userId)
+                .setParentId(l)
+                .setNumber(num);
     }
 
     public NotReadedSuccessDB() {
@@ -36,8 +31,9 @@ public class NotReadedSuccessDB {
         return parentId;
     }
 
-    public void setParentId(long parentId) {
+    public NotReadedSuccessDB setParentId(long parentId) {
         this.parentId = parentId;
+        return this;
     }
 
     @Id
@@ -46,8 +42,9 @@ public class NotReadedSuccessDB {
         return childId;
     }
 
-    public void setChildId(long childId) {
+    public NotReadedSuccessDB setChildId(long childId) {
         this.childId = childId;
+        return this;
     }
 
     @Basic
@@ -56,8 +53,9 @@ public class NotReadedSuccessDB {
         return number;
     }
 
-    public void setNumber(long number) {
+    public NotReadedSuccessDB setNumber(long number) {
         this.number = number;
+        return this;
     }
 
     @Override

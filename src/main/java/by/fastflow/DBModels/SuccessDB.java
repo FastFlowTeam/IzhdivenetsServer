@@ -11,7 +11,7 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "success", schema = "izh_scheme", catalog = "db")
-public class SuccessDB extends UpdatableDB<SuccessDB> implements NextableId {
+public class SuccessDB extends UpdatableDB<SuccessDB>{
     private long successId;
     private long userId;
     private String title;
@@ -36,8 +36,9 @@ public class SuccessDB extends UpdatableDB<SuccessDB> implements NextableId {
         return userId;
     }
 
-    public void setUserId(long userId) {
+    public SuccessDB setUserId(long userId) {
         this.userId = userId;
+        return this;
     }
 
     @Basic
@@ -86,8 +87,9 @@ public class SuccessDB extends UpdatableDB<SuccessDB> implements NextableId {
         return state;
     }
 
-    public void setState(long state) {
+    public SuccessDB setState(long state) {
         this.state = state;
+        return this;
     }
 
     @Override
@@ -160,12 +162,13 @@ public class SuccessDB extends UpdatableDB<SuccessDB> implements NextableId {
     }
 
     @Override
-    public void setNextId(Session session) {
+    public SuccessDB setNextId(Session session) {
         try {
             successId = ((SuccessDB) session.createQuery("from SuccessDB ORDER BY successId DESC").setMaxResults(1).uniqueResult()).getSuccessId() + 1;
         } catch (Exception e) {
             successId = 1;
         }
+        return this;
     }
 
     public static JsonObject getJson(SuccessDB s) {
@@ -179,7 +182,7 @@ public class SuccessDB extends UpdatableDB<SuccessDB> implements NextableId {
         return object;
     }
 
-    public boolean isNotRead() {
+    public boolean notRead() {
         return state == Constants.SUCCESS_NOT_READED;
     }
 

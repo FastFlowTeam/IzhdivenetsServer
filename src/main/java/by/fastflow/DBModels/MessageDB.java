@@ -1,10 +1,12 @@
 package by.fastflow.DBModels;
 
 import by.fastflow.utils.*;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import org.hibernate.Session;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
+import java.math.BigInteger;
 import java.util.Calendar;
 import java.util.TimeZone;
 
@@ -13,7 +15,7 @@ import java.util.TimeZone;
  */
 @Entity
 @Table(name = "message", schema = "izh_scheme", catalog = "db")
-public class MessageDB extends UpdatableDB<MessageDB> implements NextableId {
+public class MessageDB extends UpdatableDB<MessageDB> {
     private long messageId;
     private long dialogId;
     private long userId;
@@ -28,8 +30,9 @@ public class MessageDB extends UpdatableDB<MessageDB> implements NextableId {
         return messageId;
     }
 
-    public void setMessageId(long messageId) {
+    public MessageDB setMessageId(long messageId) {
         this.messageId = messageId;
+        return this;
     }
 
     @Basic
@@ -38,8 +41,9 @@ public class MessageDB extends UpdatableDB<MessageDB> implements NextableId {
         return dialogId;
     }
 
-    public void setDialogId(Long dialogId) {
+    public MessageDB setDialogId(Long dialogId) {
         this.dialogId = dialogId;
+        return this;
     }
 
     @Basic
@@ -48,8 +52,9 @@ public class MessageDB extends UpdatableDB<MessageDB> implements NextableId {
         return userId;
     }
 
-    public void setUserId(Long userId) {
+    public MessageDB setUserId(Long userId) {
         this.userId = userId;
+        return this;
     }
 
     @Basic
@@ -58,8 +63,9 @@ public class MessageDB extends UpdatableDB<MessageDB> implements NextableId {
         return date;
     }
 
-    public void setDate(long date) {
+    public MessageDB setDate(long date) {
         this.date = date;
+        return this;
     }
 
     @Basic
@@ -68,8 +74,9 @@ public class MessageDB extends UpdatableDB<MessageDB> implements NextableId {
         return text;
     }
 
-    public void setText(String text) {
+    public MessageDB setText(String text) {
         this.text = text;
+        return this;
     }
 
     @Basic
@@ -78,8 +85,9 @@ public class MessageDB extends UpdatableDB<MessageDB> implements NextableId {
         return type;
     }
 
-    public void setType(long type) {
+    public MessageDB setType(long type) {
         this.type = type;
+        return this;
     }
 
     @Basic
@@ -88,8 +96,9 @@ public class MessageDB extends UpdatableDB<MessageDB> implements NextableId {
         return link;
     }
 
-    public void setLink(String link) {
+    public MessageDB setLink(String link) {
         this.link = link;
+        return this;
     }
 
     @Override
@@ -128,9 +137,6 @@ public class MessageDB extends UpdatableDB<MessageDB> implements NextableId {
     }
 
     public void validate() throws RestException {
-        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        if (date > calendar.getTimeInMillis())
-            throw new RestException(ErrorConstants.MESSAGE_DATE_CONFLICTS);
         if ((text == null) || (text.isEmpty()))
             throw new RestException(ErrorConstants.EMPTY_MESSAGE);
         if (text.length() > 500)
@@ -143,30 +149,42 @@ public class MessageDB extends UpdatableDB<MessageDB> implements NextableId {
 
     @Override
     public void havePermissionToModify(Session session, String token) throws RestException {
-        throw new RestException(ErrorConstants.PERMISSION_BY_TOKEN);
+        throw new RestException(ErrorConstants.NOT_NAVE_PERMISSION);
     }
 
     @Override
     public void havePermissionToDelete(Session session, String token) throws RestException {
-        throw new RestException(ErrorConstants.PERMISSION_BY_TOKEN);
+        throw new RestException(ErrorConstants.NOT_NAVE_PERMISSION);
     }
 
     @Override
-    public void setNextId(Session session) {
+    public MessageDB setNextId(Session session) {
+        date = Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTimeInMillis();
         try {
             messageId = ((MessageDB) session.createQuery("from MessageDB ORDER BY messageId DESC").setMaxResults(1).uniqueResult()).getMessageId() + 1;
         } catch (Exception e) {
             messageId = 1;
         }
+        return this;
     }
 
     public static MessageDB createNew(int msg_type, long userId, long dialogId, String name) {
-        MessageDB messageDB = new MessageDB();
-        messageDB.dialogId = dialogId;
-        messageDB.userId = userId;
-        messageDB.date = Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTimeInMillis();
-        messageDB.text = Constants.getMSG(msg_type, name);
-        messageDB.type = Constants.MESSAGE_TYPE_SYSTEM;
-        return messageDB;
+        return new MessageDB()
+                .setDialogId(dialogId)
+                .setType(Constants.MESSAGE_TYPE_SYSTEM)
+                .setText(Constants.getMSG(msg_type, name))
+                .setUserId(userId)
+                .setDialogId(dialogId)
+                .setDate(Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTimeInMillis());
+    }
+
+    public static JsonElement getJson(BigInteger date, BigInteger type, BigInteger messageId, String text, String link) {
+        JsonObject json = new JsonObject();
+        json.addProperty("date", date);
+        json.addProperty("type", type);
+        json.addProperty("messageId", messageId);
+        json.addProperty("text", text);
+        json.addProperty("link", link);
+        return json;
     }
 }

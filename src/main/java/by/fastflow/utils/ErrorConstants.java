@@ -7,7 +7,7 @@ public class ErrorConstants {
     public static final int NOT_TYPED_EXCEPTION = -1;
     public static final int USER_TYPE = 1;
     public static final int USER_CHAT_NAME = 2;
-    public static final int PERMISSION_BY_TOKEN = 3;
+    public static final int NOT_NAVE_PERMISSION = 3;
     public static final int NOT_HAVE_ID = 4;
     public static final int NOT_HAVE_GID = 5;
     public static final int SAME_TYPE = 6;
@@ -58,4 +58,5 @@ public class ErrorConstants {
     public static final int NOT_HAVE_SAME_RELATIONSHIP = 51;
     public static final int NOT_CORRECT_USER_TYPE = 52;
     public static final int LONG_TOKEN = 53;
+    public static final int NOT_HAVE_CARD = 54;
 }

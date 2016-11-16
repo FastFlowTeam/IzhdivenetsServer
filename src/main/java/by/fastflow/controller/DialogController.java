@@ -21,10 +21,11 @@ import java.util.Map;
 /**
  * Created by KuSu on 13.11.2016.
  */
+@RestController
 public class DialogController extends ExceptionHandlerController {
     private static final String ADDRESS = Constants.DEF_SERVER + "dialog";
 
-    @RequestMapping(value = ADDRESS + "/create/{user_id}", method = RequestMethod.PUT)
+    @RequestMapping(value = ADDRESS + "/create/{user_id}", method = RequestMethod.POST)
     public
     @ResponseBody
     Map<String, Object> create(@PathVariable(value = "user_id") Long userId,
@@ -37,10 +38,10 @@ public class DialogController extends ExceptionHandlerController {
                     .openSession();
             UserDB up = UserDB.getUser(session, userId, token);
             DialogDB dialog = DialogDB.createNew(name);
-            dialog.setNextId(session);
 
             session.beginTransaction();
-            session.save(dialog);
+            session.save(dialog
+                    .setNextId(session));
             session.getTransaction().commit();
 
             HashSet<Long> users = new HashSet<>();
@@ -53,15 +54,14 @@ public class DialogController extends ExceptionHandlerController {
             }
             users.add(up.getUserId());
 
-            InDialogDB inDialogDB;
             session.beginTransaction();
             for (Long user : users) {
-                inDialogDB = new InDialogDB(user, dialog.getDialogId());
-                session.save(inDialogDB);
+                session.save(InDialogDB
+                        .createNew(user, dialog.getDialogId()));
             }
             session.getTransaction().commit();
-
             MessageController.generateMessage(session, Constants.MSG_CREATE, userId, dialog.getDialogId(), name);
+
             session.close();
             return Ajax.successResponse(dialog);
         } catch (RestException re) {
@@ -71,7 +71,7 @@ public class DialogController extends ExceptionHandlerController {
         }
     }
 
-    @RequestMapping(value = ADDRESS + "/out/{user_id}/{dialog_id}", method = RequestMethod.PUT)
+    @RequestMapping(value = ADDRESS + "/out/{user_id}/{dialog_id}", method = RequestMethod.DELETE)
     public
     @ResponseBody
     Map<String, Object> out(@PathVariable(value = "user_id") Long userId,
@@ -91,6 +91,9 @@ public class DialogController extends ExceptionHandlerController {
             session.delete(inDialogDB);
             session.getTransaction().commit();
 
+            MessageController.generateMessage(session, Constants.MSG_OUT_ME, userId, dialogId, up.getChatName());
+
+
             session.close();
             return Ajax.emptyResponse();
         } catch (RestException re) {
@@ -100,7 +103,7 @@ public class DialogController extends ExceptionHandlerController {
         }
     }
 
-    @RequestMapping(value = ADDRESS + "/add/{user_id}/{dialog_id}", method = RequestMethod.PUT)
+    @RequestMapping(value = ADDRESS + "/add/{user_id}/{dialog_id}", method = RequestMethod.POST)
     public
     @ResponseBody
     Map<String, Object> addHim(@PathVariable(value = "user_id") long userId,
@@ -120,10 +123,12 @@ public class DialogController extends ExceptionHandlerController {
                 throw new RestException(ErrorConstants.NOT_HAVE_GID);
             }
 
-            InDialogDB inDialogDB = new InDialogDB(list.get(0).getUserId(), dialogId);
             session.beginTransaction();
-            session.save(inDialogDB);
+            session.save(InDialogDB
+                    .createNew(list.get(0).getUserId(), dialogId));
             session.getTransaction().commit();
+
+            MessageController.generateMessage(session, Constants.MSG_NEW_USER, userId, dialogId, list.get(0).getChatName());
 
             session.close();
             return Ajax.emptyResponse();
@@ -159,12 +164,12 @@ public class DialogController extends ExceptionHandlerController {
         }
     }
 
-    @RequestMapping(value = ADDRESS + "/getAll/{user_id}/{dialog_id}", method = RequestMethod.PUT)
+    @RequestMapping(value = ADDRESS + "/getAll/{user_id}/{dialog_id}", method = RequestMethod.GET)
     public
     @ResponseBody
     String getAll(@PathVariable(value = "user_id") long userId,
-                               @PathVariable(value = "dialog_id") long dialogId,
-                               @RequestHeader(value = "token") String token) throws RestException {
+                  @PathVariable(value = "dialog_id") long dialogId,
+                  @RequestHeader(value = "token") String token) throws RestException {
         try {
             Session session = HibernateSessionFactory
                     .getSessionFactory()

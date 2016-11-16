@@ -13,7 +13,7 @@ import javax.persistence.*;
 public class NotReadedMessagesDB {
     private long userId;
     private long dialogId;
-    private long number;
+    private int number;
 
     @Id
     @Column(name = "user_id", nullable = false)
@@ -21,8 +21,9 @@ public class NotReadedMessagesDB {
         return userId;
     }
 
-    public void setUserId(long userId) {
+    public NotReadedMessagesDB setUserId(long userId) {
         this.userId = userId;
+        return this;
     }
 
     @Id
@@ -31,18 +32,20 @@ public class NotReadedMessagesDB {
         return dialogId;
     }
 
-    public void setDialogId(long dialogId) {
+    public NotReadedMessagesDB setDialogId(long dialogId) {
         this.dialogId = dialogId;
+        return this;
     }
 
     @Basic
     @Column(name = "number", nullable = false)
-    public long getNumber() {
+    public int getNumber() {
         return number;
     }
 
-    public void setNumber(long number) {
+    public NotReadedMessagesDB setNumber(int number) {
         this.number = number;
+        return this;
     }
 
     @Override
@@ -65,5 +68,22 @@ public class NotReadedMessagesDB {
         result = 31 * result + (int) (dialogId ^ (dialogId >>> 32));
         result = 31 * result + (int) (number ^ (number >>> 32));
         return result;
+    }
+
+    public NotReadedMessagesDB readAll() {
+        number = 0;
+        return this;
+    }
+
+    public NotReadedMessagesDB next() {
+        number++;
+        return this;
+    }
+
+    public static NotReadedMessagesDB createNew(long dialogId, long userId, int i) {
+        return new NotReadedMessagesDB()
+                .setNumber(i)
+                .setDialogId(dialogId)
+                .setUserId(userId);
     }
 }

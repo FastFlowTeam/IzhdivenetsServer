@@ -48,9 +48,13 @@ public class Constants {
 
 
     public static final int PAGE_RESULT = 20;
+    public static final int PAGE_RESULT_MESSAGE = 20;
 
     public static final int MSG_UPDATE = 1;
     public static final int MSG_CREATE = 2;
+    public static final int MSG_SEND_MONEY = 3;
+    public static final int MSG_NEW_USER = 4;
+    public static final int MSG_OUT_ME = 5;
 
     public static long convertL(Object object) {
         return ((BigInteger) object).longValue();
@@ -60,9 +64,39 @@ public class Constants {
         switch (msg_type) {
             default:
             case MSG_CREATE:
-                return "Create dialog \""+inf+"\"";
+                return "Create dialog \"" + inf + "\"";
             case MSG_UPDATE:
-                return "Update dialog to \""+inf+"\"";
+                return "Update dialog to \"" + inf + "\"";
+            case MSG_SEND_MONEY:
+                return "I send you money: " + inf;
+            case MSG_NEW_USER:
+                return "I invite \"" + inf+"\"";
+            case MSG_OUT_ME:
+                return "I go out";
         }
+    }
+
+    public static String getStringMoney(long money) {
+        return getWithSpace(money / 100) + "." + get00(money % 100) + " BYN";
+    }
+
+    private static String getWithSpace(long l) {
+        String res = "";
+        String temp = "" + l;
+        int i = 0;
+        int j = temp.length()-1;
+        while (j >= 0) {
+            if (i == 3) {
+                i = 0;
+                res = " " + res;
+            }
+            res = temp.charAt(j) + res;
+            j--;
+        }
+        return res;
+    }
+
+    private static String get00(long l) {
+        return l < 10 ? (l == 0 ? "" : "0" + l) : "" + l;
     }
 }

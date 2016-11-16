@@ -23,14 +23,48 @@ import java.util.Map;
  * Created by KuSu on 01.07.2016.
  */
 @RestController
-public class UserController extends ExceptionHandlerController{
+public class UserController extends ExceptionHandlerController {
 
     private static final String ADDRESS = Constants.DEF_SERVER + "user";
 
     @RequestMapping(value = ADDRESS + "/loginVk", method = RequestMethod.POST)
     public
     @ResponseBody
-    Map<String, Object> loginVk(@RequestHeader(value = "token") String token, @RequestHeader(value = "userId") int userId, @RequestParam(value = "type") int type) throws RestException {
+    Map<String, Object> loginVk(@RequestHeader(value = "token") String token, @RequestHeader(value = "userId") int userId) throws RestException {
+        try {
+            TransportClient transportClient = HttpTransportClient.getInstance();
+            VkApiClient vk = new VkApiClient(transportClient);
+            UserActor actor = new UserActor(userId, token);
+            UserSettings userSettings = vk.account().getProfileInfo(actor).execute();
+
+            Session session = HibernateSessionFactory
+                    .getSessionFactory()
+                    .openSession();
+            List<AuthDB> list = session.createQuery("from AuthDB where type = " + Constants.LOGIN_TYPE_VK + " and token = " + (userId + "")).list();
+
+            if (list.size() == 0) {
+                throw new RestException(ErrorConstants.NOT_HAVE_ID);
+            }
+
+            session.beginTransaction();
+            UserDB userDB = UserDB.getUser(session, list.get(0).getUserId());
+            userDB.updateToken();
+            session.update(userDB);
+            session.getTransaction().commit();
+            session.close();
+
+            return Ajax.successResponse(userDB);
+        } catch (RestException re) {
+            throw re;
+        } catch (Exception e) {
+            throw new RestException(e);
+        }
+    }
+
+    @RequestMapping(value = ADDRESS + "/registerVk", method = RequestMethod.POST)
+    public
+    @ResponseBody
+    Map<String, Object> registerVk(@RequestHeader(value = "token") String token, @RequestHeader(value = "userId") int userId, @RequestParam(value = "type") int type) throws RestException {
         try {
             TransportClient transportClient = HttpTransportClient.getInstance();
             VkApiClient vk = new VkApiClient(transportClient);
@@ -44,13 +78,15 @@ public class UserController extends ExceptionHandlerController{
             UserDB userDB = null;
             session.beginTransaction();
             if (list.size() == 0) {
-                userDB = UserDB.createNew(session, userSettings.getFirstName() + " " + userSettings.getLastName(), type);
+                userDB = UserDB
+                        .createNew(userSettings.getFirstName() + " " + userSettings.getLastName(), type)
+                        .setNextId(session);
                 session.save(userDB);
-                AuthDB authDB = AuthDB.createNew(session, Constants.LOGIN_TYPE_VK, userId + "", userDB.getUserId());
-                session.save(authDB);
+                session.save(AuthDB
+                        .createNew(session, Constants.LOGIN_TYPE_VK, userId + "", userDB.getUserId()));
             } else {
-                userDB = UserDB.getUser(session, list.get(0).getUserId());
-                userDB.updateToken();
+                userDB = UserDB.getUser(session, list.get(0).getUserId())
+                        .updateToken();
                 session.update(userDB);
             }
             session.getTransaction().commit();
@@ -83,7 +119,7 @@ public class UserController extends ExceptionHandlerController{
         }
     }
 
-    @RequestMapping(value = ADDRESS + "/delete/{user_id}", method = RequestMethod.PUT)
+    @RequestMapping(value = ADDRESS + "/delete/{user_id}", method = RequestMethod.DELETE)
     public
     @ResponseBody
     Map<String, Object> delete(@PathVariable(value = "user_id") Long userId,

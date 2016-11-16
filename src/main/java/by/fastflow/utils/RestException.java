@@ -60,7 +60,7 @@ public class RestException extends Exception {
                 return "No such gId";
             case ErrorConstants.NOT_HAVE_ID:
                 return "No such id";
-            case ErrorConstants.PERMISSION_BY_TOKEN:
+            case ErrorConstants.NOT_NAVE_PERMISSION:
                 return "Not have permission for this";
             case ErrorConstants.SAME_TYPE:
                 return "Both user same type";
@@ -134,6 +134,8 @@ public class RestException extends Exception {
                 return "Message link is too long";
             case ErrorConstants.LONG_TOKEN:
                 return "Token is too long";
+            case ErrorConstants.NOT_HAVE_CARD:
+                return "Not have card";
             case ErrorConstants.LONG_SUCCESS_DESCRIPTION:
                 return "Success description is too long";
             case ErrorConstants.LONG_SUCCESS_LINK:

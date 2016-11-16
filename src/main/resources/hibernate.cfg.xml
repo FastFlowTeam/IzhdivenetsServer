@@ -12,25 +12,27 @@
     <property name="connection.password">fastflow</property>-->
     <mapping resource="xml/UserDB.hbm.xml"/>
     <mapping class="by.fastflow.DBModels.UserDB"/>
-    <mapping class="by.fastflow.DBModels.AuthDB"/>
     <mapping resource="xml/AuthDB.hbm.xml"/>
-    <mapping class="by.fastflow.DBModels.RelationshipDB"/>
-    <mapping class="by.fastflow.DBModels.pk.RelationshipDBPK"/>
+    <mapping class="by.fastflow.DBModels.AuthDB"/>
     <mapping resource="xml/SuccessDB.hbm.xml"/>
     <mapping class="by.fastflow.DBModels.SuccessDB"/>
     <mapping resource="xml/DialogDB.hbm.xml"/>
     <mapping class="by.fastflow.DBModels.DialogDB"/>
     <mapping resource="xml/MessageDB.hbm.xml"/>
     <mapping class="by.fastflow.DBModels.MessageDB"/>
+    <mapping resource="xml/CardDB.hbm.xml"/>
+    <mapping class="by.fastflow.DBModels.CardDB"/>
+
     <mapping class="by.fastflow.DBModels.InDialogDB"/>
     <mapping class="by.fastflow.DBModels.pk.InDialogDBPK"/>
     <mapping class="by.fastflow.DBModels.NotReadedSuccessDB"/>
     <mapping class="by.fastflow.DBModels.pk.NotReadedSuccessDBPK"/>
     <mapping class="by.fastflow.DBModels.NotReadedMessagesDB"/>
     <mapping class="by.fastflow.DBModels.pk.NotReadedMessagesDBPK"/>
-    <!--<mapping resource="by/fastflow/DBModels/xml/CardDB.hbm.xml"/>
+    <mapping class="by.fastflow.DBModels.RelationshipDB"/>
+    <mapping class="by.fastflow.DBModels.pk.RelationshipDBPK"/>
+    <!--
     <mapping class="by.fastflow.DBModels.xml.TaskListPermissionsDB"/>
-    <mapping class="by.fastflow.DBModels.CardDB"/>
     <mapping resource="by/fastflow/DBModels/xml/InDialogDB.hbm.xml"/>
     <mapping resource="by/fastflow/DBModels/xml/NotReadedMessagesDB.hbm.xml"/>
     <mapping resource="by/fastflow/DBModels/xml/NotReadedSuccessDB.hbm.xml"/>
