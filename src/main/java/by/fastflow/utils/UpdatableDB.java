@@ -14,16 +14,15 @@ public abstract class UpdatableDB<T extends UpdatableDB> extends NextableId<T> {
     public abstract void updateBy(T up);
 
     public T updateInBDWithToken(Session session, T up, String token) throws RestException {
-        validate();
+
         up.havePermissionToModify(session, token);
-        up.updateBy(this);
+        up.updateBy(this
+                .validate());
         session.beginTransaction();
         session.update(up);
         session.getTransaction().commit();
         return up;
     }
-
-    public abstract void validate() throws RestException;
 
     public void delete(Session session, String token) throws RestException {
         havePermissionToDelete(session, token);
@@ -33,5 +32,6 @@ public abstract class UpdatableDB<T extends UpdatableDB> extends NextableId<T> {
     }
 
     public abstract void havePermissionToModify(Session session, String token) throws RestException;
+
     public abstract void havePermissionToDelete(Session session, String token) throws RestException;
 }

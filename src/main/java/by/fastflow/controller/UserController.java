@@ -25,6 +25,8 @@ import java.util.Map;
 @RestController
 public class UserController extends ExceptionHandlerController {
 
+    // TODO: 18.11.2016 загрузка фото
+
     private static final String ADDRESS = Constants.DEF_SERVER + "user";
 
     @RequestMapping(value = ADDRESS + "/loginVk", method = RequestMethod.POST)
@@ -84,6 +86,7 @@ public class UserController extends ExceptionHandlerController {
                 session.save(userDB);
                 session.save(AuthDB
                         .createNew(session, Constants.LOGIN_TYPE_VK, userId + "", userDB.getUserId()));
+                session.save(CardController.createCard(session, userDB));
             } else {
                 userDB = UserDB.getUser(session, list.get(0).getUserId())
                         .updateToken();
@@ -102,7 +105,7 @@ public class UserController extends ExceptionHandlerController {
     @RequestMapping(value = ADDRESS + "/update/{user_id}", method = RequestMethod.PUT)
     public
     @ResponseBody
-    Map<String, Object> update(@PathVariable(value = "user_id") Long userId,
+    Map<String, Object> update(@PathVariable(value = "user_id") long userId,
                                @RequestBody UserDB user,
                                @RequestHeader(value = "token") String token) throws RestException {
         try {
@@ -122,7 +125,7 @@ public class UserController extends ExceptionHandlerController {
     @RequestMapping(value = ADDRESS + "/delete/{user_id}", method = RequestMethod.DELETE)
     public
     @ResponseBody
-    Map<String, Object> delete(@PathVariable(value = "user_id") Long userId,
+    Map<String, Object> delete(@PathVariable(value = "user_id") long userId,
                                @RequestHeader(value = "token") String token) throws RestException {
         try {
             Session session = HibernateSessionFactory
@@ -140,7 +143,7 @@ public class UserController extends ExceptionHandlerController {
     @RequestMapping(value = ADDRESS + "/getUserInfo/{user_id}", method = RequestMethod.PUT)
     public
     @ResponseBody
-    Map<String, Object> getUser(@PathVariable(value = "user_id") Long userId) throws RestException {
+    Map<String, Object> getUser(@PathVariable(value = "user_id") long userId) throws RestException {
         try {
             Session session = HibernateSessionFactory
                     .getSessionFactory()
@@ -154,6 +157,7 @@ public class UserController extends ExceptionHandlerController {
             throw new RestException(e);
         }
     }*/
+
 
     @RequestMapping(ADDRESS + "/test/")
     String home() {

@@ -64,9 +64,11 @@ public class DialogDB extends UpdatableDB<DialogDB> {
         this.name = up.name;
     }
 
-    public void validate() throws RestException {
+    @Override
+    public DialogDB validate() throws RestException {
         if ((name == null) || (name.isEmpty()) || (name.length() > 30))
             throw new RestException(ErrorConstants.EMPTY_DIALOG_NAME);
+        return this;
     }
 
     @Override

@@ -3,6 +3,7 @@ package by.fastflow.controller;
 import by.fastflow.Ajax;
 import by.fastflow.DBModels.DialogDB;
 import by.fastflow.DBModels.InDialogDB;
+import by.fastflow.DBModels.InDialogTwainDB;
 import by.fastflow.DBModels.pk.InDialogDBPK;
 import by.fastflow.DBModels.UserDB;
 import by.fastflow.repository.HibernateSessionFactory;
@@ -23,12 +24,15 @@ import java.util.Map;
  */
 @RestController
 public class DialogController extends ExceptionHandlerController {
+
+    // TODO: 18.11.2016 получить мои диалоги
+
     private static final String ADDRESS = Constants.DEF_SERVER + "dialog";
 
     @RequestMapping(value = ADDRESS + "/create/{user_id}", method = RequestMethod.POST)
     public
     @ResponseBody
-    Map<String, Object> create(@PathVariable(value = "user_id") Long userId,
+    Map<String, Object> create(@PathVariable(value = "user_id") long userId,
                                @RequestBody List<Long> userGId,
                                @RequestHeader(value = "token") String token,
                                @RequestParam(value = "name") String name) throws RestException {
@@ -74,8 +78,8 @@ public class DialogController extends ExceptionHandlerController {
     @RequestMapping(value = ADDRESS + "/out/{user_id}/{dialog_id}", method = RequestMethod.DELETE)
     public
     @ResponseBody
-    Map<String, Object> out(@PathVariable(value = "user_id") Long userId,
-                            @PathVariable(value = "dialog_id") Long dialogId,
+    Map<String, Object> out(@PathVariable(value = "user_id") long userId,
+                            @PathVariable(value = "dialog_id") long dialogId,
                             @RequestHeader(value = "token") String token) throws RestException {
         try {
             Session session = HibernateSessionFactory
@@ -87,6 +91,10 @@ public class DialogController extends ExceptionHandlerController {
             if (inDialogDB == null) {
                 throw new RestException(ErrorConstants.NOT_HAVE_ID);
             }
+
+            if (isDialogTwain(session, dialogId))
+                throw new RestException(ErrorConstants.TWAIN_DIALOG);
+
             session.beginTransaction();
             session.delete(inDialogDB);
             session.getTransaction().commit();
@@ -123,6 +131,9 @@ public class DialogController extends ExceptionHandlerController {
                 throw new RestException(ErrorConstants.NOT_HAVE_GID);
             }
 
+            if (isDialogTwain(session, dialogId))
+                throw new RestException(ErrorConstants.TWAIN_DIALOG);
+
             session.beginTransaction();
             session.save(InDialogDB
                     .createNew(list.get(0).getUserId(), dialogId));
@@ -139,22 +150,28 @@ public class DialogController extends ExceptionHandlerController {
         }
     }
 
+    public static boolean isDialogTwain(Session session, long dialogId) {
+        if (getTwainDialog(session, dialogId).size() > 0)
+            return true;
+        else
+            return false;
+    }
 
-    @RequestMapping(value = ADDRESS + "/update/{user_id}/{dialog_id}", method = RequestMethod.PUT)
+
+    @RequestMapping(value = ADDRESS + "/update/{user_id}", method = RequestMethod.PUT)
     public
     @ResponseBody
     Map<String, Object> update(@PathVariable(value = "user_id") long userId,
-                               @PathVariable(value = "dialog_id") long dialogId,
-                               @RequestHeader(value = "token") String token,
-                               @RequestParam(value = "name") String name) throws RestException {
+                               @RequestBody DialogDB dialogDB,
+                               @RequestHeader(value = "token") String token) throws RestException {
         try {
             Session session = HibernateSessionFactory
                     .getSessionFactory()
                     .openSession();
             UserDB user = UserDB.getUser(session, userId, token);
-            DialogDB up = DialogDB.createNew(name).updateInBDWithToken(session, DialogDB.getDialog(session, dialogId), token);
+            DialogDB up = dialogDB.updateInBDWithToken(session, DialogDB.getDialog(session, dialogDB.getDialogId()), token);
 
-            MessageController.generateMessage(session, Constants.MSG_UPDATE, userId, dialogId, name);
+            MessageController.generateMessage(session, Constants.MSG_UPDATE, userId, dialogDB.getDialogId(), dialogDB.getName());
             session.close();
             return Ajax.successResponse(up);
         } catch (RestException re) {
@@ -202,5 +219,40 @@ public class DialogController extends ExceptionHandlerController {
             array.add(UserDB.getJson((String) objects[0], (BigInteger) objects[1], (String) objects[2], (BigInteger) objects[3]));
         }
         return array;
+    }
+
+    public static long getTwainDialogId(Session session, long userFId, long userSId) {
+        List<Object[]> list = getTwainDialog(session, userFId, userSId);
+        if (list.size() == 0) {
+            session.beginTransaction();
+            DialogDB dialog = DialogDB.createNew("").setNextId(session);
+            session.save(dialog);
+            session.save(InDialogTwainDB.createNew(userFId, userSId, dialog.getDialogId()));
+            session.save(InDialogTwainDB.createNew(userSId, userFId, dialog.getDialogId()));
+            session.getTransaction().commit();
+            return dialog.getDialogId();
+        } else
+            return Constants.convertL(list.get(0)[0]);
+    }
+
+    private static List<Object[]> getTwainDialog(Session session, long userFId, long userSId) {
+        return session.createSQLQuery("SELECT " +
+                "r.dialog_id as a0, r.first_user as a1, r.second_user as a2 " +
+                "FROM izh_scheme.in_dialog_twain r " +
+                "WHERE r.first_user = " + userFId + " AND r.second_user = " + userSId)
+                .list();
+    }
+
+    public static List<Object[]> getTwainDialog(Session session, long dialogId) {
+        return session.createSQLQuery("SELECT " +
+                "r.dialog_id as a0, r.first_user as a1, r.second_user as a2 " +
+                "FROM izh_scheme.in_dialog_twain r " +
+                "WHERE r.dialog_id = " + dialogId)
+                .list();
+    }
+
+    @RequestMapping(ADDRESS + "/test/")
+    String home() {
+        return "Hello World! " + ADDRESS;
     }
 }

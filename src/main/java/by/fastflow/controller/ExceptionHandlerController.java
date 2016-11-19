@@ -1,5 +1,6 @@
 package by.fastflow.controller;
 
+import by.fastflow.repository.HibernateSessionFactory;
 import by.fastflow.utils.UpdatableDB;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
@@ -19,6 +20,10 @@ public abstract class ExceptionHandlerController {
     public
     @ResponseBody
     String handleException(RestException e) {
+        Session session = HibernateSessionFactory.getSessionFactory().getCurrentSession();
+        if (session != null){
+            session.close();
+        }
         LOG.error("Ошибка: " + e.getMessage(), e);
         return e.getErrorJson();
     }

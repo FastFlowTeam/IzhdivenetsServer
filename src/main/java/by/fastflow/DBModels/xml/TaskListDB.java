@@ -9,7 +9,7 @@ import javax.persistence.*;
 @Table(name = "task_list", schema = "izh_scheme", catalog = "db")
 public class TaskListDB {
     private long listId;
-    private Long userId;
+    private long userId;
     private long visibility;
     private String name;
     private String description;
@@ -27,11 +27,11 @@ public class TaskListDB {
 
     @Basic
     @Column(name = "user_id", nullable = true)
-    public Long getUserId() {
+    public long getUserId() {
         return userId;
     }
 
-    public void setUserId(Long userId) {
+    public void setUserId(long userId) {
         this.userId = userId;
     }
 
@@ -85,7 +85,7 @@ public class TaskListDB {
         if (listId != that.listId) return false;
         if (visibility != that.visibility) return false;
         if (canWork != that.canWork) return false;
-        if (userId != null ? !userId.equals(that.userId) : that.userId != null) return false;
+        if (userId != that.userId) return false;
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
         if (description != null ? !description.equals(that.description) : that.description != null) return false;
 
@@ -95,8 +95,8 @@ public class TaskListDB {
     @Override
     public int hashCode() {
         int result = (int) (listId ^ (listId >>> 32));
-        result = 31 * result + (userId != null ? userId.hashCode() : 0);
         result = 31 * result + (int) (visibility ^ (visibility >>> 32));
+        result = 31 * result + (int) (userId ^ (userId >>> 32));
         result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (description != null ? description.hashCode() : 0);
         result = 31 * result + (int) (canWork ^ (canWork >>> 32));

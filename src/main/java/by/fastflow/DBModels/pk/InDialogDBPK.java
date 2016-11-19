@@ -11,7 +11,7 @@ public class InDialogDBPK implements Serializable {
     private long dialogId;
     private long userId;
 
-    public InDialogDBPK(Long userId, Long dialogId) {
+    public InDialogDBPK(long userId, long dialogId) {
         this.userId = userId;
         this.dialogId = dialogId;
     }

@@ -30,11 +30,11 @@ public class CardDB extends NextableId {
 
     @Basic
     @Column(name = "user_id", nullable = true)
-    public Long getUserId() {
+    public long getUserId() {
         return userId;
     }
 
-    public CardDB setUserId(Long userId) {
+    public CardDB setUserId(long userId) {
         this.userId = userId;
         return this;
     }
@@ -72,9 +72,11 @@ public class CardDB extends NextableId {
         return result;
     }
 
-    public void validate() throws RestException {
+    @Override
+    public CardDB validate() throws RestException {
         if (moneyAmount < 0 || moneyAmount > 1000000000)
             throw new RestException(ErrorConstants.NEGATIVE_CARD_MONEY);
+        return this;
     }
 
     @Override

@@ -21,12 +21,14 @@ import java.util.Map;
 @RestController
 public class SuccessController extends ExceptionHandlerController {
 
+    // TODO: 13.11.2016 список детей с достижениями
+
     private static final String ADDRESS = Constants.DEF_SERVER + "success";
 
     @RequestMapping(value = ADDRESS + "/update/{success_id}", method = RequestMethod.PUT)
     public
     @ResponseBody
-    Map<String, Object> update(@PathVariable(value = "success_id") Long successId,
+    Map<String, Object> update(@PathVariable(value = "success_id") long successId,
                                @RequestBody SuccessDB success,
                                @RequestHeader(value = "token") String token) throws RestException {
         try {
@@ -46,7 +48,7 @@ public class SuccessController extends ExceptionHandlerController {
     @RequestMapping(value = ADDRESS + "/create/{user_id}", method = RequestMethod.POST)
     public
     @ResponseBody
-    Map<String, Object> create(@PathVariable(value = "user_id") Long userId,
+    Map<String, Object> create(@PathVariable(value = "user_id") long userId,
                                @RequestBody SuccessDB success,
                                @RequestHeader(value = "token") String token) throws RestException {
         try {
@@ -57,9 +59,9 @@ public class SuccessController extends ExceptionHandlerController {
             if (!user.isChild())
                 throw new RestException(ErrorConstants.NOT_CORRECT_USER_TYPE);
 
-            success.validate();
             session.beginTransaction();
             session.save(success
+                    .validate()
                     .setUserId(userId)
                     .setState(Constants.SUCCESS_NOT_READED)
                     .setNextId(session));
@@ -135,8 +137,8 @@ public class SuccessController extends ExceptionHandlerController {
     @RequestMapping(value = ADDRESS + "/praised/{user_id}/{success_id}", method = RequestMethod.PUT)
     public
     @ResponseBody
-    Map<String, Object> praised(@PathVariable(value = "success_id") Long successId,
-                                @PathVariable(value = "user_id") Long userId,
+    Map<String, Object> praised(@PathVariable(value = "success_id") long successId,
+                                @PathVariable(value = "user_id") long userId,
                                 @RequestHeader(value = "token") String token) throws RestException {
         try {
             Session session = HibernateSessionFactory
@@ -147,7 +149,7 @@ public class SuccessController extends ExceptionHandlerController {
             UserDB user = UserDB.getUser(session, userId, token);
             UserDB child = UserDB.getUser(session, successDB.getUserId());
 
-            RequestController.haveRelationship(session, user, child);
+            RequestController.haveAcceptedRelationship(session, user, child);
 
             session.beginTransaction();
             successDB.praised();
@@ -168,7 +170,7 @@ public class SuccessController extends ExceptionHandlerController {
     @RequestMapping(value = ADDRESS + "/getAll/{user_id}/{page}", method = RequestMethod.GET)
     public
     @ResponseBody
-    String getAllMy(@PathVariable(value = "user_id") Long userId,
+    String getAllMy(@PathVariable(value = "user_id") long userId,
                     @PathVariable(value = "page") int page,
                     @RequestHeader(value = "token") String token) throws RestException {
         try {
@@ -189,8 +191,8 @@ public class SuccessController extends ExceptionHandlerController {
     @RequestMapping(value = ADDRESS + "/getAll/{user_id/{child_id}/{page}", method = RequestMethod.GET)
     public
     @ResponseBody
-    String getAllNotMy(@PathVariable(value = "user_id") Long userId,
-                       @PathVariable(value = "child_id") Long childId,
+    String getAllNotMy(@PathVariable(value = "user_id") long userId,
+                       @PathVariable(value = "child_id") long childId,
                        @PathVariable(value = "page") int page,
                        @RequestHeader(value = "token") String token) throws RestException {
         try {
@@ -202,7 +204,7 @@ public class SuccessController extends ExceptionHandlerController {
             if (!user.isParent())
                 throw new RestException(ErrorConstants.NOT_CORRECT_USER_TYPE);
 
-            RequestController.haveRelationship(session, user, child);
+            RequestController.haveAcceptedRelationship(session, user, child);
 
             return allNotMy(session, user, child, page * Constants.PAGE_RESULT);
         } catch (RestException re) {
@@ -215,7 +217,7 @@ public class SuccessController extends ExceptionHandlerController {
     @RequestMapping(value = ADDRESS + "/getAllChilds/{user_id}/", method = RequestMethod.GET)
     public
     @ResponseBody
-    String getAllChilds(@PathVariable(value = "user_id") Long userId,
+    String getAllChilds(@PathVariable(value = "user_id") long userId,
                         @RequestHeader(value = "token") String token) throws RestException {
         try {
             Session session = HibernateSessionFactory
@@ -240,7 +242,7 @@ public class SuccessController extends ExceptionHandlerController {
     @RequestMapping(value = ADDRESS + "/delete/{success_id}", method = RequestMethod.DELETE)
     public
     @ResponseBody
-    Map<String, Object> delete(@PathVariable(value = "success_id") Long successId,
+    Map<String, Object> delete(@PathVariable(value = "success_id") long successId,
                                @RequestHeader(value = "token") String token) throws RestException {
         try {
             Session session = HibernateSessionFactory

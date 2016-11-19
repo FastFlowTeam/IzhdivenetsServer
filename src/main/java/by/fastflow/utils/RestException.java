@@ -136,6 +136,8 @@ public class RestException extends Exception {
                 return "Token is too long";
             case ErrorConstants.NOT_HAVE_CARD:
                 return "Not have card";
+            case ErrorConstants.TWAIN_DIALOG:
+                return "It's twain dialog";
             case ErrorConstants.LONG_SUCCESS_DESCRIPTION:
                 return "Success description is too long";
             case ErrorConstants.LONG_SUCCESS_LINK:

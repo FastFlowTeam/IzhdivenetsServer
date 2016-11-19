@@ -119,13 +119,15 @@ public class UserDB extends UpdatableDB<UserDB> {
         return result;
     }
 
-    public void validate() throws RestException {
+    @Override
+    public UserDB validate() throws RestException {
         if (!Constants.user_types.contains(type))
             throw new RestException(ErrorConstants.USER_TYPE);
         if ((chatName == null) || (chatName.isEmpty()) || (chatName.length() > 30))
             throw new RestException(ErrorConstants.USER_CHAT_NAME);
         if ((photo != null) && (photo.length() > 200))
             throw new RestException(ErrorConstants.LONG_USER_PHOTO);
+        return this;
     }
 
     @Override
@@ -175,7 +177,7 @@ public class UserDB extends UpdatableDB<UserDB> {
         return Calendar.getInstance().getTimeInMillis();
     }
 
-    public static UserDB getUser(Session session, Long userId, String token) throws RestException {
+    public static UserDB getUser(Session session, long userId, String token) throws RestException {
         UserDB user = getUser(session, userId);
         if (!user.getToken().equals(token))
             throw new RestException(ErrorConstants.NOT_CORRECT_TOKEN);

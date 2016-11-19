@@ -59,4 +59,11 @@ public class RelationshipDBPK implements Serializable {
         key.setRecipientId(recipient.getUserId());
         return key;
     }
+
+    public static RelationshipDBPK newKey(long sender, long recipient) {
+        RelationshipDBPK key = new RelationshipDBPK();
+        key.setSenderId(sender);
+        key.setRecipientId(recipient);
+        return key;
+    }
 }

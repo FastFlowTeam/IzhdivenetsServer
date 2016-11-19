@@ -3,15 +3,13 @@ package by.fastflow.controller;
 import by.fastflow.Ajax;
 import by.fastflow.DBModels.*;
 import by.fastflow.DBModels.pk.InDialogDBPK;
-import by.fastflow.DBModels.pk.NotReadedMessagesDBPK;
+import by.fastflow.DBModels.pk.RelationshipDBPK;
 import by.fastflow.repository.HibernateSessionFactory;
 import by.fastflow.utils.Constants;
 import by.fastflow.utils.ErrorConstants;
 import by.fastflow.utils.RestException;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import org.apache.logging.log4j.message.Message;
 import org.hibernate.Session;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,7 +27,7 @@ public class MessageController extends ExceptionHandlerController {
     @RequestMapping(value = ADDRESS + "/create/{user_id}", method = RequestMethod.POST)
     public
     @ResponseBody
-    Map<String, Object> create(@PathVariable(value = "user_id") Long userId,
+    Map<String, Object> create(@PathVariable(value = "user_id") long userId,
                                @RequestBody MessageDB message,
                                @RequestHeader(value = "token") String token) throws RestException {
         try {
@@ -40,9 +38,14 @@ public class MessageController extends ExceptionHandlerController {
             if (session.get(InDialogDB.class, new InDialogDBPK(up.getUserId(), message.getDialogId())) == null)
                 throw new RestException(ErrorConstants.NOT_HAVE_ID);
 
-            message.validate();
+            List<Object[]> list = DialogController.getTwainDialog(session, message.getDialogId());
+            if (list.size() != 0) {
+                RequestController.haveAcceptedRelationship(session, Constants.convertL(list.get(0)[1]), Constants.convertL(list.get(0)[2]));
+            }
+
             session.beginTransaction();
             session.save(message
+                    .validate()
                     .setUserId(up.getUserId())
                     .setNextId(session));
             session.getTransaction().commit();
@@ -83,9 +86,11 @@ public class MessageController extends ExceptionHandlerController {
                 throw new RestException(ErrorConstants.NOT_HAVE_ID);
 
             List<Object[]> list;
-            NotReadedMessagesDB notReaded = (NotReadedMessagesDB) session.get(NotReadedMessagesDB.class, new NotReadedMessagesDBPK(userId, dialogId));
+            InDialogDB notReaded = (InDialogDB) session.get(InDialogDB.class, new InDialogDBPK(userId, dialogId));
+            int newNum = 0;
             if (notReaded != null) {
                 list = getFirstMessages(session, dialogId, Math.max(notReaded.getNumber(), Constants.PAGE_RESULT_MESSAGE));
+                newNum = notReaded.getNumber();
                 session.beginTransaction();
                 session.save(notReaded.readAll());
                 session.getTransaction().commit();
@@ -93,7 +98,7 @@ public class MessageController extends ExceptionHandlerController {
                 list = getFirstMessages(session, dialogId, Constants.PAGE_RESULT_MESSAGE);
             }
             session.close();
-            return Ajax.successResponseJson(getJson(list));
+            return Ajax.successResponseJson(getJson(list, newNum));
         } catch (RestException re) {
             throw re;
         } catch (Exception e) {
@@ -101,13 +106,16 @@ public class MessageController extends ExceptionHandlerController {
         }
     }
 
-    private JsonArray getJson(List<Object[]> list) {
+    private JsonArray getJson(List<Object[]> list, int numNew) {
         JsonArray array = new JsonArray();
+        int i = 0;
         for (Object[] objects : list) {
             JsonObject jsonObject = new JsonObject();
             jsonObject.add("message", MessageDB.getJson((BigInteger) objects[4], (BigInteger) objects[5], (BigInteger) objects[6], (String) objects[7], (String) objects[8]));
             jsonObject.add("user", UserDB.getJson((String) objects[0], (BigInteger) objects[1], (String) objects[2], (BigInteger) objects[3]));
+            jsonObject.addProperty("isNew", i < numNew);
             array.add(jsonObject);
+            i++;
         }
         return array;
     }
@@ -138,9 +146,11 @@ public class MessageController extends ExceptionHandlerController {
                 throw new RestException(ErrorConstants.NOT_HAVE_ID);
 
             List<Object[]> list;
-            NotReadedMessagesDB notReaded = (NotReadedMessagesDB) session.get(NotReadedMessagesDB.class, new NotReadedMessagesDBPK(userId, dialogId));
+            int newNum = 0;
+            InDialogDB notReaded = (InDialogDB) session.get(InDialogDB.class, new InDialogDBPK(userId, dialogId));
             if (notReaded != null) {
                 list = getNextMessages(session, dialogId, Math.max(notReaded.getNumber(), Constants.PAGE_RESULT_MESSAGE), messageId);
+                newNum = notReaded.getNumber();
                 session.beginTransaction();
                 session.save(notReaded.readAll());
                 session.getTransaction().commit();
@@ -148,7 +158,7 @@ public class MessageController extends ExceptionHandlerController {
                 list = getNextMessages(session, dialogId, Constants.PAGE_RESULT_MESSAGE, messageId);
             }
             session.close();
-            return Ajax.successResponseJson(getJson(list));
+            return Ajax.successResponseJson(getJson(list, newNum));
         } catch (RestException re) {
             throw re;
         } catch (Exception e) {
@@ -172,7 +182,7 @@ public class MessageController extends ExceptionHandlerController {
                 throw new RestException(ErrorConstants.NOT_HAVE_ID);
             List<Object[]> list = getPrevMessages(session, dialogId, messageId);
             session.close();
-            return Ajax.successResponseJson(getJson(list));
+            return Ajax.successResponseJson(getJson(list, 0));
         } catch (RestException re) {
             throw re;
         } catch (Exception e) {
@@ -202,7 +212,7 @@ public class MessageController extends ExceptionHandlerController {
 
     private static List<Object[]> getInDialog(Session session, long dialogId) {
         return session.createSQLQuery("SELECT " +
-                "r.user_id as a0, r.dialog_id as a1 " +
+                "r.user_id as a0, r.dialog_id as a1, r.not_readed_messages as a2 " +
                 "FROM izh_scheme.in_dialog r " +
                 "WHERE r.dialog_id = " + dialogId).list();
     }
@@ -211,27 +221,16 @@ public class MessageController extends ExceptionHandlerController {
         session.beginTransaction();
         List<Object[]> list = getInDialog(session, dialogId);
         for (Object[] objects : list) {
-            long id = Constants.convertL(objects[0]);
-            if (id != userId) {
-                NotReadedMessagesDB notReaded = (NotReadedMessagesDB) session.get(NotReadedMessagesDB.class, new NotReadedMessagesDBPK(userId, dialogId));
-                if (notReaded != null)
-                    session.saveOrUpdate(notReaded.next());
-                else
-                    session.saveOrUpdate(NotReadedMessagesDB.createNew(dialogId, userId, 1));
+            if (Constants.convertL(objects[0]) != userId) {
+                session.saveOrUpdate(InDialogDB.createNew(dialogId, userId, (int) (Constants.convertL(objects[2])+1)));
             }
         }
         session.getTransaction().commit();
     }
 
-    public static void generateMessage(Session session, int msg_type, String text, Long userId, long userId1) {
-        /*session.get(In)
 
-        session.beginTransaction();
-        session.save(MessageDB
-                .createNew(msg_type, userId, dialogId, name)
-                .setNextId(session));
-        session.getTransaction().commit();
-
-        updateNotReadedMessages(session, dialogId, userId);*/
+    @RequestMapping(ADDRESS + "/test/")
+    String home() {
+        return "Hello World! " + ADDRESS;
     }
 }

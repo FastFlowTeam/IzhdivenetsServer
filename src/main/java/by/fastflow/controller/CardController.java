@@ -18,12 +18,12 @@ import java.util.Map;
  */
 @RestController
 public class CardController extends ExceptionHandlerController {
-    private static final String ADDRESS = Constants.DEF_SERVER + "card-";
+    private static final String ADDRESS = Constants.DEF_SERVER + "card";
 
     @RequestMapping(value = ADDRESS + "/get/{user_id}", method = RequestMethod.GET)
     public
     @ResponseBody
-    Map<String, Object> get(@PathVariable(value = "user_id") Long userId,
+    Map<String, Object> get(@PathVariable(value = "user_id") long userId,
                             @RequestHeader(value = "token") String token) throws RestException {
         try {
             Session session = HibernateSessionFactory
@@ -45,9 +45,10 @@ public class CardController extends ExceptionHandlerController {
     @RequestMapping(value = ADDRESS + "/send/{user_id}", method = RequestMethod.PUT)
     public
     @ResponseBody
-    Map<String, Object> send(@PathVariable(value = "user_id") Long userId,
+    Map<String, Object> send(@PathVariable(value = "user_id") long userId,
                              @RequestParam(value = "gId") long gId,
                              @RequestParam(value = "money") long money,
+                             @RequestParam(value = "message") String message,
                              @RequestHeader(value = "token") String token) throws RestException {
         try {
             Session session = HibernateSessionFactory
@@ -58,13 +59,7 @@ public class CardController extends ExceptionHandlerController {
             if (list.size() == 0) {
                 throw new RestException(ErrorConstants.NOT_HAVE_GID);
             } else {
-                RelationshipDB relationshipDB = (RelationshipDB) session.get(RelationshipDB.class, RelationshipDBPK.newKey(up, list.get(0)));
-                if (relationshipDB == null)
-                    relationshipDB = (RelationshipDB) session.get(RelationshipDB.class, RelationshipDBPK.newKey(up, list.get(0)));
-                if (relationshipDB == null)
-                    throw new RestException(ErrorConstants.NOT_HAVE_SAME_RELATIONSHIP);
-                if (relationshipDB.notAccepted())
-                    throw new RestException(ErrorConstants.NOT_NAVE_PERMISSION);
+                RequestController.haveAcceptedRelationship(session, up, list.get(0));
                 CardDB card1 = (CardDB) session.createQuery("from CardDB where userId = " + up.getUserId()).list().get(0);
                 CardDB card2 = (CardDB) session.createQuery("from CardDB where userId = " + list.get(0).getUserId()).list().get(0);
                 if ((card1.getMoneyAmount() < money) || (money <= 0))
@@ -73,7 +68,14 @@ public class CardController extends ExceptionHandlerController {
                 session.update(card1.sub(money));
                 session.update(card2.add(money));
                 session.getTransaction().commit();
-                MessageController.generateMessage(session, Constants.MSG_SEND_MONEY, Constants.getStringMoney(money), userId, list.get(0).getUserId());
+
+                MessageController.generateMessage(session,
+                        Constants.MSG_SEND_MONEY,
+                        userId,
+                        DialogController.getTwainDialogId(session, userId, list.get(0).getUserId()),
+                        Constants.getStringMoney(money) + (((message == null) || (message.isEmpty())) ? "" : "\n[" + message + "]")
+                );
+
             }
             session.close();
             return Ajax.emptyResponse();
@@ -86,11 +88,14 @@ public class CardController extends ExceptionHandlerController {
         }
     }
 
-    public static void createCard(Session session, long userId, long type) {
-        session.beginTransaction();
-        session.save(CardDB
-                .createNew(userId, type == Constants.USER_PARENT ? 10000 : 0)
-                .setNextId(session));
-        session.getTransaction().commit();
+    public static CardDB createCard(Session session, UserDB userDB) {
+        return CardDB
+                .createNew(userDB.getUserId(), userDB.getType() == Constants.USER_PARENT ? 10000 : 0)
+                .setNextId(session);
+    }
+
+    @RequestMapping(ADDRESS + "/test/")
+    String home() {
+        return "Hello World! " + ADDRESS;
     }
 }

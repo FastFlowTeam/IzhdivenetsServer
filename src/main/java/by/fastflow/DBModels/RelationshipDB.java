@@ -93,9 +93,10 @@ public class RelationshipDB extends UpdatableDB<RelationshipDB> {
     }
 
     @Override
-    public void validate() throws RestException {
+    public RelationshipDB validate() throws RestException {
         if (!Constants.relationship_types.contains(state))
             throw new RestException(ErrorConstants.WRONG_RELATIONSHIP_STATE);
+        return this;
     }
 
     @Override
@@ -105,10 +106,10 @@ public class RelationshipDB extends UpdatableDB<RelationshipDB> {
 
     @Override
     public void havePermissionToDelete(Session session, String token) throws RestException {
-        UserDB userDB1 = UserDB.getUser(session, recipientId.getUserId());
-        UserDB userDB2 = UserDB.getUser(session, senderId.getUserId());
-        if ((!userDB1.getToken().equals(token)) && (!userDB2.getToken().equals(token)))
-            throw new RestException(ErrorConstants.NOT_NAVE_PERMISSION);
+        UserDB userDB1 = UserDB.getUser(session, recipientId.getUserId(), token);
+//        UserDB userDB2 = UserDB.getUser(session, senderId.getUserId());
+//        if ((!userDB1.getToken().equals(token)) && (!userDB2.getToken().equals(token)))
+//            throw new RestException(ErrorConstants.NOT_NAVE_PERMISSION);
     }
 
     public boolean notAccepted() {

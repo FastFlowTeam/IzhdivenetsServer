@@ -59,4 +59,5 @@ public class ErrorConstants {
     public static final int NOT_CORRECT_USER_TYPE = 52;
     public static final int LONG_TOKEN = 53;
     public static final int NOT_HAVE_CARD = 54;
+    public static final int TWAIN_DIALOG = 55;
 }

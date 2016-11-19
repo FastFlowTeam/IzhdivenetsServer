@@ -22,33 +22,30 @@
     <mapping class="by.fastflow.DBModels.MessageDB"/>
     <mapping resource="xml/CardDB.hbm.xml"/>
     <mapping class="by.fastflow.DBModels.CardDB"/>
+    <mapping resource="xml/WishListDB.hbm.xml"/>
+    <mapping class="by.fastflow.DBModels.WishListDB"/>
+    <mapping resource="xml/WishItemDB.hbm.xml"/>
+    <mapping class="by.fastflow.DBModels.WishItemDB"/>
+    <mapping resource="xml/PushDB.hbm.xml"/>
+    <mapping class="by.fastflow.DBModels.PushDB"/>
 
     <mapping class="by.fastflow.DBModels.InDialogDB"/>
     <mapping class="by.fastflow.DBModels.pk.InDialogDBPK"/>
+    <mapping class="by.fastflow.DBModels.InDialogTwainDB"/>
+    <mapping class="by.fastflow.DBModels.pk.InDialogTwainDBPK"/>
     <mapping class="by.fastflow.DBModels.NotReadedSuccessDB"/>
     <mapping class="by.fastflow.DBModels.pk.NotReadedSuccessDBPK"/>
-    <mapping class="by.fastflow.DBModels.NotReadedMessagesDB"/>
-    <mapping class="by.fastflow.DBModels.pk.NotReadedMessagesDBPK"/>
     <mapping class="by.fastflow.DBModels.RelationshipDB"/>
     <mapping class="by.fastflow.DBModels.pk.RelationshipDBPK"/>
     <!--
     <mapping class="by.fastflow.DBModels.xml.TaskListPermissionsDB"/>
-    <mapping resource="by/fastflow/DBModels/xml/InDialogDB.hbm.xml"/>
-    <mapping resource="by/fastflow/DBModels/xml/NotReadedMessagesDB.hbm.xml"/>
-    <mapping resource="by/fastflow/DBModels/xml/NotReadedSuccessDB.hbm.xml"/>
-    <mapping resource="by/fastflow/DBModels/xml/PushDB.hbm.xml"/>
-    <mapping class="by.fastflow.DBModels.PushDB"/>
     <mapping resource="by/fastflow/DBModels/xml/TaskItemDB.hbm.xml"/>
     <mapping class="by.fastflow.DBModels.TaskItemDB"/>
     <mapping resource="by/fastflow/DBModels/xml/TaskListDB.hbm.xml"/>
     <mapping class="by.fastflow.DBModels.TaskListDB"/>
     <mapping resource="by/fastflow/DBModels/xml/TaskListPermissionsDB.hbm.xml"/>
     <mapping resource="by/fastflow/DBModels/xml/TaskPermissionsDB.hbm.xml"/>
-    <mapping class="by.fastflow.DBModels.TaskPermissionsDB"/>
-    <mapping resource="by/fastflow/DBModels/xml/WishItemDB.hbm.xml"/>
-    <mapping class="by.fastflow.DBModels.WishItemDB"/>
-    <mapping resource="by/fastflow/DBModels/xml/WishListDB.hbm.xml"/>
-    <mapping class="by.fastflow.DBModels.WishListDB"/>-->
+    <mapping class="by.fastflow.DBModels.TaskPermissionsDB"/> -->
     <!-- DB schema will be updated if needed -->
     <!-- <property name="hbm2ddl.auto">updateBy</property> -->
   </session-factory>

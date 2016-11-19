@@ -37,22 +37,22 @@ public class MessageDB extends UpdatableDB<MessageDB> {
 
     @Basic
     @Column(name = "dialog_id", nullable = true)
-    public Long getDialogId() {
+    public long getDialogId() {
         return dialogId;
     }
 
-    public MessageDB setDialogId(Long dialogId) {
+    public MessageDB setDialogId(long dialogId) {
         this.dialogId = dialogId;
         return this;
     }
 
     @Basic
     @Column(name = "user_id", nullable = true)
-    public Long getUserId() {
+    public long getUserId() {
         return userId;
     }
 
-    public MessageDB setUserId(Long userId) {
+    public MessageDB setUserId(long userId) {
         this.userId = userId;
         return this;
     }
@@ -136,7 +136,8 @@ public class MessageDB extends UpdatableDB<MessageDB> {
 
     }
 
-    public void validate() throws RestException {
+    @Override
+    public MessageDB validate() throws RestException {
         if ((text == null) || (text.isEmpty()))
             throw new RestException(ErrorConstants.EMPTY_MESSAGE);
         if (text.length() > 500)
@@ -145,6 +146,7 @@ public class MessageDB extends UpdatableDB<MessageDB> {
             throw new RestException(ErrorConstants.MESSAGE_TYPE);
         if ((link != null) && (link.length() > 200))
             throw new RestException(ErrorConstants.LONG_MESSAGE_LINK);
+        return this;
     }
 
     @Override

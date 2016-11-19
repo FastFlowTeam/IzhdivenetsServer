@@ -4,7 +4,7 @@
     "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 <hibernate-mapping>
 
-    <class name="by.fastflow.DBModels.xml.WishItemDB" table="wish_item" schema="izh_scheme" catalog="db">
+    <class name="by.fastflow.DBModels.WishItemDB" table="wish_item" schema="izh_scheme" catalog="db">
         <id name="itemId">
             <column name="item_id" sql-type="bigint"/>
         </id>

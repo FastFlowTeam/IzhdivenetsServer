@@ -131,7 +131,8 @@ public class SuccessDB extends UpdatableDB<SuccessDB>{
         link = up.link;
     }
 
-    public void validate() throws RestException {
+    @Override
+    public SuccessDB validate() throws RestException {
         if ((title == null) || (title.isEmpty()) || (title.length() > 30))
             throw new RestException(ErrorConstants.EMPTY_SUCCESS_TITLE);
         if (!Constants.success_types.contains(state))
@@ -142,6 +143,7 @@ public class SuccessDB extends UpdatableDB<SuccessDB>{
             throw new RestException(ErrorConstants.LONG_SUCCESS_DESCRIPTION);
         if ((link != null) && link.length() > 200)
             throw new RestException(ErrorConstants.LONG_SUCCESS_LINK);
+        return this;
     }
 
     @Override
@@ -154,7 +156,7 @@ public class SuccessDB extends UpdatableDB<SuccessDB>{
         UserDB.getUser(session, userId, token);
     }
 
-    public static SuccessDB getSuccess(Session session, Long successId) throws RestException {
+    public static SuccessDB getSuccess(Session session, long successId) throws RestException {
         SuccessDB success = ((SuccessDB) session.get(SuccessDB.class, successId));
         if (success == null)
             throw new RestException(ErrorConstants.NOT_HAVE_ID);

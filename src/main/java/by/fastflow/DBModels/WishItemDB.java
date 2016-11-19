@@ -1,8 +1,10 @@
-package by.fastflow.DBModels.xml;
+package by.fastflow.DBModels;
 
 import by.fastflow.utils.Constants;
 import by.fastflow.utils.ErrorConstants;
 import by.fastflow.utils.RestException;
+import by.fastflow.utils.UpdatableDB;
+import org.hibernate.Session;
 
 import javax.persistence.*;
 
@@ -11,16 +13,16 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "wish_item", schema = "izh_scheme", catalog = "db")
-public class WishItemDB {
+public class WishItemDB extends UpdatableDB<WishItemDB> {
     private long itemId;
     private String title;
     private String comment;
     private String link;
     private String photo;
-    private Long cost;
-    private Long wantRate;
+    private long cost;
+    private long wantRate;
     private long visibility;
-    private Long listId;
+    private long listId;
 
     @Id
     @Column(name = "item_id", nullable = false)
@@ -74,21 +76,21 @@ public class WishItemDB {
 
     @Basic
     @Column(name = "cost", nullable = true)
-    public Long getCost() {
+    public long getCost() {
         return cost;
     }
 
-    public void setCost(Long cost) {
+    public void setCost(long cost) {
         this.cost = cost;
     }
 
     @Basic
     @Column(name = "want_rate", nullable = true)
-    public Long getWantRate() {
+    public long getWantRate() {
         return wantRate;
     }
 
-    public void setWantRate(Long wantRate) {
+    public void setWantRate(long wantRate) {
         this.wantRate = wantRate;
     }
 
@@ -104,12 +106,13 @@ public class WishItemDB {
 
     @Basic
     @Column(name = "list_id", nullable = true)
-    public Long getListId() {
+    public long getListId() {
         return listId;
     }
 
-    public void setListId(Long listId) {
+    public WishItemDB setListId(long listId) {
         this.listId = listId;
+        return this;
     }
 
     @Override
@@ -120,14 +123,14 @@ public class WishItemDB {
         WishItemDB that = (WishItemDB) o;
 
         if (itemId != that.itemId) return false;
+        if (listId != that.listId) return false;
+        if (cost != that.cost) return false;
+        if (wantRate != that.wantRate) return false;
         if (visibility != that.visibility) return false;
         if (title != null ? !title.equals(that.title) : that.title != null) return false;
         if (comment != null ? !comment.equals(that.comment) : that.comment != null) return false;
         if (link != null ? !link.equals(that.link) : that.link != null) return false;
         if (photo != null ? !photo.equals(that.photo) : that.photo != null) return false;
-        if (cost != null ? !cost.equals(that.cost) : that.cost != null) return false;
-        if (wantRate != null ? !wantRate.equals(that.wantRate) : that.wantRate != null) return false;
-        if (listId != null ? !listId.equals(that.listId) : that.listId != null) return false;
 
         return true;
     }
@@ -139,32 +142,67 @@ public class WishItemDB {
         result = 31 * result + (comment != null ? comment.hashCode() : 0);
         result = 31 * result + (link != null ? link.hashCode() : 0);
         result = 31 * result + (photo != null ? photo.hashCode() : 0);
-        result = 31 * result + (cost != null ? cost.hashCode() : 0);
-        result = 31 * result + (wantRate != null ? wantRate.hashCode() : 0);
         result = 31 * result + (int) (visibility ^ (visibility >>> 32));
-        result = 31 * result + (listId != null ? listId.hashCode() : 0);
+        result = 31 * result + (int) (listId ^ (listId >>> 32));
+        result = 31 * result + (int) (wantRate ^ (cost >>> 32));
+        result = 31 * result + (int) (cost ^ (wantRate >>> 32));
         return result;
     }
 
-    public void validate() throws RestException {
-        if ((title == null) || ((title.isEmpty())||(title.length()>30)))
-        throw new RestException(ErrorConstants.EMPTY_WISH_ITEM_TITLE);
-        //// TODO: 10.11.2016
-        if((visibility!= Constants.WISH_ITEM_VISIBLE)&&(visibility!=Constants.WISH_ITEM_INVISIBLE))
+    @Override
+    public WishItemDB validate() throws RestException {
+        if ((title == null) || ((title.isEmpty()) || (title.length() > 30)))
+            throw new RestException(ErrorConstants.EMPTY_WISH_ITEM_TITLE);
+        if (!Constants.wishItem_visibility.contains(visibility))
             throw new RestException(ErrorConstants.WRONG_WISH_ITEM_VISIBILITY);
-        if((cost<0)||(cost>1000000000))
+        if ((cost < 0) || (cost > 1000000000))
             throw new RestException(ErrorConstants.WRONG_WISH_COST);
-        if(!(Constants.wish_rates.contains(wantRate)))
+        if (!(Constants.wish_rates.contains(wantRate)))
             throw new RestException(ErrorConstants.WRONG_WANT_RATE);
-        //// TODO: 10.11.2016
-        if (comment.length()>200)
+        if ((comment!= null) && (comment.length() > 200))
             throw new RestException(ErrorConstants.LONG_WISH_COMMENT);
-        //// TODO: 10.11.2016
-        if (link.length()>200)
+        if ((link!= null) && (link.length() > 200))
             throw new RestException(ErrorConstants.LONG_WISH_LINK);
-        //// TODO: 10.11.2016
-        if (photo.length()>200)
+        if ((photo!= null) && (photo.length() > 200))
             throw new RestException(ErrorConstants.LONG_WISH_PHOTO);
+        return this;
+    }
 
+    @Override
+    public void updateBy(WishItemDB up) {
+        title = up.title;
+        comment = up.comment;
+        link = up.link;
+        photo = up.photo;
+        cost = up.cost;
+        wantRate = up.wantRate;
+        visibility = up.visibility;
+    }
+
+    @Override
+    public void havePermissionToModify(Session session, String token) throws RestException {
+        UserDB.getUser(session, WishListDB.getWishList(session, listId).getUserId(), token);
+    }
+
+    @Override
+    public void havePermissionToDelete(Session session, String token) throws RestException {
+        UserDB.getUser(session, WishListDB.getWishList(session, listId).getUserId(), token);
+    }
+
+    public static WishItemDB getWishItem(Session session, long wishItemId) throws RestException {
+        WishItemDB wishItemDB = ((WishItemDB) session.get(WishItemDB.class, wishItemId));
+        if (wishItemDB == null)
+            throw new RestException(ErrorConstants.NOT_HAVE_ID);
+        return wishItemDB;
+    }
+
+    @Override
+    public WishItemDB setNextId(Session session) {
+        try {
+            itemId = ((WishItemDB) session.createQuery("from WishItemDB ORDER BY itemId DESC").setMaxResults(1).uniqueResult()).getItemId() + 1;
+        } catch (Exception e) {
+            itemId = 1;
+        }
+        return this;
     }
 }

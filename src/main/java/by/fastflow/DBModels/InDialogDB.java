@@ -13,8 +13,21 @@ import javax.persistence.*;
 public class InDialogDB {
     private long dialogId;
     private long userId;
+    private int number;
 
-    public static InDialogDB createNew(Long user, long dialogId) {
+
+    @Basic
+    @Column(name = "not_readed_messages", nullable = false)
+    public int getNumber() {
+        return number;
+    }
+
+    public InDialogDB setNumber(int number) {
+        this.number = number;
+        return this;
+    }
+
+    public static InDialogDB createNew(long user, long dialogId) {
         return new InDialogDB()
                 .setUserId(user)
                 .setDialogId(dialogId);
@@ -60,5 +73,21 @@ public class InDialogDB {
         int result = (int) (dialogId ^ (dialogId >>> 32));
         result = 31 * result + (int) (userId ^ (userId >>> 32));
         return result;
+    }
+
+    public InDialogDB readAll() {
+        number = 0;
+        return this;
+    }
+
+    public InDialogDB next() {
+        number++;
+        return this;
+    }
+
+    public static InDialogDB createNew(long dialogId, long userId, int i) {
+        return InDialogDB
+                .createNew(dialogId, userId)
+                .setNumber(i);
     }
 }

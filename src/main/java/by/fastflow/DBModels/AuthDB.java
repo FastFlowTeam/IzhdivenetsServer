@@ -100,4 +100,9 @@ public class AuthDB extends NextableId {
         }
         return this;
     }
+
+    @Override
+    public AuthDB validate() throws RestException {
+        return this;
+    }
 }

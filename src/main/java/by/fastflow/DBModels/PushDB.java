@@ -1,4 +1,4 @@
-package by.fastflow.DBModels.xml;
+package by.fastflow.DBModels;
 
 import by.fastflow.utils.Constants;
 import by.fastflow.utils.ErrorConstants;
@@ -14,7 +14,7 @@ import javax.persistence.*;
 public class PushDB {
     private String token;
     private long device;
-    private Long userId;
+    private long userId;
 
     @Id
     @Column(name = "token", nullable = false, length = 200)
@@ -22,8 +22,9 @@ public class PushDB {
         return token;
     }
 
-    public void setToken(String token) {
+    public PushDB setToken(String token) {
         this.token = token;
+        return this;
     }
 
     @Basic
@@ -32,18 +33,20 @@ public class PushDB {
         return device;
     }
 
-    public void setDevice(long device) {
+    public PushDB setDevice(long device) {
         this.device = device;
+        return this;
     }
 
     @Basic
     @Column(name = "user_id", nullable = true)
-    public Long getUserId() {
+    public long getUserId() {
         return userId;
     }
 
-    public void setUserId(Long userId) {
+    public PushDB setUserId(long userId) {
         this.userId = userId;
+        return this;
     }
 
     @Override
@@ -55,7 +58,7 @@ public class PushDB {
 
         if (device != pushDB.device) return false;
         if (token != null ? !token.equals(pushDB.token) : pushDB.token != null) return false;
-        if (userId != null ? !userId.equals(pushDB.userId) : pushDB.userId != null) return false;
+        if (userId !=  pushDB.userId) return false;
 
         return true;
     }
@@ -64,16 +67,14 @@ public class PushDB {
     public int hashCode() {
         int result = token != null ? token.hashCode() : 0;
         result = 31 * result + (int) (device ^ (device >>> 32));
-        result = 31 * result + (userId != null ? userId.hashCode() : 0);
+        result = 31 * result + (int) (userId ^ (userId >>> 32));
         return result;
     }
 
-    public void validate() throws RestException {
-        if ((token == null) || (token.isEmpty()))
-        throw new RestException(ErrorConstants.EMPTY_PUSH_TOKEN);
-        if(!Constants.device_types.contains(device))
-            throw new RestException(ErrorConstants.WRONG_DEVICE);
-        if (token.length()>200)
-            throw new RestException(ErrorConstants.LONG_TOKEN);
+    public static PushDB createNew(long userId, long device, String token){
+        return new PushDB()
+                .setUserId(userId)
+                .setDevice(device)
+                .setToken(token);
     }
 }
