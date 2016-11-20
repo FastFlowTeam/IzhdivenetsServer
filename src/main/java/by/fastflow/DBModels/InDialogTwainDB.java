@@ -1,6 +1,7 @@
 package by.fastflow.DBModels;
 
 import by.fastflow.DBModels.pk.InDialogDBPK;
+import by.fastflow.DBModels.pk.InDialogTwainDBPK;
 
 import javax.persistence.*;
 
@@ -9,7 +10,7 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "in_dialog_twain", schema = "izh_scheme", catalog = "db")
-@IdClass(InDialogDBPK.class)
+@IdClass(InDialogTwainDBPK.class)
 public class InDialogTwainDB {
     private long dialogId;
     private long userFId;

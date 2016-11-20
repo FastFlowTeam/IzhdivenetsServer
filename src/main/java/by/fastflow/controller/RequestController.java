@@ -1,9 +1,7 @@
 package by.fastflow.controller;
 
 import by.fastflow.Ajax;
-import by.fastflow.DBModels.InDialogTwainDB;
 import by.fastflow.DBModels.RelationshipDB;
-import by.fastflow.DBModels.pk.InDialogTwainDBPK;
 import by.fastflow.DBModels.pk.RelationshipDBPK;
 import by.fastflow.DBModels.UserDB;
 import by.fastflow.repository.HibernateSessionFactory;

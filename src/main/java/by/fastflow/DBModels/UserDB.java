@@ -7,6 +7,7 @@ import org.hibernate.Session;
 import javax.persistence.*;
 import java.math.BigInteger;
 import java.util.Calendar;
+import java.util.TimeZone;
 
 /**
  * Created by KuSu on 22.10.2016.
@@ -173,8 +174,22 @@ public class UserDB extends UpdatableDB<UserDB> {
     }
 
     public static long GenerateGID() {
-        //todo по другому генерить
-        return Calendar.getInstance().getTimeInMillis();
+        //1479645071000 - 12  символов
+        String s = Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTimeInMillis()+"";
+        String res = "";
+        res += s.charAt(2);
+        res += s.charAt(5);
+        res += s.charAt(9);
+        res += s.charAt(6);
+        res += s.charAt(3);
+        res += s.charAt(7);
+        res += s.charAt(10);
+        res += s.charAt(11);
+        res += s.charAt(1);
+        res += s.charAt(4);
+        res += s.charAt(8);
+        res += s.charAt(0);
+        return Long.getLong(res);
     }
 
     public static UserDB getUser(Session session, long userId, String token) throws RestException {

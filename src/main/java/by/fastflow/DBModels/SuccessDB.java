@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import org.hibernate.Session;
 
 import javax.persistence.*;
+import java.math.BigInteger;
 
 /**
  * Created by KuSu on 22.10.2016.
@@ -181,6 +182,17 @@ public class SuccessDB extends UpdatableDB<SuccessDB>{
         object.addProperty("photo", s.photo);
         object.addProperty("link", s.link);
         object.addProperty("state", s.state);
+        return object;
+    }
+
+    public static JsonObject getJson(BigInteger successId, String title, String description, String photo, String link, BigInteger state) {
+        JsonObject object = new JsonObject();
+        object.addProperty("successId", successId);
+        object.addProperty("title", title);
+        object.addProperty("description", description);
+        object.addProperty("photo", photo);
+        object.addProperty("link", link);
+        object.addProperty("state", state);
         return object;
     }
 

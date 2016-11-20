@@ -8,10 +8,13 @@ import by.fastflow.utils.Constants;
 import by.fastflow.utils.ErrorConstants;
 import by.fastflow.utils.RestException;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import org.hibernate.ObjectNotFoundException;
 import org.hibernate.Session;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
 
@@ -20,8 +23,6 @@ import java.util.Map;
  */
 @RestController
 public class SuccessController extends ExceptionHandlerController {
-
-    // TODO: 13.11.2016 список детей с достижениями
 
     private static final String ADDRESS = Constants.DEF_SERVER + "success";
 
@@ -227,16 +228,26 @@ public class SuccessController extends ExceptionHandlerController {
             if (!user.isParent())
                 throw new RestException(ErrorConstants.NOT_CORRECT_USER_TYPE);
 
-            List<Object[]> list = RequestController.getAllMyAcceptedRelationship(session, userId);
-            for (Object[] objects : list) {
-                // TODO: 13.11.2016
-            }
-            return "{}";
+            List<Object[]> list = getAllChildSuccess(session, user.getUserId());
+
+            return Ajax.successResponseJson(getJsonArray(list));
         } catch (RestException re) {
             throw re;
         } catch (Exception e) {
             throw new RestException(e);
         }
+    }
+
+    private JsonArray getJsonArray(List<Object[]> list) {
+        JsonArray array = new JsonArray();
+        for (Object[] objects : list) {
+            JsonObject object = new JsonObject();
+            object.addProperty("number", (BigInteger) objects[0]);
+            object.add("user", UserDB.getJson((String) objects[1], (BigInteger) objects[2], (String) objects[3], (BigInteger) objects[4]));
+            object.add("success", SuccessDB.getJson((BigInteger) objects[5], (String) objects[6], (String) objects[7], (String) objects[8], (String) objects[9], (BigInteger) objects[20]));
+            array.add(object);
+        }
+        return array;
     }
 
     @RequestMapping(value = ADDRESS + "/delete/{success_id}", method = RequestMethod.DELETE)
@@ -259,6 +270,28 @@ public class SuccessController extends ExceptionHandlerController {
         } catch (Exception e) {
             throw new RestException(e);
         }
+    }
+
+    public static List<Object[]> getAllChildSuccess(Session session, long parent_id) {
+        return session.createSQLQuery("select not_readed_success.number as a0, " +
+                "u.chat_name as a1, u.type as a2, u.photo as a3, u.g_id as a4, " +
+                "s.success_id as a5, s.title as a6, s.description as a7, s.photo as a8, s.link as a9, s.state as a10 " +
+                "from izh_scheme.relationship r " +
+                "join izh_scheme.not_readed_success on parent_id = " + parent_id + " and child_id = sender_id " +
+                "join izh_scheme.user as u on u.user_id = sender_id " +
+                "join izh_scheme.success as s on s.user_id = sender_id and s.success_id = " +
+                "(select max(success_id) from izh_scheme.success s where s.user_id = sender_id) " +
+                "where r.recipient_id = " + parent_id + " AND r.state = " + Constants.RELATIONSHIP_ACCEPT +
+                "union " +
+                "select not_readed_success.number as a0, " +
+                "u.chat_name as a1, u.type as a2, u.photo as a3, u.g_id as a4, " +
+                "s.success_id as a5, s.title as a6, s.description as a7, s.photo as a8, s.link as a9, s.state as a10 " +
+                "from izh_scheme.relationship r " +
+                "join izh_scheme.not_readed_success on parent_id = 1 and child_id = recipient_id " +
+                "join izh_scheme.user as u on u.user_id = recipient_id " +
+                "join izh_scheme.success as s on s.user_id = recipient_id and s.success_id = " +
+                "(select max(success_id) from izh_scheme.success s where s.user_id = recipient_id) " +
+                "where r.sender_id = " + parent_id + " AND r.state = " + Constants.RELATIONSHIP_ACCEPT).list();
     }
 
     @RequestMapping(ADDRESS + "/test/")

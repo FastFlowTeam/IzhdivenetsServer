@@ -204,6 +204,28 @@ public class DialogController extends ExceptionHandlerController {
         }
     }
 
+    @RequestMapping(value = ADDRESS + "/getAll/{user_id}", method = RequestMethod.GET)
+    public
+    @ResponseBody
+    String getAllDialogs(@PathVariable(value = "user_id") long userId,
+                  @RequestHeader(value = "token") String token) throws RestException {
+        try {
+            Session session = HibernateSessionFactory
+                    .getSessionFactory()
+                    .openSession();
+            UserDB user = UserDB.getUser(session, userId, token);
+
+            //// TODO: 20.11.2016
+
+            session.close();
+            return "{}";
+        } catch (RestException re) {
+            throw re;
+        } catch (Exception e) {
+            throw new RestException(e);
+        }
+    }
+
     private List<Object[]> getAllUserInDialog(Session session, long dialogId) {
         return session.createSQLQuery("SELECT " +
                 "u.chat_name as a0, u.type as a1, u.photo as a2, u.g_id as a3 " +
