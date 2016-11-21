@@ -9,13 +9,14 @@ import com.google.gson.JsonObject;
 import org.hibernate.Session;
 
 import javax.persistence.*;
+import java.math.BigInteger;
 
 /**
  * Created by KuSu on 22.10.2016.
  */
 @Entity
 @Table(name = "wish_list", schema = "izh_scheme", catalog = "db")
-public class WishListDB extends UpdatableDB<WishListDB>{
+public class WishListDB extends UpdatableDB<WishListDB> {
     private long listId;
     private long userId;
     private String name;
@@ -112,7 +113,7 @@ public class WishListDB extends UpdatableDB<WishListDB>{
             throw new RestException(ErrorConstants.EMPTY_WISH_LIST_NAME);
         if (!Constants.wishList_visibility.contains(visibility))
             throw new RestException(ErrorConstants.WRONG_WISH_ITEM_VISIBILITY);
-        if ((description!= null) && (description.length() > 200))
+        if ((description != null) && (description.length() > 200))
             throw new RestException(ErrorConstants.LONG_WISH_LIST_DESCRIPTION);
         return this;
     }
@@ -144,12 +145,21 @@ public class WishListDB extends UpdatableDB<WishListDB>{
         return wishListDB;
     }
 
-    public JsonElement makeJson() {
+    public static JsonObject makeJson(WishListDB w) {
+        JsonObject object = new JsonObject();
+        object.addProperty("listId", w.listId);
+        object.addProperty("name", w.name);
+        object.addProperty("description", w.description);
+        object.addProperty("visibility", w.visibility);
+        return object;
+    }
+
+    public static JsonObject makeJson(String name, BigInteger listId, String description) {
         JsonObject object = new JsonObject();
         object.addProperty("listId", listId);
         object.addProperty("name", name);
         object.addProperty("description", description);
-        object.addProperty("visibility", visibility);
+        object.addProperty("visibility", Constants.WISH_LIST_VISIBLE);
         return object;
     }
 }

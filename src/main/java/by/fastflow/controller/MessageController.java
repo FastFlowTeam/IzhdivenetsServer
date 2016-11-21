@@ -22,6 +22,7 @@ import java.util.Map;
  */
 @RestController
 public class MessageController extends ExceptionHandlerController {
+
     private static final String ADDRESS = Constants.DEF_SERVER + "message";
 
     @RequestMapping(value = ADDRESS + "/create/{user_id}", method = RequestMethod.POST)
@@ -51,6 +52,40 @@ public class MessageController extends ExceptionHandlerController {
             session.getTransaction().commit();
 
             updateNotReadedMessages(session, message.getDialogId(), userId);
+
+            session.close();
+            return Ajax.emptyResponse();
+        } catch (RestException re) {
+            throw re;
+        } catch (Exception e) {
+            throw new RestException(e);
+        }
+    }
+
+    @RequestMapping(value = ADDRESS + "/delete/{user_id}/{message_id}", method = RequestMethod.DELETE)
+    public
+    @ResponseBody
+    Map<String, Object> create(@PathVariable(value = "user_id") long userId,
+                               @PathVariable(value = "message_id") long msgId,
+                               @RequestHeader(value = "token") String token) throws RestException {
+        try {
+            Session session = HibernateSessionFactory
+                    .getSessionFactory()
+                    .openSession();
+            UserDB up = UserDB.getUser(session, userId, token);
+            MessageDB messageDB = (MessageDB) session.get(MessageDB.class, msgId);
+            if (messageDB == null)
+                throw new RestException(ErrorConstants.NOT_HAVE_ID);
+            if (messageDB.getUserId() != userId)
+                throw new RestException(ErrorConstants.NOT_NAVE_PERMISSION);
+            if (messageDB.getType() != Constants.MESSAGE_TYPE_USER)
+                throw new RestException(ErrorConstants.NOT_NAVE_PERMISSION);
+
+            session.beginTransaction();
+            session.update(messageDB
+                    .setText("*Deleted*")
+                    .setLink(""));
+            session.getTransaction().commit();
 
             session.close();
             return Ajax.emptyResponse();
@@ -222,7 +257,7 @@ public class MessageController extends ExceptionHandlerController {
         List<Object[]> list = getInDialog(session, dialogId);
         for (Object[] objects : list) {
             if (Constants.convertL(objects[0]) != userId) {
-                session.saveOrUpdate(InDialogDB.createNew(dialogId, userId, (int) (Constants.convertL(objects[2])+1)));
+                session.saveOrUpdate(InDialogDB.createNew(dialogId, userId, (int) (Constants.convertL(objects[2]) + 1)));
             }
         }
         session.getTransaction().commit();

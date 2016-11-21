@@ -11,6 +11,8 @@ import by.fastflow.utils.Constants;
 import by.fastflow.utils.ErrorConstants;
 import by.fastflow.utils.RestException;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import org.hibernate.Session;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,14 +20,13 @@ import java.math.BigInteger;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 /**
  * Created by KuSu on 13.11.2016.
  */
 @RestController
 public class DialogController extends ExceptionHandlerController {
-
-    // TODO: 18.11.2016 получить мои диалоги
 
     private static final String ADDRESS = Constants.DEF_SERVER + "dialog";
 
@@ -208,22 +209,87 @@ public class DialogController extends ExceptionHandlerController {
     public
     @ResponseBody
     String getAllDialogs(@PathVariable(value = "user_id") long userId,
-                  @RequestHeader(value = "token") String token) throws RestException {
+                         @RequestHeader(value = "token") String token) throws RestException {
         try {
             Session session = HibernateSessionFactory
                     .getSessionFactory()
                     .openSession();
             UserDB user = UserDB.getUser(session, userId, token);
 
-            //// TODO: 20.11.2016
+            //последняя колонка возвращает или null, или 1 и отвечает за то, личный ли это диалог (если 1 - личный)
+            List<Object[]> list = getAllDialogs(session, userId);
 
             session.close();
-            return "{}";
+            return Ajax.successResponseJson(getArrayDialogsJson(list, user));
         } catch (RestException re) {
             throw re;
         } catch (Exception e) {
             throw new RestException(e);
         }
+    }
+
+    private JsonArray getArrayDialogsJson(List<Object[]> list, UserDB user) {
+        JsonArray array = new JsonArray();
+        for (Object[] objects : list) {
+            JsonObject obj = new JsonObject();
+            obj.addProperty("name", (String) objects[0]);
+            obj.addProperty("dialogId", (BigInteger) objects[1]);
+            obj.addProperty("not_readed", (BigInteger) objects[2]);
+            obj.add("photos", generateJsonPhotos((String) objects[4], user, (objects[5] != null), Constants.convertL(objects[3])));
+            obj.addProperty("count", (BigInteger) objects[3]);
+            obj.addProperty("is_private", (objects[5] != null));
+            obj.addProperty("text", (String) objects[6]);
+            obj.addProperty("my", Constants.convertL(objects[7]) == user.getUserId());
+            array.add(obj);
+        }
+        return array;
+    }
+
+    private JsonArray generateJsonPhotos(String s, UserDB user, boolean isPrivate, long count) {
+        String[] strings = s.split(";");
+        JsonArray array = new JsonArray();
+        if (isPrivate) {
+            if (strings.length > 0) {
+                array.add(strings[0].equals(user.getPhoto()) ? strings[1] : strings[0]);
+            } else {
+                array.add("");
+            }
+        } else {
+            if (strings.length < 4) {
+                for (String str : strings)
+                    array.add(str);
+                for (int i = 0; i < 4 - strings.length; i++)
+                    array.add("");
+            } else {
+                Random random = new Random();
+                int j = 0;
+                while (j != 4) {
+                    int t = random.nextInt(strings.length);
+                    if (strings[t].equals("===")) {
+                    } else {
+                        j++;
+                        array.add(strings[t]);
+                        strings[t] = new String("===");
+                    }
+                }
+            }
+        }
+        return array;
+    }
+
+    public static List<Object[]> getAllDialogs(Session session, long userId) {
+        return session.createSQLQuery("select d.name as a0, " +
+                "i_d.dialog_id as a1, i_d.not_readed_messages as a2, " +
+                "d2.count as a3, photos as a4, is_private as a5, " +
+                "m.text as a6, m.user_id as a7 " +
+                "from izh_scheme.dialog as d " +
+                "join izh_scheme.in_dialog as i_d on d.dialog_id = i_d.dialog_id and user_id = " + userId + " " +
+                "join izh_scheme.message as m on m.dialog_id = d.dialog_id and m.user_id = " + userId + " and m.message_id = " +
+                "(select max(message_id) from izh_scheme.message m where m.user_id = " + userId + " and m.dialog_id = d.dialog_id) " +
+                "join (select dialog_id, count(user_id) as count from izh_scheme.in_dialog group by dialog_id) d2 on d2.dialog_id = i_d.dialog_id " +
+                "left join (select count(first_user) is_private, dialog_id from in_dialog_twain group by dialog_id) d4 on d4.dialog_id = i_d.dialog_id " +
+                "join (select string_agg(photo,';') photos, dialog_id from izh_scheme.user u " +
+                "join izh_scheme.in_dialog i_d on i_d.user_id = u.user_id group by dialog_id) d3 on d3.dialog_id = i_d.dialog_id ").list();
     }
 
     private List<Object[]> getAllUserInDialog(Session session, long dialogId) {

@@ -20,10 +20,6 @@ public abstract class ExceptionHandlerController {
     public
     @ResponseBody
     String handleException(RestException e) {
-        Session session = HibernateSessionFactory.getSessionFactory().getCurrentSession();
-        if (session != null){
-            session.close();
-        }
         LOG.error("Ошибка: " + e.getMessage(), e);
         return e.getErrorJson();
     }

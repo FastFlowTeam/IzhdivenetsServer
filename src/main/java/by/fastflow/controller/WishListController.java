@@ -9,9 +9,11 @@ import by.fastflow.utils.ErrorConstants;
 import by.fastflow.utils.RestException;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import org.hibernate.Session;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -21,8 +23,6 @@ import java.util.Map;
  */
 @RestController
 public class WishListController extends ExceptionHandlerController {
-
-    // TODO: 18.11.2016 получить мои списки - родитель.
 
     private static final String ADDRESS = Constants.DEF_SERVER + "wishlist";
 
@@ -87,7 +87,7 @@ public class WishListController extends ExceptionHandlerController {
                     .getSessionFactory()
                     .openSession();
             UserDB userF = UserDB.getUser(session, userId, token);
-            WishListDB.getWishList(session,wishlistId).delete(session,token);
+            WishListDB.getWishList(session, wishlistId).delete(session, token);
             return Ajax.emptyResponse();
         } catch (RestException re) {
             throw re;
@@ -108,7 +108,7 @@ public class WishListController extends ExceptionHandlerController {
             UserDB up = UserDB.getUser(session, userId, token);
             if (up.isParent())
                 throw new RestException(ErrorConstants.NOT_CORRECT_USER_TYPE);
-            List<WishListDB> list = session.createQuery("from WishListDB where userId = "+userId).list();
+            List<WishListDB> list = session.createQuery("from WishListDB where userId = " + userId).list();
             session.close();
             return Ajax.successResponseJson(getArrayJson(list));
         } catch (RestException re) {
@@ -118,11 +118,11 @@ public class WishListController extends ExceptionHandlerController {
         }
     }
 
-    @RequestMapping(value = ADDRESS + "/getNotMy/{user_id}", method = RequestMethod.POST)
+    @RequestMapping(value = ADDRESS + "/getNotMy/{user_id}", method = RequestMethod.GET)
     public
     @ResponseBody
     String getAllNotMy(@PathVariable(value = "user_id") long userId,
-                    @RequestHeader(value = "token") String token) throws RestException {
+                       @RequestHeader(value = "token") String token) throws RestException {
         try {
             Session session = HibernateSessionFactory
                     .getSessionFactory()
@@ -130,9 +130,12 @@ public class WishListController extends ExceptionHandlerController {
             UserDB up = UserDB.getUser(session, userId, token);
             if (up.isChild())
                 throw new RestException(ErrorConstants.NOT_CORRECT_USER_TYPE);
-            // TODO: 18.11.2016 получить мои списки - родитель. Можно сначала получить все accepted связи, и потом для каждого списки.
+
+            //выводит null последним столбцом, если count = 0
+            List<Object[]> list = getChildsWishLists(session, userId);
+
             session.close();
-            return Ajax.successResponseJson(getArrayJson(new ArrayList<>()));
+            return Ajax.successResponseJson(getArrayBigJson(list));
         } catch (RestException re) {
             throw re;
         } catch (IndexOutOfBoundsException re) {
@@ -142,10 +145,47 @@ public class WishListController extends ExceptionHandlerController {
         }
     }
 
+    private JsonArray getArrayBigJson(List<Object[]> list) {
+        JsonArray array = new JsonArray();
+        for (Object[] objects : list) {
+            JsonObject object = new JsonObject();
+            object.add("list", WishListDB.makeJson((String) objects[0], (BigInteger) objects[1], (String) objects[2]));
+            object.add("user", UserDB.getJson((String) objects[3], (BigInteger) objects[4], (String) objects[5], (BigInteger) objects[6]));
+            object.addProperty("count", objects[7] == null ? 0 : Constants.convertL(objects[7]));
+            array.add(object);
+        }
+        return array;
+    }
+
+    public static List<Object[]> getChildsWishLists(Session session, long parentId) {
+        return session.createSQLQuery("select " +
+                "w_l.name as a0, w_l.list_id as a1, w_l.description as a2, " +
+                "u.chat_name as a3, u.type as a4, u.photo as a5, u.g_id as a6, " +
+                "cou as a7 " +
+                "from izh_scheme.relationship r " +
+                "join izh_scheme.wish_list w_l on user_id = sender_id and visibility = " + Constants.WISH_LIST_VISIBLE +
+                "left join (select count(item_id) as cou, list_id from izh_scheme.wish_item where visibility = " + Constants.WISH_ITEM_VISIBLE + " group by list_id) t1 " +
+                "on t1.list_id = w_l.list_id " +
+                "join izh_scheme.user u on u.user_id = w_l.user_id " +
+                "where r.recipient_id = " + parentId + " and r.state = " + Constants.RELATIONSHIP_ACCEPT +
+                "union " +
+                "select " +
+                "w_l.name as a0, w_l.description as a1, " +
+                "u.chat_name as a2, u.type as a3, u.photo as a4, u.g_id as a5, " +
+                "count as a6 " +
+                "from izh_scheme.relationship r " +
+                "join izh_scheme.wish_list w_l on user_id = recipient_id and visibility = " + Constants.WISH_LIST_VISIBLE +
+                "left join (select count(item_id) as cou, list_id from izh_scheme.wish_item where visibility = " + Constants.WISH_ITEM_VISIBLE + " group by list_id ) t1 " +
+                "on t1.list_id = w_l.list_id " +
+                "join izh_scheme.user u on u.user_id = w_l.user_id " +
+                "where r.sender_id = " + parentId + " and r.state = " + Constants.RELATIONSHIP_ACCEPT).list();
+
+    }
+
     private JsonArray getArrayJson(List<WishListDB> list) {
         JsonArray array = new JsonArray();
-        for (WishListDB item : list){
-            array.add(item.makeJson());
+        for (WishListDB item : list) {
+            array.add(WishListDB.makeJson(item));
         }
         return array;
     }

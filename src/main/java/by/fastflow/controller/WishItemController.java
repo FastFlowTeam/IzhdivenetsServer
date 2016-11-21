@@ -28,7 +28,7 @@ public class WishItemController extends ExceptionHandlerController {
     Map<String, Object> create(@PathVariable(value = "user_id") long userId,
                                @RequestHeader(value = "token") String token,
                                @PathVariable(value = "wishlist_id") long wishlistId,
-                               @RequestBody WishItemDB wishlist) throws RestException {
+                               @RequestBody WishItemDB wishitem) throws RestException {
         try {
             Session session = HibernateSessionFactory
                     .getSessionFactory()
@@ -38,13 +38,13 @@ public class WishItemController extends ExceptionHandlerController {
                 throw new RestException(ErrorConstants.NOT_CORRECT_USER_TYPE);
 
             session.beginTransaction();
-            session.save(wishlist
+            session.save(wishitem
                     .validate()
                     .setListId(wishlistId)
                     .setNextId(session));
 
             session.close();
-            return Ajax.successResponse(wishlist);
+            return Ajax.successResponse(wishitem);
         } catch (RestException re) {
             throw re;
         } catch (Exception e) {
@@ -93,7 +93,7 @@ public class WishItemController extends ExceptionHandlerController {
         }
     }
 
-    @RequestMapping(value = ADDRESS + "/praised/{user_id}/{wishitem_id}", method = RequestMethod.DELETE)
+    @RequestMapping(value = ADDRESS + "/praised/{user_id}/{wishitem_id}", method = RequestMethod.POST)
     public
     @ResponseBody
     Map<String, Object> delete(@RequestHeader(value = "token") String token,
