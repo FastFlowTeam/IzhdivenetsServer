@@ -83,7 +83,7 @@ public class DialogDB extends UpdatableDB<DialogDB> {
 
     @Override
     public void havePermissionToModify(Session session, String token) throws RestException {
-        List<UserDB> list = session.createQuery("from UserDB where token = " + token).list();
+        List<UserDB> list = session.createQuery("from UserDB where token = '" + token+"'").list();
         if (list.size() == 0)
             throw new RestException(ErrorConstants.NOT_NAVE_PERMISSION);
         for (UserDB user : list) {

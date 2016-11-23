@@ -37,7 +37,7 @@ public class Constants {
 
     public final static int TASK_LIST_ALL = 1;
     public final static int TASK_LIST_NOBODY = 2;
-    public final static int TASK_LIST_ALLOWED_USERS = 1;
+    public final static int TASK_LIST_ALLOWED_USERS = 3;
 
     public final static int WISH_ITEM_VISIBLE = 1;
     public final static int WISH_ITEM_INVISIBLE = 2;
@@ -53,6 +53,7 @@ public class Constants {
     public final static HashSet<Integer> success_types = new HashSet<Integer>(Arrays.asList(SUCCESS_NOT_READED, SUCCESS_READED, SUCCESS_PRAISED));
     public final static HashSet<Integer> wishList_visibility = new HashSet<Integer>(Arrays.asList(WISH_LIST_INVISIBLE, WISH_LIST_VISIBLE));
     public final static HashSet<Integer> wishItem_visibility = new HashSet<Integer>(Arrays.asList(WISH_ITEM_INVISIBLE, WISH_ITEM_VISIBLE));
+    public final static HashSet<Integer> taskList_visibility = new HashSet<Integer>(Arrays.asList(TASK_LIST_ALL, TASK_LIST_ALLOWED_USERS, TASK_LIST_NOBODY));
 
     public static final int PAGE_RESULT = 20;
     public static final int PAGE_RESULT_MESSAGE = 20;
@@ -87,7 +88,7 @@ public class Constants {
             case MSG_OUT_ME:
                 return "I go out";
             case MSG_CREATE_RELATIONSHIP:
-                return "I want create reltionship"+getMsg(inf);
+                return "I want create relationship "+getMsg(inf);
             case MSG_UPDATE_RELATIONSHIP:
                 return "I update relationship to state "+inf;
             case MSG_DELETE_RELATIONSHIP:

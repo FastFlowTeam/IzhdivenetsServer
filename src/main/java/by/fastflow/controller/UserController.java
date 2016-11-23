@@ -42,7 +42,7 @@ public class UserController extends ExceptionHandlerController {
             Session session = HibernateSessionFactory
                     .getSessionFactory()
                     .openSession();
-            List<AuthDB> list = session.createQuery("from AuthDB where type = " + Constants.LOGIN_TYPE_VK + " and token = " + (userId + "")).list();
+            List<AuthDB> list = session.createQuery("from AuthDB where type = " + Constants.LOGIN_TYPE_VK + " and token = '" + (userId + "'")).list();
 
             if (list.size() == 0) {
                 throw new RestException(ErrorConstants.NOT_HAVE_ID);
@@ -76,7 +76,7 @@ public class UserController extends ExceptionHandlerController {
             Session session = HibernateSessionFactory
                     .getSessionFactory()
                     .openSession();
-            List<AuthDB> list = session.createQuery("from AuthDB where type = " + Constants.LOGIN_TYPE_VK + " and token = " + (userId + "")).list();
+            List<AuthDB> list = session.createQuery("from AuthDB where type = " + Constants.LOGIN_TYPE_VK + " and token = '" + (userId + "'")).list();
             UserDB userDB = null;
             session.beginTransaction();
             if (list.size() == 0) {

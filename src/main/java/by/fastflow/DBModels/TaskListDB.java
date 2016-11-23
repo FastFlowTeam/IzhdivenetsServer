@@ -1,4 +1,8 @@
-package by.fastflow.DBModels.xml;
+package by.fastflow.DBModels;
+
+import by.fastflow.utils.Constants;
+import by.fastflow.utils.ErrorConstants;
+import by.fastflow.utils.RestException;
 
 import javax.persistence.*;
 
@@ -103,14 +107,14 @@ public class TaskListDB {
         return result;
     }
 
-//    public void validate() throws RestException {
-//        if ((name == null) || (name.isEmpty())||name.length()>30)
-//        throw new RestException(ErrorConstants.EMPTY_TASK_LIST_NAME);
-//        if((visibility!=Constants.TASK_LIST_ALL)&&(visibility!=Constants.TASK_LIST_NOBODY)&&(visibility!=Constants.TASK_LIST_ALLOWED_USERS))
-//            throw new RestException(ErrorConstants.WRONG_TASK_LIST_VISIBILITY);
-//        if((canWork!=Constants.TASK_LIST_ALL)&&(canWork!=Constants.TASK_LIST_NOBODY)&&(canWork!=Constants.TASK_LIST_ALLOWED_USERS))
-//            throw new RestException(ErrorConstants.WRONG_TASK_LIST_CAN_WORK);
-//        if (description.length()>200)
+    public void validate() throws RestException {
+        if ((name == null) || (name.isEmpty()) || name.length() > 30)
+            throw new RestException(ErrorConstants.EMPTY_TASK_LIST_NAME);
+        if (!Constants.taskList_visibility.contains(visibility))
+            throw new RestException(ErrorConstants.WRONG_TASK_LIST_VISIBILITY);
+        if ((canWork != Constants.TASK_LIST_ALL) && (canWork != Constants.TASK_LIST_NOBODY) && (canWork != Constants.TASK_LIST_ALLOWED_USERS))
+            throw new RestException(ErrorConstants.WRONG_TASK_LIST_CAN_WORK);
+//        if (description.length() > 200)
 //            throw new RestException(ErrorConstants.WRONG_TASK_LIST_DESCRIPTION);
-//    }
+    }
 }

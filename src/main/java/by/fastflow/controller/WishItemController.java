@@ -119,6 +119,8 @@ public class WishItemController extends ExceptionHandlerController {
             session.update(card2.add(money));
             session.getTransaction().commit();
 
+
+            //todo еределать без костылей
             MessageController.generateMessage(session,
                     Constants.MSG_SEND_MONEY_FOR_ITEM,
                     userId,
