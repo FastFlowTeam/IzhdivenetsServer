@@ -1,4 +1,4 @@
-package by.fastflow.DBModels;
+package by.fastflow.DBModels.main;
 
 import by.fastflow.utils.*;
 import com.google.gson.JsonElement;
@@ -151,7 +151,9 @@ public class MessageDB extends UpdatableDB<MessageDB> {
 
     @Override
     public void havePermissionToModify(Session session, String token) throws RestException {
-        throw new RestException(ErrorConstants.NOT_NAVE_PERMISSION);
+        if (type != Constants.MESSAGE_TYPE_USER)
+            throw new RestException(ErrorConstants.NOT_NAVE_PERMISSION);
+        UserDB.getUser(session, userId, token);
     }
 
     @Override
@@ -188,5 +190,12 @@ public class MessageDB extends UpdatableDB<MessageDB> {
         json.addProperty("text", text);
         json.addProperty("link", link);
         return json;
+    }
+
+    public static MessageDB getMessage(Session session, long msgId) throws RestException {
+        MessageDB messageDB = ((MessageDB) session.get(MessageDB.class, msgId));
+        if (messageDB == null)
+            throw new RestException(ErrorConstants.NOT_HAVE_ID);
+        return messageDB;
     }
 }

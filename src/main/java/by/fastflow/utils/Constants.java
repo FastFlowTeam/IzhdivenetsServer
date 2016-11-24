@@ -31,13 +31,21 @@ public class Constants {
     public final static int SUCCESS_PRAISED = 3;
 
     public final static int TASK_ITEM_VISIBLE = 1;
-    public final static int TASK_ITEM_INVISIBLE = 2;
-    public final static int TASK_ITEM_IN_PROGRESS = 3;
-    public final static int TASK_ITEM_DONE = 4;
+    public final static int TASK_ITEM_IN_PROGRESS = 2;
+    public final static int TASK_ITEM_DONE = 3;
+    public final static int TASK_ITEM_PRAISED = 4;
+
+    public final static int TASK_ITEM_WORK_ALL = 1;
+    public final static int TASK_ITEM_WORK_NOBODY = 2;
+    public final static int TASK_ITEM_WORK_ALLOWED_USERS = 3;
 
     public final static int TASK_LIST_ALL = 1;
     public final static int TASK_LIST_NOBODY = 2;
     public final static int TASK_LIST_ALLOWED_USERS = 3;
+
+    public final static int TASK_LIST_WORK_ALL = 1;
+    public final static int TASK_LIST_WORK_NOBODY = 2;
+    public final static int TASK_LIST_WORK_ALLOWED_USERS = 3;
 
     public final static int WISH_ITEM_VISIBLE = 1;
     public final static int WISH_ITEM_INVISIBLE = 2;
@@ -45,15 +53,21 @@ public class Constants {
     public final static int WISH_LIST_VISIBLE = 1;
     public final static int WISH_LIST_INVISIBLE = 2;
 
-    public final static HashSet<Integer> wish_rates = new HashSet<Integer>(Arrays.asList(0, 1, 2, 3, 4, 5));
     public final static HashSet<Integer> device_types = new HashSet<Integer>(Arrays.asList(DEVICE_TYPE_ANDROID, DEVICE_TYPE_IOS));
     public final static HashSet<Integer> relationship_types = new HashSet<Integer>(Arrays.asList(RELATIONSHIP_ACCEPT, RELATIONSHIP_CANCEL));
     public final static HashSet<Integer> user_types = new HashSet<Integer>(Arrays.asList(USER_PARENT, USER_CHILD));
     public final static HashSet<Integer> message_types = new HashSet<Integer>(Arrays.asList(MESSAGE_TYPE_SYSTEM, MESSAGE_TYPE_USER));
     public final static HashSet<Integer> success_types = new HashSet<Integer>(Arrays.asList(SUCCESS_NOT_READED, SUCCESS_READED, SUCCESS_PRAISED));
+
     public final static HashSet<Integer> wishList_visibility = new HashSet<Integer>(Arrays.asList(WISH_LIST_INVISIBLE, WISH_LIST_VISIBLE));
     public final static HashSet<Integer> wishItem_visibility = new HashSet<Integer>(Arrays.asList(WISH_ITEM_INVISIBLE, WISH_ITEM_VISIBLE));
+    public final static HashSet<Integer> wish_rates = new HashSet<Integer>(Arrays.asList(0, 1, 2, 3, 4, 5));
+
     public final static HashSet<Integer> taskList_visibility = new HashSet<Integer>(Arrays.asList(TASK_LIST_ALL, TASK_LIST_ALLOWED_USERS, TASK_LIST_NOBODY));
+    public final static HashSet<Integer> taskList_work = new HashSet<Integer>(Arrays.asList(TASK_LIST_WORK_ALL, TASK_LIST_WORK_ALLOWED_USERS, TASK_LIST_WORK_NOBODY));
+
+    public final static HashSet<Integer> taskItem_state = new HashSet<Integer>(Arrays.asList(TASK_ITEM_VISIBLE, TASK_ITEM_IN_PROGRESS, TASK_ITEM_DONE, TASK_ITEM_PRAISED));
+    public final static HashSet<Integer> taskItem_target = new HashSet<Integer>(Arrays.asList(TASK_ITEM_WORK_ALL, TASK_ITEM_WORK_ALLOWED_USERS, TASK_ITEM_WORK_NOBODY));
 
     public static final int PAGE_RESULT = 20;
     public static final int PAGE_RESULT_MESSAGE = 20;

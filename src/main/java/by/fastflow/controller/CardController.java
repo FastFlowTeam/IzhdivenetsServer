@@ -1,8 +1,8 @@
 package by.fastflow.controller;
 
 import by.fastflow.Ajax;
-import by.fastflow.DBModels.*;
-import by.fastflow.DBModels.pk.RelationshipDBPK;
+import by.fastflow.DBModels.main.CardDB;
+import by.fastflow.DBModels.main.UserDB;
 import by.fastflow.repository.HibernateSessionFactory;
 import by.fastflow.utils.Constants;
 import by.fastflow.utils.ErrorConstants;
@@ -20,10 +20,10 @@ import java.util.Map;
 public class CardController extends ExceptionHandlerController {
     private static final String ADDRESS = Constants.DEF_SERVER + "card";
 
-    @RequestMapping(value = ADDRESS + "/get/{user_id}", method = RequestMethod.GET)
+    @RequestMapping(value = ADDRESS + "/get", method = RequestMethod.GET)
     public
     @ResponseBody
-    Map<String, Object> get(@PathVariable(value = "user_id") long userId,
+    Map<String, Object> get(@RequestHeader(value = "user_id") long userId,
                             @RequestHeader(value = "token") String token) throws RestException {
         try {
             Session session = HibernateSessionFactory
@@ -42,10 +42,10 @@ public class CardController extends ExceptionHandlerController {
         }
     }
 
-    @RequestMapping(value = ADDRESS + "/send/{user_id}", method = RequestMethod.PUT)
+    @RequestMapping(value = ADDRESS + "/send", method = RequestMethod.PUT)
     public
     @ResponseBody
-    Map<String, Object> send(@PathVariable(value = "user_id") long userId,
+    Map<String, Object> send(@RequestHeader(value = "user_id") long userId,
                              @RequestParam(value = "gId") long gId,
                              @RequestParam(value = "money") long money,
                              @RequestParam(value = "message") String message,

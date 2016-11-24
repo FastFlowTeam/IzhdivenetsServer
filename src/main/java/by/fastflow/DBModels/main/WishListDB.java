@@ -1,10 +1,9 @@
-package by.fastflow.DBModels;
+package by.fastflow.DBModels.main;
 
 import by.fastflow.utils.Constants;
 import by.fastflow.utils.ErrorConstants;
 import by.fastflow.utils.RestException;
 import by.fastflow.utils.UpdatableDB;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.hibernate.Session;
 

@@ -1,5 +1,6 @@
 package by.fastflow.DBModels;
 
+import by.fastflow.DBModels.main.UserDB;
 import by.fastflow.DBModels.pk.RelationshipDBPK;
 import by.fastflow.utils.Constants;
 import by.fastflow.utils.ErrorConstants;

@@ -1,4 +1,6 @@
-package by.fastflow.DBModels.xml;
+package by.fastflow.DBModels;
+
+import by.fastflow.DBModels.pk.TaskListPermissionsDBPK;
 
 import javax.persistence.*;
 
@@ -18,8 +20,9 @@ public class TaskListPermissionsDB {
         return userId;
     }
 
-    public void setUserId(long userId) {
+    public TaskListPermissionsDB setUserId(long userId) {
         this.userId = userId;
+        return this;
     }
 
     @Id
@@ -28,8 +31,9 @@ public class TaskListPermissionsDB {
         return listId;
     }
 
-    public void setListId(long listId) {
+    public TaskListPermissionsDB setListId(long listId) {
         this.listId = listId;
+        return this;
     }
 
     @Override
@@ -50,5 +54,11 @@ public class TaskListPermissionsDB {
         int result = (int) (userId ^ (userId >>> 32));
         result = 31 * result + (int) (listId ^ (listId >>> 32));
         return result;
+    }
+
+    public static TaskListPermissionsDB createNew(long listId, long userId) {
+        return new TaskListPermissionsDB()
+                .setListId(listId)
+                .setUserId(userId);
     }
 }

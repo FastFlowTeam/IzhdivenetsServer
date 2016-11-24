@@ -2,13 +2,14 @@ package by.fastflow.controller;
 
 import by.fastflow.Ajax;
 import by.fastflow.DBModels.*;
+import by.fastflow.DBModels.main.SuccessDB;
+import by.fastflow.DBModels.main.UserDB;
 import by.fastflow.DBModels.pk.NotReadedSuccessDBPK;
 import by.fastflow.repository.HibernateSessionFactory;
 import by.fastflow.utils.Constants;
 import by.fastflow.utils.ErrorConstants;
 import by.fastflow.utils.RestException;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.hibernate.ObjectNotFoundException;
 import org.hibernate.Session;
@@ -26,17 +27,17 @@ public class SuccessController extends ExceptionHandlerController {
 
     private static final String ADDRESS = Constants.DEF_SERVER + "success";
 
-    @RequestMapping(value = ADDRESS + "/update/{success_id}", method = RequestMethod.PUT)
+    @RequestMapping(value = ADDRESS + "/update", method = RequestMethod.PUT)
     public
     @ResponseBody
-    Map<String, Object> update(@PathVariable(value = "success_id") long successId,
+    Map<String, Object> update(@RequestHeader(value = "user_id") long userId,
                                @RequestBody SuccessDB success,
                                @RequestHeader(value = "token") String token) throws RestException {
         try {
             Session session = HibernateSessionFactory
                     .getSessionFactory()
                     .openSession();
-            SuccessDB up = success.updateInBDWithToken(session, SuccessDB.getSuccess(session, successId), token);
+            SuccessDB up = success.updateInBDWithToken(session, SuccessDB.getSuccess(session, success.getSuccessId()), token);
             session.close();
             return Ajax.successResponse(up);
         } catch (RestException re) {
@@ -46,10 +47,10 @@ public class SuccessController extends ExceptionHandlerController {
         }
     }
 
-    @RequestMapping(value = ADDRESS + "/create/{user_id}", method = RequestMethod.POST)
+    @RequestMapping(value = ADDRESS + "/create", method = RequestMethod.POST)
     public
     @ResponseBody
-    Map<String, Object> create(@PathVariable(value = "user_id") long userId,
+    Map<String, Object> create(@RequestHeader(value = "user_id") long userId,
                                @RequestBody SuccessDB success,
                                @RequestHeader(value = "token") String token) throws RestException {
         try {
@@ -135,11 +136,11 @@ public class SuccessController extends ExceptionHandlerController {
         session.getTransaction().commit();
     }
 
-    @RequestMapping(value = ADDRESS + "/praised/{user_id}/{success_id}", method = RequestMethod.PUT)
+    @RequestMapping(value = ADDRESS + "/praised/{success_id}", method = RequestMethod.PUT)
     public
     @ResponseBody
     Map<String, Object> praised(@PathVariable(value = "success_id") long successId,
-                                @PathVariable(value = "user_id") long userId,
+                                @RequestHeader(value = "user_id") long userId,
                                 @RequestHeader(value = "token") String token) throws RestException {
         try {
             Session session = HibernateSessionFactory
@@ -148,13 +149,11 @@ public class SuccessController extends ExceptionHandlerController {
             SuccessDB successDB = SuccessDB.getSuccess(session, successId);
 
             UserDB user = UserDB.getUser(session, userId, token);
-            UserDB child = UserDB.getUser(session, successDB.getUserId());
-
-            RequestController.haveAcceptedRelationship(session, user, child);
+            RequestController.haveAcceptedRelationship(session, user.getUserId(), successDB.getUserId());
 
             session.beginTransaction();
-            successDB.praised();
-            session.update(successDB);
+            session.update(successDB
+                    .praised());
             session.getTransaction().commit();
 
             session.close();
@@ -168,10 +167,10 @@ public class SuccessController extends ExceptionHandlerController {
         }
     }
 
-    @RequestMapping(value = ADDRESS + "/getAll/{user_id}/{page}", method = RequestMethod.GET)
+    @RequestMapping(value = ADDRESS + "/getAll/{page}", method = RequestMethod.GET)
     public
     @ResponseBody
-    String getAllMy(@PathVariable(value = "user_id") long userId,
+    String getAllMy(@RequestHeader(value = "user_id") long userId,
                     @PathVariable(value = "page") int page,
                     @RequestHeader(value = "token") String token) throws RestException {
         try {
@@ -189,11 +188,11 @@ public class SuccessController extends ExceptionHandlerController {
         }
     }
 
-    @RequestMapping(value = ADDRESS + "/getAll/{user_id/{child_id}/{page}", method = RequestMethod.GET)
+    @RequestMapping(value = ADDRESS + "/getAll/{child_gid}/{page}", method = RequestMethod.GET)
     public
     @ResponseBody
-    String getAllNotMy(@PathVariable(value = "user_id") long userId,
-                       @PathVariable(value = "child_id") long childId,
+    String getAllNotMy(@RequestHeader(value = "user_id") long userId,
+                       @PathVariable(value = "child_gid") long childGId,
                        @PathVariable(value = "page") int page,
                        @RequestHeader(value = "token") String token) throws RestException {
         try {
@@ -201,7 +200,10 @@ public class SuccessController extends ExceptionHandlerController {
                     .getSessionFactory()
                     .openSession();
             UserDB user = UserDB.getUser(session, userId, token);
-            UserDB child = UserDB.getUser(session, childId);
+            List<UserDB> list = session.createQuery("from UserDB where gId = " + childGId).list();
+            if (list.size() == 0)
+                throw new RestException(ErrorConstants.NOT_HAVE_GID);
+            UserDB child = UserDB.getUser(session, list.get(0).getUserId());
             if (!user.isParent())
                 throw new RestException(ErrorConstants.NOT_CORRECT_USER_TYPE);
 
@@ -215,10 +217,10 @@ public class SuccessController extends ExceptionHandlerController {
         }
     }
 
-    @RequestMapping(value = ADDRESS + "/getAllChilds/{user_id}/", method = RequestMethod.GET)
+    @RequestMapping(value = ADDRESS + "/getAllChilds/", method = RequestMethod.GET)
     public
     @ResponseBody
-    String getAllChilds(@PathVariable(value = "user_id") long userId,
+    String getAllChilds(@RequestHeader(value = "user_id") long userId,
                         @RequestHeader(value = "token") String token) throws RestException {
         try {
             Session session = HibernateSessionFactory
@@ -253,14 +255,15 @@ public class SuccessController extends ExceptionHandlerController {
     @RequestMapping(value = ADDRESS + "/delete/{success_id}", method = RequestMethod.DELETE)
     public
     @ResponseBody
-    Map<String, Object> delete(@PathVariable(value = "success_id") long successId,
-                               @RequestHeader(value = "token") String token) throws RestException {
+    Map<String, Object> delete(
+            @RequestHeader(value = "user_id") long userId,
+            @PathVariable(value = "success_id") long successId,
+            @RequestHeader(value = "token") String token) throws RestException {
         try {
             Session session = HibernateSessionFactory
                     .getSessionFactory()
                     .openSession();
-            SuccessDB successDB = SuccessDB.getSuccess(session, successId);
-            successDB.delete(session, token);
+            SuccessDB.getSuccess(session, successId).delete(session, token);
             session.close();
             return Ajax.emptyResponse();
         } catch (RestException re) {
@@ -282,7 +285,7 @@ public class SuccessController extends ExceptionHandlerController {
                 "join izh_scheme.success as s on s.user_id = sender_id and s.success_id = " +
                 "(select max(success_id) from izh_scheme.success s where s.user_id = sender_id) " +
                 "where r.recipient_id = " + parent_id + " AND r.state = " + Constants.RELATIONSHIP_ACCEPT +
-                "union " +
+                " union " +
                 "select not_readed_success.number as a0, " +
                 "u.chat_name as a1, u.type as a2, u.photo as a3, u.g_id as a4, " +
                 "s.success_id as a5, s.title as a6, s.description as a7, s.photo as a8, s.link as a9, s.state as a10 " +

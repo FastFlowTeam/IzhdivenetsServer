@@ -1,6 +1,6 @@
 package by.fastflow.DBModels.pk;
 
-import by.fastflow.DBModels.UserDB;
+import by.fastflow.DBModels.main.UserDB;
 
 import javax.persistence.Column;
 import javax.persistence.Id;

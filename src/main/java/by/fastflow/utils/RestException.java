@@ -56,6 +56,10 @@ public class RestException extends Exception {
                 return "Not correct token";
             case ErrorConstants.NOT_CORRECT_USER_TYPE:
                 return "Not correct user type";
+            case ErrorConstants.NOT_CORRECT_TYPE:
+                return "Not correct type";
+            case ErrorConstants.WRONG_TASK_TARGET:
+                return "";
             case ErrorConstants.NOT_HAVE_GID:
                 return "No such gId";
             case ErrorConstants.NOT_HAVE_ID:
@@ -138,6 +142,8 @@ public class RestException extends Exception {
                 return "Not have card";
             case ErrorConstants.TWAIN_DIALOG:
                 return "It's twain dialog";
+            case ErrorConstants.WRONG_TASK_LIST_DESCRIPTION:
+                return "";
             case ErrorConstants.LONG_SUCCESS_DESCRIPTION:
                 return "Success description is too long";
             case ErrorConstants.LONG_SUCCESS_LINK:

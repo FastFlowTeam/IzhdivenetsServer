@@ -1,8 +1,4 @@
-package by.fastflow.DBModels;
-
-import by.fastflow.utils.Constants;
-import by.fastflow.utils.ErrorConstants;
-import by.fastflow.utils.RestException;
+package by.fastflow.DBModels.main;
 
 import javax.persistence.*;
 

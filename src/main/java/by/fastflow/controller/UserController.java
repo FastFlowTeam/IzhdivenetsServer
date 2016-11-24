@@ -1,8 +1,8 @@
 package by.fastflow.controller;
 
 import by.fastflow.Ajax;
-import by.fastflow.DBModels.AuthDB;
-import by.fastflow.DBModels.UserDB;
+import by.fastflow.DBModels.main.AuthDB;
+import by.fastflow.DBModels.main.UserDB;
 import by.fastflow.repository.HibernateSessionFactory;
 import by.fastflow.utils.Constants;
 import by.fastflow.utils.ErrorConstants;
@@ -12,7 +12,6 @@ import com.vk.api.sdk.client.VkApiClient;
 import com.vk.api.sdk.client.actors.UserActor;
 import com.vk.api.sdk.httpclient.HttpTransportClient;
 import com.vk.api.sdk.objects.account.UserSettings;
-import org.hibernate.ObjectNotFoundException;
 import org.hibernate.Session;
 import org.springframework.web.bind.annotation.*;
 
@@ -102,10 +101,10 @@ public class UserController extends ExceptionHandlerController {
         }
     }
 
-    @RequestMapping(value = ADDRESS + "/update/{user_id}", method = RequestMethod.PUT)
+    @RequestMapping(value = ADDRESS + "/update", method = RequestMethod.PUT)
     public
     @ResponseBody
-    Map<String, Object> update(@PathVariable(value = "user_id") long userId,
+    Map<String, Object> update(@RequestHeader(value = "user_id") long userId,
                                @RequestBody UserDB user,
                                @RequestHeader(value = "token") String token) throws RestException {
         try {
@@ -122,10 +121,10 @@ public class UserController extends ExceptionHandlerController {
         }
     }
 
-    @RequestMapping(value = ADDRESS + "/delete/{user_id}", method = RequestMethod.DELETE)
+    @RequestMapping(value = ADDRESS + "/delete", method = RequestMethod.DELETE)
     public
     @ResponseBody
-    Map<String, Object> delete(@PathVariable(value = "user_id") long userId,
+    Map<String, Object> delete(@RequestHeader(value = "user_id") long userId,
                                @RequestHeader(value = "token") String token) throws RestException {
         try {
             Session session = HibernateSessionFactory

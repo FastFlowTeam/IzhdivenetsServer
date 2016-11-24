@@ -1,8 +1,10 @@
-package by.fastflow.DBModels;
+package by.fastflow.DBModels.main;
 
 import by.fastflow.utils.Constants;
 import by.fastflow.utils.ErrorConstants;
 import by.fastflow.utils.RestException;
+import by.fastflow.utils.UpdatableDB;
+import org.hibernate.Session;
 
 import javax.persistence.*;
 
@@ -11,7 +13,7 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "task_list", schema = "izh_scheme", catalog = "db")
-public class TaskListDB {
+public class TaskListDB extends UpdatableDB<TaskListDB>{
     private long listId;
     private long userId;
     private long visibility;
@@ -35,8 +37,9 @@ public class TaskListDB {
         return userId;
     }
 
-    public void setUserId(long userId) {
+    public TaskListDB setUserId(long userId) {
         this.userId = userId;
+        return this;
     }
 
     @Basic
@@ -107,14 +110,51 @@ public class TaskListDB {
         return result;
     }
 
-    public void validate() throws RestException {
+    @Override
+    public TaskListDB validate() throws RestException {
         if ((name == null) || (name.isEmpty()) || name.length() > 30)
             throw new RestException(ErrorConstants.EMPTY_TASK_LIST_NAME);
         if (!Constants.taskList_visibility.contains(visibility))
             throw new RestException(ErrorConstants.WRONG_TASK_LIST_VISIBILITY);
-        if ((canWork != Constants.TASK_LIST_ALL) && (canWork != Constants.TASK_LIST_NOBODY) && (canWork != Constants.TASK_LIST_ALLOWED_USERS))
+        if (!Constants.taskList_work.contains(visibility))
             throw new RestException(ErrorConstants.WRONG_TASK_LIST_CAN_WORK);
-//        if (description.length() > 200)
-//            throw new RestException(ErrorConstants.WRONG_TASK_LIST_DESCRIPTION);
+        if ((description!= null) && (description.length() > 200))
+            throw new RestException(ErrorConstants.WRONG_TASK_LIST_DESCRIPTION);
+        return this;
+    }
+
+    @Override
+    public void updateBy(TaskListDB up) {
+        visibility = up.visibility;
+        name = up.name;
+        description = up.description;
+        canWork = up.canWork;
+    }
+
+    @Override
+    public void havePermissionToModify(Session session, String token) throws RestException {
+        UserDB.getUser(session, userId, token);
+    }
+
+    @Override
+    public void havePermissionToDelete(Session session, String token) throws RestException {
+        UserDB.getUser(session, userId, token);
+    }
+
+    @Override
+    public TaskListDB setNextId(Session session) {
+        try {
+            listId = ((TaskListDB) session.createQuery("from TaskListDB ORDER BY listId DESC").setMaxResults(1).uniqueResult()).getUserId() + 1;
+        } catch (Exception e) {
+            listId = 1;
+        }
+        return this;
+    }
+
+    public static TaskListDB getTaskList(Session session, long listId) throws RestException {
+        TaskListDB taskListDB = ((TaskListDB) session.get(TaskListDB.class, listId));
+        if (taskListDB == null)
+            throw new RestException(ErrorConstants.NOT_HAVE_ID);
+        return taskListDB;
     }
 }

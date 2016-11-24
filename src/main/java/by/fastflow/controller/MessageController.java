@@ -2,8 +2,9 @@ package by.fastflow.controller;
 
 import by.fastflow.Ajax;
 import by.fastflow.DBModels.*;
+import by.fastflow.DBModels.main.MessageDB;
+import by.fastflow.DBModels.main.UserDB;
 import by.fastflow.DBModels.pk.InDialogDBPK;
-import by.fastflow.DBModels.pk.RelationshipDBPK;
 import by.fastflow.repository.HibernateSessionFactory;
 import by.fastflow.utils.Constants;
 import by.fastflow.utils.ErrorConstants;
@@ -25,10 +26,10 @@ public class MessageController extends ExceptionHandlerController {
 
     private static final String ADDRESS = Constants.DEF_SERVER + "message";
 
-    @RequestMapping(value = ADDRESS + "/create/{user_id}", method = RequestMethod.POST)
+    @RequestMapping(value = ADDRESS + "/create", method = RequestMethod.POST)
     public
     @ResponseBody
-    Map<String, Object> create(@PathVariable(value = "user_id") long userId,
+    Map<String, Object> create(@RequestHeader(value = "user_id") long userId,
                                @RequestBody MessageDB message,
                                @RequestHeader(value = "token") String token) throws RestException {
         try {
@@ -62,24 +63,18 @@ public class MessageController extends ExceptionHandlerController {
         }
     }
 
-    @RequestMapping(value = ADDRESS + "/delete/{user_id}/{message_id}", method = RequestMethod.DELETE)
+    @RequestMapping(value = ADDRESS + "/delete/{message_id}", method = RequestMethod.DELETE)
     public
     @ResponseBody
-    Map<String, Object> create(@PathVariable(value = "user_id") long userId,
+    Map<String, Object> delete(@RequestHeader(value = "user_id") long userId,
                                @PathVariable(value = "message_id") long msgId,
                                @RequestHeader(value = "token") String token) throws RestException {
         try {
             Session session = HibernateSessionFactory
                     .getSessionFactory()
                     .openSession();
-            UserDB up = UserDB.getUser(session, userId, token);
-            MessageDB messageDB = (MessageDB) session.get(MessageDB.class, msgId);
-            if (messageDB == null)
-                throw new RestException(ErrorConstants.NOT_HAVE_ID);
-            if (messageDB.getUserId() != userId)
-                throw new RestException(ErrorConstants.NOT_NAVE_PERMISSION);
-            if (messageDB.getType() != Constants.MESSAGE_TYPE_USER)
-                throw new RestException(ErrorConstants.NOT_NAVE_PERMISSION);
+            MessageDB messageDB = MessageDB.getMessage(session, msgId);
+            messageDB.havePermissionToModify(session, token);
 
             session.beginTransaction();
             session.update(messageDB
@@ -106,10 +101,10 @@ public class MessageController extends ExceptionHandlerController {
         updateNotReadedMessages(session, dialogId, userId);
     }
 
-    @RequestMapping(value = ADDRESS + "/getFirst/{user_id}/{dialog_id}", method = RequestMethod.GET)
+    @RequestMapping(value = ADDRESS + "/getFirst/{dialog_id}", method = RequestMethod.GET)
     public
     @ResponseBody
-    String getFirst(@PathVariable(value = "user_id") long userId,
+    String getFirst(@RequestHeader(value = "user_id") long userId,
                     @PathVariable(value = "dialog_id") long dialogId,
                     @RequestHeader(value = "token") String token) throws RestException {
         try {
@@ -165,12 +160,12 @@ public class MessageController extends ExceptionHandlerController {
                 .list();
     }
 
-    @RequestMapping(value = ADDRESS + "/getNext/{user_id}/{dialog_id}/{message_id}", method = RequestMethod.GET)
+    @RequestMapping(value = ADDRESS + "/getNext/{dialog_id}", method = RequestMethod.GET)
     public
     @ResponseBody
-    String getNext(@PathVariable(value = "user_id") long userId,
+    String getNext(@RequestHeader(value = "user_id") long userId,
                    @PathVariable(value = "dialog_id") long dialogId,
-                   @PathVariable(value = "message_id") long messageId,
+                   @RequestParam(value = "message_id") long messageId,
                    @RequestHeader(value = "token") String token) throws RestException {
         try {
             Session session = HibernateSessionFactory
@@ -201,12 +196,12 @@ public class MessageController extends ExceptionHandlerController {
         }
     }
 
-    @RequestMapping(value = ADDRESS + "/getPrev/{user_id}/{dialog_id}/{message_id}", method = RequestMethod.GET)
+    @RequestMapping(value = ADDRESS + "/getPrev/{dialog_id}", method = RequestMethod.GET)
     public
     @ResponseBody
-    String getPrev(@PathVariable(value = "user_id") long userId,
+    String getPrev(@RequestHeader(value = "user_id") long userId,
                    @PathVariable(value = "dialog_id") long dialogId,
-                   @PathVariable(value = "message_id") long messageId,
+                   @RequestParam(value = "message_id") long messageId,
                    @RequestHeader(value = "token") String token) throws RestException {
         try {
             Session session = HibernateSessionFactory

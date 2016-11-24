@@ -1,4 +1,4 @@
-package by.fastflow.DBModels;
+package by.fastflow.DBModels.main;
 
 import by.fastflow.utils.*;
 import com.google.gson.JsonObject;
@@ -204,7 +204,8 @@ public class SuccessDB extends UpdatableDB<SuccessDB>{
         state = Constants.SUCCESS_READED;
     }
 
-    public void praised() {
+    public SuccessDB praised() {
         state = Constants.SUCCESS_PRAISED;
+        return this;
     }
 }

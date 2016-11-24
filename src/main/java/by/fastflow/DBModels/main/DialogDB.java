@@ -1,5 +1,6 @@
-package by.fastflow.DBModels;
+package by.fastflow.DBModels.main;
 
+import by.fastflow.DBModels.InDialogDB;
 import by.fastflow.DBModels.pk.InDialogDBPK;
 import by.fastflow.utils.ErrorConstants;
 import by.fastflow.utils.RestException;

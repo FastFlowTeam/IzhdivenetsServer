@@ -4,7 +4,7 @@
     "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 <hibernate-mapping>
 
-    <class name="by.fastflow.DBModels.AuthDB" table="auth" schema="izh_scheme" catalog="db">
+    <class name="by.fastflow.DBModels.main.AuthDB" table="auth" schema="izh_scheme" catalog="db">
         <id name="authId">
             <column name="auth_id" sql-type="bigint"/>
         </id>

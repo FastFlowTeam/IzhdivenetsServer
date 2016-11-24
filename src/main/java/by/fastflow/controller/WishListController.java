@@ -1,20 +1,18 @@
 package by.fastflow.controller;
 
 import by.fastflow.Ajax;
-import by.fastflow.DBModels.*;
-import by.fastflow.DBModels.pk.RelationshipDBPK;
+import by.fastflow.DBModels.main.UserDB;
+import by.fastflow.DBModels.main.WishListDB;
 import by.fastflow.repository.HibernateSessionFactory;
 import by.fastflow.utils.Constants;
 import by.fastflow.utils.ErrorConstants;
 import by.fastflow.utils.RestException;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.hibernate.Session;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -26,16 +24,17 @@ public class WishListController extends ExceptionHandlerController {
 
     private static final String ADDRESS = Constants.DEF_SERVER + "wishlist";
 
-    @RequestMapping(value = ADDRESS + "/create/{user_id}", method = RequestMethod.POST)
+    @RequestMapping(value = ADDRESS + "/create", method = RequestMethod.POST)
     public
     @ResponseBody
-    Map<String, Object> create(@PathVariable(value = "user_id") long userId,
+    Map<String, Object> create(@RequestHeader(value = "user_id") long userId,
                                @RequestHeader(value = "token") String token,
                                @RequestBody WishListDB wishlist) throws RestException {
         try {
             Session session = HibernateSessionFactory
                     .getSessionFactory()
                     .openSession();
+
             UserDB up = UserDB.getUser(session, userId, token);
             if (up.isParent())
                 throw new RestException(ErrorConstants.NOT_CORRECT_USER_TYPE);
@@ -55,17 +54,16 @@ public class WishListController extends ExceptionHandlerController {
         }
     }
 
-    @RequestMapping(value = ADDRESS + "/update/{user_id}", method = RequestMethod.PUT)
+    @RequestMapping(value = ADDRESS + "/update", method = RequestMethod.PUT)
     public
     @ResponseBody
-    Map<String, Object> update(@PathVariable(value = "user_id") long userId,
+    Map<String, Object> update(@RequestHeader(value = "user_id") long userId,
                                @RequestHeader(value = "token") String token,
                                @RequestBody WishListDB wishListDB) throws RestException {
         try {
             Session session = HibernateSessionFactory
                     .getSessionFactory()
                     .openSession();
-            UserDB user = UserDB.getUser(session, userId, token);
             WishListDB up = wishListDB.updateInBDWithToken(session, WishListDB.getWishList(session, wishListDB.getListId()), token);
             session.close();
             return Ajax.successResponse(up);
@@ -76,17 +74,16 @@ public class WishListController extends ExceptionHandlerController {
         }
     }
 
-    @RequestMapping(value = ADDRESS + "/delete/{user_id}/{wishlist_id}", method = RequestMethod.DELETE)
+    @RequestMapping(value = ADDRESS + "/delete/{wishlist_id}", method = RequestMethod.DELETE)
     public
     @ResponseBody
     Map<String, Object> delete(@RequestHeader(value = "token") String token,
-                               @PathVariable(value = "user_id") long userId,
+                               @RequestHeader(value = "user_id") long userId,
                                @PathVariable(value = "wishlist_id") long wishlistId) throws RestException {
         try {
             Session session = HibernateSessionFactory
                     .getSessionFactory()
                     .openSession();
-            UserDB userF = UserDB.getUser(session, userId, token);
             WishListDB.getWishList(session, wishlistId).delete(session, token);
             return Ajax.emptyResponse();
         } catch (RestException re) {
@@ -96,10 +93,10 @@ public class WishListController extends ExceptionHandlerController {
         }
     }
 
-    @RequestMapping(value = ADDRESS + "/getMy/{user_id}", method = RequestMethod.GET)
+    @RequestMapping(value = ADDRESS + "/getMy", method = RequestMethod.GET)
     public
     @ResponseBody
-    String getAllMy(@PathVariable(value = "user_id") long userId,
+    String getAllMy(@RequestHeader(value = "user_id") long userId,
                     @RequestHeader(value = "token") String token) throws RestException {
         try {
             Session session = HibernateSessionFactory
@@ -118,10 +115,10 @@ public class WishListController extends ExceptionHandlerController {
         }
     }
 
-    @RequestMapping(value = ADDRESS + "/getNotMy/{user_id}", method = RequestMethod.GET)
+    @RequestMapping(value = ADDRESS + "/getNotMy", method = RequestMethod.GET)
     public
     @ResponseBody
-    String getAllNotMy(@PathVariable(value = "user_id") long userId,
+    String getAllNotMy(@RequestHeader(value = "user_id") long userId,
                        @RequestHeader(value = "token") String token) throws RestException {
         try {
             Session session = HibernateSessionFactory

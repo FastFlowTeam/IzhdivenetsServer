@@ -1,4 +1,10 @@
-package by.fastflow.DBModels.xml;
+package by.fastflow.DBModels.main;
+
+import by.fastflow.utils.Constants;
+import by.fastflow.utils.ErrorConstants;
+import by.fastflow.utils.RestException;
+import by.fastflow.utils.UpdatableDB;
+import org.hibernate.Session;
 
 import javax.persistence.*;
 
@@ -7,7 +13,7 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "task_item", schema = "izh_scheme", catalog = "db")
-public class TaskItemDB {
+public class TaskItemDB extends UpdatableDB<TaskItemDB>{
     private long itemId;
     private String title;
     private String description;
@@ -63,8 +69,9 @@ public class TaskItemDB {
         return listId;
     }
 
-    public void setListId(long listId) {
+    public TaskItemDB setListId(long listId) {
         this.listId = listId;
+        return this;
     }
 
     @Basic
@@ -73,8 +80,9 @@ public class TaskItemDB {
         return state;
     }
 
-    public void setState(long state) {
+    public TaskItemDB setState(long state) {
         this.state = state;
+        return this;
     }
 
     @Basic
@@ -83,8 +91,9 @@ public class TaskItemDB {
         return workingUser;
     }
 
-    public void setWorkingUser(long workingUser) {
+    public TaskItemDB setWorkingUser(long workingUser) {
         this.workingUser = workingUser;
+        return this;
     }
 
     @Basic
@@ -129,14 +138,54 @@ public class TaskItemDB {
         return result;
     }
 
-//    public void validate() throws RestException {
-//        if ((title == null) || (title.isEmpty())||title.length()>30)
-//            throw new RestException(ErrorConstants.EMPTY_TASK_TITLE);
-//        if (description.length()>200)
-//            throw new RestException(ErrorConstants.LONG_TASK_DESCRIPTION);
-//        if ((cost == null) || (cost.isEmpty())||cost.length()>30)
-//            throw new RestException(ErrorConstants.EMPTY_TASK_COST);
-//        if((state!=Constants.TASK_ITEM_VISIBLE)&&(state!=Constants.TASK_ITEM_INVISIBLE)&&(state!=Constants.TASK_ITEM_IN_PROGRESS)&&(state!=COnstants.TASK_ITEM_DONE))
-//            throw new RestException(ErrorConstants.WRONG_TASK_STATE);
-//    }
+    @Override
+    public void updateBy(TaskItemDB up) {
+        title = up.title;
+        description = up.description;
+        cost = up.cost;
+        state = up.state;
+        target = up.target;
+    }
+
+    @Override
+    public void havePermissionToModify(Session session, String token) throws RestException {
+        UserDB.getUser(session, WishListDB.getWishList(session, listId).getUserId(), token);
+    }
+
+    @Override
+    public void havePermissionToDelete(Session session, String token) throws RestException {
+        UserDB.getUser(session, WishListDB.getWishList(session, listId).getUserId(), token);
+    }
+
+    @Override
+    public TaskItemDB setNextId(Session session) {
+        try {
+            itemId = ((TaskItemDB) session.createQuery("from TaskItemDB ORDER BY itemId DESC").setMaxResults(1).uniqueResult()).getItemId() + 1;
+        } catch (Exception e) {
+            itemId = 1;
+        }
+        return this;
+    }
+
+    @Override
+    public TaskItemDB validate() throws RestException {
+        if ((title == null) || (title.isEmpty())||title.length()>30)
+            throw new RestException(ErrorConstants.EMPTY_TASK_TITLE);
+        if ((description != null) && description.length()>200)
+            throw new RestException(ErrorConstants.LONG_TASK_DESCRIPTION);
+        if ((cost == null) || (cost.isEmpty())||cost.length()>30)
+            throw new RestException(ErrorConstants.EMPTY_TASK_COST);
+        if(!Constants.taskItem_state.contains(state))
+            throw new RestException(ErrorConstants.WRONG_TASK_STATE);
+        if(!Constants.taskItem_target.contains(target))
+            throw new RestException(ErrorConstants.WRONG_TASK_TARGET);
+        return this;
+    }
+
+    public static TaskItemDB getTaskItem(Session session, long itemId) throws RestException {
+        TaskItemDB taskItemDB = ((TaskItemDB) session.get(TaskItemDB.class, itemId));
+        if (taskItemDB == null)
+            throw new RestException(ErrorConstants.NOT_HAVE_ID);
+        return taskItemDB;
+    }
 }

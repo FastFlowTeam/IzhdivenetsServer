@@ -1,19 +1,15 @@
 package by.fastflow.controller;
 
 import by.fastflow.Ajax;
-import by.fastflow.DBModels.PushDB;
-import by.fastflow.DBModels.UserDB;
-import by.fastflow.DBModels.WishListDB;
+import by.fastflow.DBModels.main.PushDB;
+import by.fastflow.DBModels.main.UserDB;
 import by.fastflow.repository.HibernateSessionFactory;
 import by.fastflow.utils.Constants;
 import by.fastflow.utils.ErrorConstants;
 import by.fastflow.utils.RestException;
-import com.google.gson.JsonArray;
 import org.hibernate.Session;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -23,10 +19,10 @@ import java.util.Map;
 public class PushController extends ExceptionHandlerController {
     private static final String ADDRESS = Constants.DEF_SERVER + "push";
 
-    @RequestMapping(value = ADDRESS + "/create/{user_id}", method = RequestMethod.POST)
+    @RequestMapping(value = ADDRESS + "/create", method = RequestMethod.POST)
     public
     @ResponseBody
-    Map<String, Object> create(@PathVariable(value = "user_id") long userId,
+    Map<String, Object> create(@RequestHeader(value = "user_id") long userId,
                                @RequestHeader(value = "token") String token,
                                @RequestParam(value = "device") int type,
                                @RequestBody String push_token) throws RestException {

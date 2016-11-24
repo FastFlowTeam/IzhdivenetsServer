@@ -60,4 +60,7 @@ public class ErrorConstants {
     public static final int LONG_TOKEN = 53;
     public static final int NOT_HAVE_CARD = 54;
     public static final int TWAIN_DIALOG = 55;
+    public static final int WRONG_TASK_LIST_DESCRIPTION = 56;
+    public static final int NOT_CORRECT_TYPE = 57;
+    public static final int WRONG_TASK_TARGET = 58;
 }

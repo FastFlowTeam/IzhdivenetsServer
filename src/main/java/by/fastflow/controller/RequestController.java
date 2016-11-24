@@ -3,14 +3,13 @@ package by.fastflow.controller;
 import by.fastflow.Ajax;
 import by.fastflow.DBModels.RelationshipDB;
 import by.fastflow.DBModels.pk.RelationshipDBPK;
-import by.fastflow.DBModels.UserDB;
+import by.fastflow.DBModels.main.UserDB;
 import by.fastflow.repository.HibernateSessionFactory;
 import by.fastflow.utils.Constants;
 import by.fastflow.utils.ErrorConstants;
 import by.fastflow.utils.RestException;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import org.aspectj.weaver.loadtime.Aj;
 import org.hibernate.Session;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,13 +25,13 @@ public class RequestController extends ExceptionHandlerController {
 
     private static final String ADDRESS = Constants.DEF_SERVER + "request";
 
-    @RequestMapping(value = ADDRESS + "/create/{user_id}", method = RequestMethod.POST)
+    @RequestMapping(value = ADDRESS + "/create", method = RequestMethod.POST)
     public
     @ResponseBody
     String create(
             @RequestHeader(value = "token") String token,
-            @PathVariable(value = "user_id") long userId,
-            @PathVariable(value = "message") String message,
+            @RequestHeader(value = "user_id") long userId,
+            @RequestParam(value = "message") String message,
             @RequestParam(value = "gId") long gId) throws RestException {
         try {
             Session session = HibernateSessionFactory
@@ -72,11 +71,11 @@ public class RequestController extends ExceptionHandlerController {
         return Ajax.successResponseJson(generateJson(list, userF.isParent(), userF.getgId()));
     }
 
-    @RequestMapping(value = ADDRESS + "/my/{user_id}", method = RequestMethod.GET)
+    @RequestMapping(value = ADDRESS + "/my", method = RequestMethod.GET)
     public
     @ResponseBody
     String getMy(@RequestHeader(value = "token") String token,
-                 @PathVariable(value = "user_id") long userId) throws RestException {
+                 @RequestHeader(value = "user_id") long userId) throws RestException {
         try {
             Session session = HibernateSessionFactory
                     .getSessionFactory()
@@ -90,11 +89,11 @@ public class RequestController extends ExceptionHandlerController {
         }
     }
 
-    @RequestMapping(value = ADDRESS + "/update/{user_id}", method = RequestMethod.PUT)
+    @RequestMapping(value = ADDRESS + "/update", method = RequestMethod.PUT)
     public
     @ResponseBody
     String update(@RequestHeader(value = "token") String token,
-                  @PathVariable(value = "user_id") long userId,
+                  @RequestHeader(value = "user_id") long userId,
                   @RequestParam(value = "secondUser") long gId, @RequestParam(value = "state") int state) throws RestException {
         try {
             Session session = HibernateSessionFactory
@@ -125,12 +124,12 @@ public class RequestController extends ExceptionHandlerController {
         }
     }
 
-    @RequestMapping(value = ADDRESS + "/delete/{user_id}", method = RequestMethod.DELETE)
+    @RequestMapping(value = ADDRESS + "/delete", method = RequestMethod.DELETE)
     public
     @ResponseBody
     Map<String, Object> delete(@RequestHeader(value = "token") String token,
-                               @PathVariable(value = "user_id") long userId,
-                               @PathVariable(value = "message") String message,
+                               @RequestHeader(value = "user_id") long userId,
+                               @RequestParam(value = "message") String message,
                                @RequestParam(value = "secondUser") long gId) throws RestException {
         try {
             Session session = HibernateSessionFactory

@@ -4,7 +4,7 @@
     "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 <hibernate-mapping>
 
-    <class name="by.fastflow.DBModels.SuccessDB" table="success" schema="izh_scheme" catalog="db">
+    <class name="by.fastflow.DBModels.main.SuccessDB" table="success" schema="izh_scheme" catalog="db">
         <id name="successId">
             <column name="success_id" sql-type="bigint"/>
         </id>

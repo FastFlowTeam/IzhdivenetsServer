@@ -1,17 +1,16 @@
 package by.fastflow.controller;
 
 import by.fastflow.Ajax;
-import by.fastflow.DBModels.DialogDB;
+import by.fastflow.DBModels.main.DialogDB;
 import by.fastflow.DBModels.InDialogDB;
 import by.fastflow.DBModels.InDialogTwainDB;
 import by.fastflow.DBModels.pk.InDialogDBPK;
-import by.fastflow.DBModels.UserDB;
+import by.fastflow.DBModels.main.UserDB;
 import by.fastflow.repository.HibernateSessionFactory;
 import by.fastflow.utils.Constants;
 import by.fastflow.utils.ErrorConstants;
 import by.fastflow.utils.RestException;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.hibernate.Session;
 import org.springframework.web.bind.annotation.*;
@@ -30,10 +29,10 @@ public class DialogController extends ExceptionHandlerController {
 
     private static final String ADDRESS = Constants.DEF_SERVER + "dialog";
 
-    @RequestMapping(value = ADDRESS + "/create/{user_id}", method = RequestMethod.POST)
+    @RequestMapping(value = ADDRESS + "/create", method = RequestMethod.POST)
     public
     @ResponseBody
-    Map<String, Object> create(@PathVariable(value = "user_id") long userId,
+    Map<String, Object> create(@RequestHeader(value = "user_id") long userId,
                                @RequestBody List<Long> userGId,
                                @RequestHeader(value = "token") String token,
                                @RequestParam(value = "name") String name) throws RestException {
@@ -76,10 +75,10 @@ public class DialogController extends ExceptionHandlerController {
         }
     }
 
-    @RequestMapping(value = ADDRESS + "/out/{user_id}/{dialog_id}", method = RequestMethod.DELETE)
+    @RequestMapping(value = ADDRESS + "/out/{dialog_id}", method = RequestMethod.DELETE)
     public
     @ResponseBody
-    Map<String, Object> out(@PathVariable(value = "user_id") long userId,
+    Map<String, Object> out(@RequestHeader(value = "user_id") long userId,
                             @PathVariable(value = "dialog_id") long dialogId,
                             @RequestHeader(value = "token") String token) throws RestException {
         try {
@@ -112,10 +111,10 @@ public class DialogController extends ExceptionHandlerController {
         }
     }
 
-    @RequestMapping(value = ADDRESS + "/add/{user_id}/{dialog_id}", method = RequestMethod.POST)
+    @RequestMapping(value = ADDRESS + "/add/{dialog_id}", method = RequestMethod.POST)
     public
     @ResponseBody
-    Map<String, Object> addHim(@PathVariable(value = "user_id") long userId,
+    Map<String, Object> addHim(@RequestHeader(value = "user_id") long userId,
                                @PathVariable(value = "dialog_id") long dialogId,
                                @RequestParam(value = "gId") long gId,
                                @RequestHeader(value = "token") String token) throws RestException {
@@ -123,7 +122,6 @@ public class DialogController extends ExceptionHandlerController {
             Session session = HibernateSessionFactory
                     .getSessionFactory()
                     .openSession();
-            UserDB up = UserDB.getUser(session, userId, token);
             DialogDB dialogDB = DialogDB.getDialog(session, dialogId);
             dialogDB.havePermissionToModify(session, token);
 
@@ -159,20 +157,21 @@ public class DialogController extends ExceptionHandlerController {
     }
 
 
-    @RequestMapping(value = ADDRESS + "/update/{user_id}", method = RequestMethod.PUT)
+    @RequestMapping(value = ADDRESS + "/update", method = RequestMethod.PUT)
     public
     @ResponseBody
-    Map<String, Object> update(@PathVariable(value = "user_id") long userId,
+    Map<String, Object> update(@RequestHeader(value = "user_id") long userId,
                                @RequestBody DialogDB dialogDB,
                                @RequestHeader(value = "token") String token) throws RestException {
         try {
             Session session = HibernateSessionFactory
                     .getSessionFactory()
                     .openSession();
+
             UserDB user = UserDB.getUser(session, userId, token);
             DialogDB up = dialogDB.updateInBDWithToken(session, DialogDB.getDialog(session, dialogDB.getDialogId()), token);
-
             MessageController.generateMessage(session, Constants.MSG_UPDATE, userId, dialogDB.getDialogId(), dialogDB.getName());
+
             session.close();
             return Ajax.successResponse(up);
         } catch (RestException re) {
@@ -182,10 +181,10 @@ public class DialogController extends ExceptionHandlerController {
         }
     }
 
-    @RequestMapping(value = ADDRESS + "/getAll/{user_id}/{dialog_id}", method = RequestMethod.GET)
+    @RequestMapping(value = ADDRESS + "/getAll/{dialog_id}", method = RequestMethod.GET)
     public
     @ResponseBody
-    String getAll(@PathVariable(value = "user_id") long userId,
+    String getAll(@RequestHeader(value = "user_id") long userId,
                   @PathVariable(value = "dialog_id") long dialogId,
                   @RequestHeader(value = "token") String token) throws RestException {
         try {
@@ -205,10 +204,10 @@ public class DialogController extends ExceptionHandlerController {
         }
     }
 
-    @RequestMapping(value = ADDRESS + "/getAll/{user_id}", method = RequestMethod.GET)
+    @RequestMapping(value = ADDRESS + "/getAll", method = RequestMethod.GET)
     public
     @ResponseBody
-    String getAllDialogs(@PathVariable(value = "user_id") long userId,
+    String getAllDialogs(@RequestHeader(value = "user_id") long userId,
                          @RequestHeader(value = "token") String token) throws RestException {
         try {
             Session session = HibernateSessionFactory

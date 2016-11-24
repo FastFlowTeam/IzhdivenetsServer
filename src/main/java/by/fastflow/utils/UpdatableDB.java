@@ -14,7 +14,6 @@ public abstract class UpdatableDB<T extends UpdatableDB> extends NextableId<T> {
     public abstract void updateBy(T up);
 
     public T updateInBDWithToken(Session session, T up, String token) throws RestException {
-
         up.havePermissionToModify(session, token);
         up.updateBy(this
                 .validate());

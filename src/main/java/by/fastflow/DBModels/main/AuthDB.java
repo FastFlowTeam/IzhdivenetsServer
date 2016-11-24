@@ -1,4 +1,4 @@
-package by.fastflow.DBModels;
+package by.fastflow.DBModels.main;
 
 import by.fastflow.utils.*;
 import org.hibernate.Session;
