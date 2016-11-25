@@ -8,6 +8,7 @@ import by.fastflow.DBModels.pk.InDialogDBPK;
 import by.fastflow.repository.HibernateSessionFactory;
 import by.fastflow.utils.Constants;
 import by.fastflow.utils.ErrorConstants;
+import by.fastflow.utils.LIST;
 import by.fastflow.utils.RestException;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -91,10 +92,10 @@ public class MessageController extends ExceptionHandlerController {
         }
     }
 
-    public static void generateMessage(Session session, int msg_type, long userId, long dialogId, String name) {
+    public static void generateMessage(Session session, int msg_type, long userId, long dialogId, LIST list) {
         session.beginTransaction();
         session.save(MessageDB
-                .createNew(msg_type, userId, dialogId, name)
+                .createNew(msg_type, userId, dialogId, list)
                 .setNextId(session));
         session.getTransaction().commit();
 

@@ -172,11 +172,11 @@ public class MessageDB extends UpdatableDB<MessageDB> {
         return this;
     }
 
-    public static MessageDB createNew(int msg_type, long userId, long dialogId, String name) {
+    public static MessageDB createNew(int msg_type, long userId, long dialogId, LIST list) {
         return new MessageDB()
                 .setDialogId(dialogId)
                 .setType(Constants.MESSAGE_TYPE_SYSTEM)
-                .setText(Constants.getMSG(msg_type, name))
+                .setText(Constants.getMSG(msg_type, list))
                 .setUserId(userId)
                 .setDialogId(dialogId)
                 .setDate(Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTimeInMillis());

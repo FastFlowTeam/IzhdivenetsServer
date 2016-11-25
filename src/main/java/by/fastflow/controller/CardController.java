@@ -6,6 +6,7 @@ import by.fastflow.DBModels.main.UserDB;
 import by.fastflow.repository.HibernateSessionFactory;
 import by.fastflow.utils.Constants;
 import by.fastflow.utils.ErrorConstants;
+import by.fastflow.utils.LIST;
 import by.fastflow.utils.RestException;
 import org.hibernate.Session;
 import org.springframework.web.bind.annotation.*;
@@ -73,7 +74,9 @@ public class CardController extends ExceptionHandlerController {
                         Constants.MSG_SEND_MONEY,
                         userId,
                         DialogController.getTwainDialogId(session, userId, list.get(0).getUserId()),
-                        Constants.getStringMoney(money) + (((message == null) || (message.isEmpty())) ? "" : "\n[" + message + "]")
+                        new LIST()
+                                .add(Constants.getStringMoney(money))
+                                .add(message)
                 );
 
             }

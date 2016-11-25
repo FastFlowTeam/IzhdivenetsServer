@@ -8,6 +8,7 @@ import by.fastflow.DBModels.main.WishListDB;
 import by.fastflow.repository.HibernateSessionFactory;
 import by.fastflow.utils.Constants;
 import by.fastflow.utils.ErrorConstants;
+import by.fastflow.utils.LIST;
 import by.fastflow.utils.RestException;
 import org.hibernate.Session;
 import org.springframework.web.bind.annotation.*;
@@ -130,7 +131,10 @@ public class WishItemController extends ExceptionHandlerController {
                     Constants.MSG_SEND_MONEY_FOR_ITEM,
                     userId,
                     DialogController.getTwainDialogId(session, userId, wishList.getUserId()),
-                    "\"" + item.getTitle() + "\" " + Constants.getStringMoney(money) + (((message == null) || (message.isEmpty())) ? "" : "\n[" + message + "]")
+                    new LIST()
+                    .add(item.getTitle())
+                    .add(Constants.getStringMoney(money))
+                    .add(message)
             );
             return Ajax.emptyResponse();
         } catch (RestException re) {

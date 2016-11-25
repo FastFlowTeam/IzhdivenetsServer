@@ -19,7 +19,6 @@ public class TaskListDB extends UpdatableDB<TaskListDB>{
     private long visibility;
     private String name;
     private String description;
-    private long canWork;
 
     @Id
     @Column(name = "list_id", nullable = false)
@@ -72,16 +71,6 @@ public class TaskListDB extends UpdatableDB<TaskListDB>{
         this.description = description;
     }
 
-    @Basic
-    @Column(name = "can_work", nullable = false)
-    public long getCanWork() {
-        return canWork;
-    }
-
-    public void setCanWork(long canWork) {
-        this.canWork = canWork;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -91,7 +80,6 @@ public class TaskListDB extends UpdatableDB<TaskListDB>{
 
         if (listId != that.listId) return false;
         if (visibility != that.visibility) return false;
-        if (canWork != that.canWork) return false;
         if (userId != that.userId) return false;
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
         if (description != null ? !description.equals(that.description) : that.description != null) return false;
@@ -106,7 +94,6 @@ public class TaskListDB extends UpdatableDB<TaskListDB>{
         result = 31 * result + (int) (userId ^ (userId >>> 32));
         result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (description != null ? description.hashCode() : 0);
-        result = 31 * result + (int) (canWork ^ (canWork >>> 32));
         return result;
     }
 
@@ -116,8 +103,6 @@ public class TaskListDB extends UpdatableDB<TaskListDB>{
             throw new RestException(ErrorConstants.EMPTY_TASK_LIST_NAME);
         if (!Constants.taskList_visibility.contains(visibility))
             throw new RestException(ErrorConstants.WRONG_TASK_LIST_VISIBILITY);
-        if (!Constants.taskList_work.contains(visibility))
-            throw new RestException(ErrorConstants.WRONG_TASK_LIST_CAN_WORK);
         if ((description!= null) && (description.length() > 200))
             throw new RestException(ErrorConstants.WRONG_TASK_LIST_DESCRIPTION);
         return this;
@@ -128,7 +113,6 @@ public class TaskListDB extends UpdatableDB<TaskListDB>{
         visibility = up.visibility;
         name = up.name;
         description = up.description;
-        canWork = up.canWork;
     }
 
     @Override

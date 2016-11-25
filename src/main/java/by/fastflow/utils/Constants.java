@@ -43,10 +43,6 @@ public class Constants {
     public final static int TASK_LIST_NOBODY = 2;
     public final static int TASK_LIST_ALLOWED_USERS = 3;
 
-    public final static int TASK_LIST_WORK_ALL = 1;
-    public final static int TASK_LIST_WORK_NOBODY = 2;
-    public final static int TASK_LIST_WORK_ALLOWED_USERS = 3;
-
     public final static int WISH_ITEM_VISIBLE = 1;
     public final static int WISH_ITEM_INVISIBLE = 2;
 
@@ -64,7 +60,6 @@ public class Constants {
     public final static HashSet<Integer> wish_rates = new HashSet<Integer>(Arrays.asList(0, 1, 2, 3, 4, 5));
 
     public final static HashSet<Integer> taskList_visibility = new HashSet<Integer>(Arrays.asList(TASK_LIST_ALL, TASK_LIST_ALLOWED_USERS, TASK_LIST_NOBODY));
-    public final static HashSet<Integer> taskList_work = new HashSet<Integer>(Arrays.asList(TASK_LIST_WORK_ALL, TASK_LIST_WORK_ALLOWED_USERS, TASK_LIST_WORK_NOBODY));
 
     public final static HashSet<Integer> taskItem_state = new HashSet<Integer>(Arrays.asList(TASK_ITEM_VISIBLE, TASK_ITEM_IN_PROGRESS, TASK_ITEM_DONE, TASK_ITEM_PRAISED));
     public final static HashSet<Integer> taskItem_target = new HashSet<Integer>(Arrays.asList(TASK_ITEM_WORK_ALL, TASK_ITEM_WORK_ALLOWED_USERS, TASK_ITEM_WORK_NOBODY));
@@ -81,39 +76,45 @@ public class Constants {
     public static final int MSG_DELETE_RELATIONSHIP = 7;
     public static final int MSG_UPDATE_RELATIONSHIP = 8;
     public static final int MSG_SEND_MONEY_FOR_ITEM = 9;
+    public static final int MSG_CHANGE_WORK_STATE = 10;
+    public static final int MSG_PRAISED = 11;
 
     public static long convertL(Object object) {
         return ((BigInteger) object).longValue();
     }
 
-    public static String getMSG(int msg_type, String inf) {
+    public static String getMSG(int msg_type, LIST L) {
         switch (msg_type) {
             default:
             case MSG_CREATE:
-                return "Create dialog \"" + inf + "\"";
+                return "Create dialog \"" + L.get(0) + "\"";
             case MSG_UPDATE:
-                return "Update dialog to \"" + inf + "\"";
+                return "Update dialog to \"" + L.get(0) + "\"";
             case MSG_SEND_MONEY:
-                return "I send you money: " + inf;
+                return "I send you " + L.get(0) + getMsg(L.get(1));
             case MSG_SEND_MONEY_FOR_ITEM:
-                return "I send you money for wish: " + inf;
+                return "I send you " + L.get(0) + " for wish \"" + L.get(1) + "\"" + getMsg(L.get(2));
             case MSG_NEW_USER:
-                return "I invite \"" + inf+"\"";
+                return "I invite \"" + L.get(0) + "\"";
             case MSG_OUT_ME:
                 return "I go out";
             case MSG_CREATE_RELATIONSHIP:
-                return "I want create relationship "+getMsg(inf);
+                return "I want create relationship " + getMsg(L.get(0));
             case MSG_UPDATE_RELATIONSHIP:
-                return "I update relationship to state "+inf;
+                return "I update relationship to state " + L.get(0);
             case MSG_DELETE_RELATIONSHIP:
                 return "I delete relationship";
+            case MSG_CHANGE_WORK_STATE:
+                return "I change state for task \"" + L.get(0) + "\" from " + L.get(1) + " to " + L.get(2) + getMsg(L.get(3));
+            case MSG_PRAISED:
+                return "Good work with task \"" + L.get(0) + "\"" + getMsg(L.get(1));
         }
     }
 
     private static String getMsg(String inf) {
-        if ((inf == null) ||(inf.isEmpty()))
-        return "";
-        return "\n["+inf+"]";
+        if ((inf == null) || (inf.isEmpty()))
+            return "";
+        return "\n[" + inf + "]";
     }
 
     public static String getStringMoney(long money) {
@@ -124,7 +125,7 @@ public class Constants {
         String res = "";
         String temp = "" + l;
         int i = 0;
-        int j = temp.length()-1;
+        int j = temp.length() - 1;
         while (j >= 0) {
             if (i == 3) {
                 i = 0;
@@ -141,7 +142,7 @@ public class Constants {
     }
 
     public static String getRelationshipMethod(int state) {
-        switch (state){
+        switch (state) {
             case RELATIONSHIP_CANCEL:
                 return "CANCEL";
             case RELATIONSHIP_ACCEPT:

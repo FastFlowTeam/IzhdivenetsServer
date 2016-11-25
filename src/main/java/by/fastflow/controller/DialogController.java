@@ -9,6 +9,7 @@ import by.fastflow.DBModels.main.UserDB;
 import by.fastflow.repository.HibernateSessionFactory;
 import by.fastflow.utils.Constants;
 import by.fastflow.utils.ErrorConstants;
+import by.fastflow.utils.LIST;
 import by.fastflow.utils.RestException;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -64,7 +65,9 @@ public class DialogController extends ExceptionHandlerController {
                         .createNew(user, dialog.getDialogId()));
             }
             session.getTransaction().commit();
-            MessageController.generateMessage(session, Constants.MSG_CREATE, userId, dialog.getDialogId(), name);
+            MessageController.generateMessage(session, Constants.MSG_CREATE, userId, dialog.getDialogId(),
+                    new LIST()
+                            .add(name));
 
             session.close();
             return Ajax.successResponse(dialog);
@@ -99,7 +102,9 @@ public class DialogController extends ExceptionHandlerController {
             session.delete(inDialogDB);
             session.getTransaction().commit();
 
-            MessageController.generateMessage(session, Constants.MSG_OUT_ME, userId, dialogId, up.getChatName());
+            MessageController.generateMessage(session, Constants.MSG_OUT_ME, userId, dialogId,
+                    new LIST()
+                            .add(up.getChatName()));
 
 
             session.close();
@@ -138,7 +143,9 @@ public class DialogController extends ExceptionHandlerController {
                     .createNew(list.get(0).getUserId(), dialogId));
             session.getTransaction().commit();
 
-            MessageController.generateMessage(session, Constants.MSG_NEW_USER, userId, dialogId, list.get(0).getChatName());
+            MessageController.generateMessage(session, Constants.MSG_NEW_USER, userId, dialogId,
+                    new LIST()
+                            .add(list.get(0).getChatName()));
 
             session.close();
             return Ajax.emptyResponse();
@@ -170,7 +177,9 @@ public class DialogController extends ExceptionHandlerController {
 
             UserDB user = UserDB.getUser(session, userId, token);
             DialogDB up = dialogDB.updateInBDWithToken(session, DialogDB.getDialog(session, dialogDB.getDialogId()), token);
-            MessageController.generateMessage(session, Constants.MSG_UPDATE, userId, dialogDB.getDialogId(), dialogDB.getName());
+            MessageController.generateMessage(session, Constants.MSG_UPDATE, userId, dialogDB.getDialogId(),
+                    new LIST()
+                            .add(dialogDB.getName()));
 
             session.close();
             return Ajax.successResponse(up);

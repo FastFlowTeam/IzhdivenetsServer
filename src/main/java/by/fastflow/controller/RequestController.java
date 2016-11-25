@@ -7,6 +7,7 @@ import by.fastflow.DBModels.main.UserDB;
 import by.fastflow.repository.HibernateSessionFactory;
 import by.fastflow.utils.Constants;
 import by.fastflow.utils.ErrorConstants;
+import by.fastflow.utils.LIST;
 import by.fastflow.utils.RestException;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -55,7 +56,8 @@ public class RequestController extends ExceptionHandlerController {
                         Constants.MSG_CREATE_RELATIONSHIP,
                         userId,
                         DialogController.getTwainDialogId(session, userId, list.get(0).getUserId()),
-                        message);
+                        new LIST()
+                                .add(message));
             }
             return all(session, userF);
         } catch (RestException re) {
@@ -114,7 +116,8 @@ public class RequestController extends ExceptionHandlerController {
                     Constants.MSG_UPDATE_RELATIONSHIP,
                     userId,
                     DialogController.getTwainDialogId(session, userId, list.get(0).getUserId()),
-                    Constants.getRelationshipMethod(state));
+                    new LIST()
+                            .add(Constants.getRelationshipMethod(state)));
 
             return all(session, userF);
         } catch (RestException re) {
@@ -147,7 +150,8 @@ public class RequestController extends ExceptionHandlerController {
                     Constants.MSG_DELETE_RELATIONSHIP,
                     userId,
                     DialogController.getTwainDialogId(session, userId, list.get(0).getUserId()),
-                    message);
+                    new LIST()
+                            .add(message));
 
             return Ajax.emptyResponse();
         } catch (RestException re) {

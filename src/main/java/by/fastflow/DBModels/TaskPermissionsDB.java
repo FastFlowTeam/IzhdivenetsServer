@@ -20,8 +20,9 @@ public class TaskPermissionsDB {
         return userId;
     }
 
-    public void setUserId(long userId) {
+    public TaskPermissionsDB setUserId(long userId) {
         this.userId = userId;
+        return this;
     }
 
     @Id
@@ -30,8 +31,9 @@ public class TaskPermissionsDB {
         return itemId;
     }
 
-    public void setItemId(long itemId) {
+    public TaskPermissionsDB setItemId(long itemId) {
         this.itemId = itemId;
+        return this;
     }
 
     @Override
@@ -52,5 +54,11 @@ public class TaskPermissionsDB {
         int result = (int) (userId ^ (userId >>> 32));
         result = 31 * result + (int) (itemId ^ (itemId >>> 32));
         return result;
+    }
+
+    public static TaskPermissionsDB createNew(long itemId, long userId) {
+        return new TaskPermissionsDB()
+                .setUserId(userId)
+                .setItemId(itemId);
     }
 }

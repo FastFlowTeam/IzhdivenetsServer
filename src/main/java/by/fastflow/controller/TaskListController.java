@@ -1,6 +1,7 @@
 package by.fastflow.controller;
 
 import by.fastflow.Ajax;
+import by.fastflow.DBModels.main.TaskItemDB;
 import by.fastflow.DBModels.main.TaskListDB;
 import by.fastflow.DBModels.TaskListPermissionsDB;
 import by.fastflow.DBModels.main.UserDB;
@@ -72,7 +73,11 @@ public class TaskListController extends ExceptionHandlerController {
             Session session = HibernateSessionFactory
                     .getSessionFactory()
                     .openSession();
-            TaskListDB up = taskList.updateInBDWithToken(session, TaskListDB.getTaskList(session, taskList.getListId()), token);
+            TaskListDB listDB = TaskListDB.getTaskList(session, taskList.getListId());
+            if (listDB.getVisibility() != taskList.getVisibility())
+                if (taskList.getVisibility() != Constants.TASK_LIST_ALL)
+                    permissionInProgresInList(session, taskList.getListId());
+            TaskListDB up = taskList.updateInBDWithToken(session, listDB, token);
             session.close();
             return Ajax.successResponse(up);
         } catch (RestException re) {
@@ -80,6 +85,11 @@ public class TaskListController extends ExceptionHandlerController {
         } catch (Exception e) {
             throw new RestException(e);
         }
+    }
+
+    private void permissionInProgresInList(Session session, long listId) throws RestException {
+        if (session.createQuery("from TaskItemDB where listId = " + listId + " and state " + Constants.TASK_ITEM_IN_PROGRESS).list().size() > 0)
+            throw new RestException(ErrorConstants.TASK_IN_PROGRESS);
     }
 
     @RequestMapping(value = ADDRESS + "/permission/{tasklist_id}", method = RequestMethod.POST)
@@ -97,8 +107,10 @@ public class TaskListController extends ExceptionHandlerController {
             TaskListDB list = TaskListDB.getTaskList(session, taskListId);
             UserDB up = UserDB.getUser(session, list.getUserId(), token);
 
-            if ((list.getVisibility() != Constants.TASK_LIST_ALLOWED_USERS) && (list.getCanWork() != Constants.TASK_LIST_WORK_ALLOWED_USERS))
-                throw new RestException(ErrorConstants.NOT_CORRECT_TYPE);
+            if (list.getVisibility() != Constants.TASK_LIST_ALLOWED_USERS)
+                throw new RestException(ErrorConstants.WRONG_TASK_LIST_VISIBILITY);
+
+            List<TaskItemDB> items = session.createQuery("from TaskItemDB where listId = " + taskListId + " and state = " + Constants.TASK_ITEM_IN_PROGRESS).list();
 
             session.beginTransaction();
             List<Object[]> users = getAllPermissionUsers(session, taskListId);
@@ -106,8 +118,13 @@ public class TaskListController extends ExceptionHandlerController {
                 long us_gId = Constants.convertL(user[3]);
                 if (gIds.contains(us_gId))
                     gIds.remove(us_gId);
-                else
-                    session.delete(TaskListPermissionsDB.createNew(list.getListId(), Constants.convertL(user[4])));
+                else {
+                    long temp = Constants.convertL(user[4]);
+                    for (TaskItemDB item : items)
+                        if (item.getWorkingUser() == temp)
+                            throw new RestException(ErrorConstants.TASK_IN_PROGRESS);
+                    session.delete(TaskListPermissionsDB.createNew(list.getListId(), temp));
+                }
             }
 
             for (Long gId : gIds) {
@@ -146,9 +163,6 @@ public class TaskListController extends ExceptionHandlerController {
 
             TaskListDB list = TaskListDB.getTaskList(session, taskListId);
             UserDB up = UserDB.getUser(session, list.getUserId(), token);
-
-            if ((list.getVisibility() != Constants.TASK_LIST_ALLOWED_USERS) && (list.getCanWork() != Constants.TASK_LIST_WORK_ALLOWED_USERS))
-                throw new RestException(ErrorConstants.NOT_CORRECT_TYPE);
 
             List<Object[]> users = getAllPermissionUsers(session, taskListId);
 
@@ -203,7 +217,11 @@ public class TaskListController extends ExceptionHandlerController {
             Session session = HibernateSessionFactory
                     .getSessionFactory()
                     .openSession();
-            TaskListDB.getTaskList(session, tasklistId).delete(session, token);
+
+            TaskListDB listDB = TaskListDB.getTaskList(session, tasklistId);
+            permissionInProgresInList(session, tasklistId);
+            listDB.delete(session, token);
+
             return Ajax.emptyResponse();
         } catch (RestException re) {
             throw re;

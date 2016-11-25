@@ -60,6 +60,8 @@ public class RestException extends Exception {
                 return "Not correct type";
             case ErrorConstants.WRONG_TASK_TARGET:
                 return "";
+            case ErrorConstants.TASK_IN_PROGRESS:
+                return "";
             case ErrorConstants.NOT_HAVE_GID:
                 return "No such gId";
             case ErrorConstants.NOT_HAVE_ID:

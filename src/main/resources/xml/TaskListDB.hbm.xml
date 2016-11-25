@@ -20,8 +20,5 @@
         <property name="description">
             <column name="description" sql-type="varchar(200)" length="200" not-null="true"/>
         </property>
-        <property name="canWork">
-            <column name="can_work" sql-type="bigint"/>
-        </property>
     </class>
 </hibernate-mapping>
