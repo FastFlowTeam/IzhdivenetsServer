@@ -12,10 +12,12 @@ public class InDialogTwainDBPK implements Serializable {
     private long userFId;
     private long userSId;
 
-    public InDialogTwainDBPK(long userSId, long userFId, long dialogId) {
-        this.userSId = userSId;
-        this.userFId = userFId;
-        this.dialogId = dialogId;
+    public static InDialogTwainDBPK createKey(long userSId, long userFId, long dialogId) {
+        InDialogTwainDBPK key = new  InDialogTwainDBPK();
+        key.userSId = userSId;
+        key.userFId = userFId;
+        key.dialogId = dialogId;
+        return key;
     }
 
     @Column(name = "dialog_id", nullable = false)

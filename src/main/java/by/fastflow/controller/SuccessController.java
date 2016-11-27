@@ -83,7 +83,7 @@ public class SuccessController extends ExceptionHandlerController {
     private void updateNotReaded(Session session, UserDB child) {
         List<Object[]> list = RequestController.getAllMyAcceptedRelationship(session, child.getUserId());
         for (Object[] objects : list) {
-            NotReadedSuccessDB not = (NotReadedSuccessDB) session.get(NotReadedSuccessDB.class, new NotReadedSuccessDBPK(
+            NotReadedSuccessDB not = (NotReadedSuccessDB) session.get(NotReadedSuccessDB.class, NotReadedSuccessDBPK.createKey(
                     Constants.convertL(Constants.convertL(objects[0]) == child.getUserId() ? objects[1] : objects[0]), child.getUserId()));
             if (not == null) {
                 not = NotReadedSuccessDB
@@ -125,7 +125,7 @@ public class SuccessController extends ExceptionHandlerController {
     }
 
     private void ReadAll(Session session, UserDB user, UserDB child) {
-        NotReadedSuccessDB not = (NotReadedSuccessDB) session.get(NotReadedSuccessDB.class, new NotReadedSuccessDBPK(user, child));
+        NotReadedSuccessDB not = (NotReadedSuccessDB) session.get(NotReadedSuccessDB.class, NotReadedSuccessDBPK.createKey(user, child));
         if (not == null) {
             not = NotReadedSuccessDB
                     .createNew(user.getUserId(), child.getUserId(), 0);

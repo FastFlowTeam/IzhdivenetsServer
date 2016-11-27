@@ -90,7 +90,7 @@ public class DialogController extends ExceptionHandlerController {
                     .openSession();
             UserDB up = UserDB.getUser(session, userId, token);
 
-            InDialogDB inDialogDB = (InDialogDB) session.get(DialogDB.class, new InDialogDBPK(userId, dialogId));
+            InDialogDB inDialogDB = (InDialogDB) session.get(DialogDB.class, InDialogDBPK.createKey(userId, dialogId));
             if (inDialogDB == null) {
                 throw new RestException(ErrorConstants.NOT_HAVE_ID);
             }
@@ -201,7 +201,7 @@ public class DialogController extends ExceptionHandlerController {
                     .getSessionFactory()
                     .openSession();
             UserDB user = UserDB.getUser(session, userId, token);
-            if (session.get(InDialogDB.class, new InDialogDBPK(userId, dialogId)) == null)
+            if (session.get(InDialogDB.class, InDialogDBPK.createKey(userId, dialogId)) == null)
                 throw new RestException(ErrorConstants.NOT_HAVE_ID);
             List<Object[]> list = getAllUserInDialog(session, dialogId);
             session.close();

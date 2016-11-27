@@ -11,9 +11,11 @@ public class InDialogDBPK implements Serializable {
     private long dialogId;
     private long userId;
 
-    public InDialogDBPK(long userId, long dialogId) {
-        this.userId = userId;
-        this.dialogId = dialogId;
+    public static InDialogDBPK createKey(long userId, long dialogId) {
+        InDialogDBPK key = new InDialogDBPK();
+        key.userId = userId;
+        key.dialogId = dialogId;
+        return key;
     }
 
     @Column(name = "dialog_id", nullable = false)

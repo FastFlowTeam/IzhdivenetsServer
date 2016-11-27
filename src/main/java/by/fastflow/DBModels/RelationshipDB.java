@@ -18,8 +18,8 @@ import javax.persistence.*;
 @IdClass(RelationshipDBPK.class)
 public class RelationshipDB extends UpdatableDB<RelationshipDB> {
     private int state;
-    private UserDB senderId;
-    private UserDB recipientId;
+    private long senderId;
+    private long recipientId;
 
     @Basic
     @Column(name = "state", nullable = false)
@@ -33,26 +33,24 @@ public class RelationshipDB extends UpdatableDB<RelationshipDB> {
     }
 
     @Id
-    @ManyToOne
     @Column(name = "sender_id", nullable = false)
-    public UserDB getSenderId() {
+    public long getSenderId() {
         return senderId;
     }
 
     @Id
-    @ManyToOne
     @Column(name = "recipient_id", nullable = false)
-    public UserDB getRecipientId() {
+    public long getRecipientId() {
         return recipientId;
     }
 
 
-    public RelationshipDB setSenderId(UserDB senderId) {
+    public RelationshipDB setSenderId(long senderId) {
         this.senderId = senderId;
         return this;
     }
 
-    public RelationshipDB setRecipientId(UserDB recipientId) {
+    public RelationshipDB setRecipientId(long recipientId) {
         this.recipientId = recipientId;
         return this;
     }
@@ -63,8 +61,8 @@ public class RelationshipDB extends UpdatableDB<RelationshipDB> {
         if (o == null || getClass() != o.getClass()) return false;
         RelationshipDB that = (RelationshipDB) o;
         if (state != that.state) return false;
-        if (senderId != null ? !senderId.equals(that.senderId) : that.senderId != null) return false;
-        if (recipientId != null ? !recipientId.equals(that.recipientId) : that.recipientId != null) return false;
+        if (recipientId != that.recipientId) return false;
+        if (senderId != that.senderId) return false;
         return true;
     }
 
@@ -72,15 +70,15 @@ public class RelationshipDB extends UpdatableDB<RelationshipDB> {
     @Override
     public int hashCode() {
         int result = state;
-        result = 31 * result + (senderId != null ? senderId.hashCode() : 0);
-        result = 31 * result + (recipientId != null ? recipientId.hashCode() : 0);
+        result = 31 * result + (int) (recipientId ^ (recipientId >>> 32));
+        result = 31 * result + (int) (senderId ^ (senderId >>> 32));
         return result;
     }
 
     public static RelationshipDB createNew(UserDB sender, UserDB recipient, int state) {
         return new RelationshipDB()
-                .setRecipientId(recipient)
-                .setSenderId(sender)
+                .setRecipientId(recipient.getUserId())
+                .setSenderId(sender.getUserId())
                 .setState(state);
     }
 
@@ -102,12 +100,12 @@ public class RelationshipDB extends UpdatableDB<RelationshipDB> {
 
     @Override
     public void havePermissionToModify(Session session, String token) throws RestException {
-        UserDB.getUser(session, recipientId.getUserId(), token);
+        UserDB.getUser(session, recipientId, token);
     }
 
     @Override
     public void havePermissionToDelete(Session session, String token) throws RestException {
-        UserDB userDB1 = UserDB.getUser(session, recipientId.getUserId(), token);
+        UserDB userDB1 = UserDB.getUser(session, recipientId, token);
 //        UserDB userDB2 = UserDB.getUser(session, senderId.getUserId());
 //        if ((!userDB1.getToken().equals(token)) && (!userDB2.getToken().equals(token)))
 //            throw new RestException(ErrorConstants.NOT_NAVE_PERMISSION);

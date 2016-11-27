@@ -38,7 +38,7 @@ public class MessageController extends ExceptionHandlerController {
                     .getSessionFactory()
                     .openSession();
             UserDB up = UserDB.getUser(session, userId, token);
-            if (session.get(InDialogDB.class, new InDialogDBPK(up.getUserId(), message.getDialogId())) == null)
+            if (session.get(InDialogDB.class, InDialogDBPK.createKey(up.getUserId(), message.getDialogId())) == null)
                 throw new RestException(ErrorConstants.NOT_HAVE_ID);
 
             List<Object[]> list = DialogController.getTwainDialog(session, message.getDialogId());
@@ -113,11 +113,11 @@ public class MessageController extends ExceptionHandlerController {
                     .getSessionFactory()
                     .openSession();
             UserDB user = UserDB.getUser(session, userId, token);
-            if (session.get(InDialogDB.class, new InDialogDBPK(userId, dialogId)) == null)
+            if (session.get(InDialogDB.class, InDialogDBPK.createKey(userId, dialogId)) == null)
                 throw new RestException(ErrorConstants.NOT_HAVE_ID);
 
             List<Object[]> list;
-            InDialogDB notReaded = (InDialogDB) session.get(InDialogDB.class, new InDialogDBPK(userId, dialogId));
+            InDialogDB notReaded = (InDialogDB) session.get(InDialogDB.class, InDialogDBPK.createKey(userId, dialogId));
             int newNum = 0;
             if (notReaded != null) {
                 list = getFirstMessages(session, dialogId, Math.max(notReaded.getNumber(), Constants.PAGE_RESULT_MESSAGE));
@@ -173,12 +173,12 @@ public class MessageController extends ExceptionHandlerController {
                     .getSessionFactory()
                     .openSession();
             UserDB user = UserDB.getUser(session, userId, token);
-            if (session.get(InDialogDB.class, new InDialogDBPK(userId, dialogId)) == null)
+            if (session.get(InDialogDB.class, InDialogDBPK.createKey(userId, dialogId)) == null)
                 throw new RestException(ErrorConstants.NOT_HAVE_ID);
 
             List<Object[]> list;
             int newNum = 0;
-            InDialogDB notReaded = (InDialogDB) session.get(InDialogDB.class, new InDialogDBPK(userId, dialogId));
+            InDialogDB notReaded = (InDialogDB) session.get(InDialogDB.class, InDialogDBPK.createKey(userId, dialogId));
             if (notReaded != null) {
                 list = getNextMessages(session, dialogId, Math.max(notReaded.getNumber(), Constants.PAGE_RESULT_MESSAGE), messageId);
                 newNum = notReaded.getNumber();
@@ -209,7 +209,7 @@ public class MessageController extends ExceptionHandlerController {
                     .getSessionFactory()
                     .openSession();
             UserDB user = UserDB.getUser(session, userId, token);
-            if (session.get(InDialogDB.class, new InDialogDBPK(userId, dialogId)) == null)
+            if (session.get(InDialogDB.class, InDialogDBPK.createKey(userId, dialogId)) == null)
                 throw new RestException(ErrorConstants.NOT_HAVE_ID);
             List<Object[]> list = getPrevMessages(session, dialogId, messageId);
             session.close();

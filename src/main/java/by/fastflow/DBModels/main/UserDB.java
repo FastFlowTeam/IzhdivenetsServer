@@ -15,6 +15,9 @@ import java.util.TimeZone;
 @Entity
 @Table(name = "user", schema = "izh_scheme", catalog = "db")
 public class UserDB extends UpdatableDB<UserDB> {
+
+    // TODO: 28.11.2016 добавить счетчик подтвержденных задач
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "user_id", nullable = false, unique = true)

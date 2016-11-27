@@ -15,7 +15,6 @@ public class InDialogDB {
     private long userId;
     private int number;
 
-
     @Basic
     @Column(name = "not_readed_messages", nullable = false)
     public int getNumber() {

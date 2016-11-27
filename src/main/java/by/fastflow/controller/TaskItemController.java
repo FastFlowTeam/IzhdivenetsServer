@@ -384,7 +384,7 @@ public class TaskItemController extends ExceptionHandlerController {
                     .getSessionFactory()
                     .openSession();
             TaskItemDB taskItemDB = TaskItemDB.getTaskItem(session, taskitemId);
-            if (taskItemDB.getState() == Constants.TASK_ITEM_IN_PROGRESS)
+            if ((taskItemDB.getState() == Constants.TASK_ITEM_IN_PROGRESS)||(taskItemDB.getState() == Constants.TASK_ITEM_DONE))
                 throw new RestException(ErrorConstants.NOT_NAVE_PERMISSION);
             taskItemDB.delete(session, token);
             return Ajax.emptyResponse();

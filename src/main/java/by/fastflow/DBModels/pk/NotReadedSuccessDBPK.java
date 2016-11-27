@@ -13,14 +13,15 @@ public class NotReadedSuccessDBPK implements Serializable {
     private long parentId;
     private long childId;
 
-    public NotReadedSuccessDBPK(UserDB user, UserDB child) {
-        this.parentId = user.getUserId();
-        this.childId = child.getUserId();
+    public static NotReadedSuccessDBPK createKey(UserDB user, UserDB child) {
+        return createKey(user.getUserId(), child.getUserId());
     }
 
-    public NotReadedSuccessDBPK(long l, long childUserId) {
-        parentId = l;
-        childId = childUserId;
+    public static NotReadedSuccessDBPK createKey(long l1, long l2) {
+        NotReadedSuccessDBPK key = new NotReadedSuccessDBPK();
+        key.parentId = l1;
+        key.childId = l2;
+        return key;
     }
 
     @Column(name = "parent_id", nullable = false)

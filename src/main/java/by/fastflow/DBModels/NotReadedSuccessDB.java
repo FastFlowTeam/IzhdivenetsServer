@@ -22,9 +22,6 @@ public class NotReadedSuccessDB {
                 .setNumber(num);
     }
 
-    public NotReadedSuccessDB() {
-    }
-
     @Id
     @Column(name = "parent_id", nullable = false)
     public long getParentId() {

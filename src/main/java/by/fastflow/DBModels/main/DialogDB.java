@@ -88,7 +88,7 @@ public class DialogDB extends UpdatableDB<DialogDB> {
         if (list.size() == 0)
             throw new RestException(ErrorConstants.NOT_NAVE_PERMISSION);
         for (UserDB user : list) {
-            if (session.get(InDialogDB.class, new InDialogDBPK(user.getUserId(), dialogId)) != null)
+            if (session.get(InDialogDB.class, InDialogDBPK.createKey(user.getUserId(), dialogId)) != null)
                 return;
         }
         throw new RestException(ErrorConstants.NOT_NAVE_PERMISSION);
