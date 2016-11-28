@@ -91,7 +91,7 @@ public class MessageDB extends UpdatableDB<MessageDB> {
     }
 
     @Basic
-    @Column(name = "link", nullable = false, length = 200)
+    @Column(name = "link", nullable = true, length = 200)
     public String getLink() {
         return link;
     }
@@ -179,6 +179,7 @@ public class MessageDB extends UpdatableDB<MessageDB> {
                 .setText(Constants.getMSG(msg_type, list))
                 .setUserId(userId)
                 .setDialogId(dialogId)
+                .setLink("")
                 .setDate(Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTimeInMillis());
     }
 
