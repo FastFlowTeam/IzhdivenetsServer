@@ -138,8 +138,11 @@ public class DialogController extends ExceptionHandlerController {
             if (isDialogTwain(session, dialogId))
                 throw new RestException(ErrorConstants.TWAIN_DIALOG);
 
+            if (session.get(InDialogDB.class, InDialogDBPK.createKey(list.get(0).getUserId(), dialogId)) != null)
+                throw new RestException(ErrorConstants.ALREADY_IN_DIALOG);
+
             session.beginTransaction();
-            session.save(InDialogDB
+            session.merge(InDialogDB
                     .createNew(list.get(0).getUserId(), dialogId));
             session.getTransaction().commit();
 

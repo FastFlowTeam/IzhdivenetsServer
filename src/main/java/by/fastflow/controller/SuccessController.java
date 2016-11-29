@@ -92,7 +92,7 @@ public class SuccessController extends ExceptionHandlerController {
                 not.moreNotRead();
             }
             session.beginTransaction();
-            session.saveOrUpdate(not);
+            session.merge(not);
             session.getTransaction().commit();
         }
     }
@@ -132,7 +132,7 @@ public class SuccessController extends ExceptionHandlerController {
         }
         not.readAll();
         session.beginTransaction();
-        session.saveOrUpdate(not);
+        session.merge(not);
         session.getTransaction().commit();
     }
 

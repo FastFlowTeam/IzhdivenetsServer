@@ -83,9 +83,9 @@ public class UserController extends ExceptionHandlerController {
                         .createNew(userSettings.getFirstName() + " " + userSettings.getLastName(), type)
                         .setNextId(session);
                 session.save(userDB);
-                session.save(AuthDB
+                session.saveOrUpdate(AuthDB
                         .createNew(session, Constants.LOGIN_TYPE_VK, userId + "", userDB.getUserId()));
-                session.save(CardController.createCard(session, userDB));
+                session.saveOrUpdate(CardController.createCard(session, userDB));
             } else {
                 userDB = UserDB.getUser(session, list.get(0).getUserId())
                         .updateToken();

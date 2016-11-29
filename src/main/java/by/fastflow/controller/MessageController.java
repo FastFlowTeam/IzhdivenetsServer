@@ -123,7 +123,7 @@ public class MessageController extends ExceptionHandlerController {
                 list = getFirstMessages(session, dialogId, Math.max(notReaded.getNumber(), Constants.PAGE_RESULT_MESSAGE));
                 newNum = notReaded.getNumber();
                 session.beginTransaction();
-                session.save(notReaded.readAll());
+                session.merge(notReaded.readAll());
                 session.getTransaction().commit();
             } else {
                 list = getFirstMessages(session, dialogId, Constants.PAGE_RESULT_MESSAGE);
@@ -183,7 +183,7 @@ public class MessageController extends ExceptionHandlerController {
                 list = getNextMessages(session, dialogId, Math.max(notReaded.getNumber(), Constants.PAGE_RESULT_MESSAGE), messageId);
                 newNum = notReaded.getNumber();
                 session.beginTransaction();
-                session.save(notReaded.readAll());
+                session.merge(notReaded.readAll());
                 session.getTransaction().commit();
             } else {
                 list = getNextMessages(session, dialogId, Constants.PAGE_RESULT_MESSAGE, messageId);
@@ -253,7 +253,7 @@ public class MessageController extends ExceptionHandlerController {
         List<Object[]> list = getInDialog(session, dialogId);
         for (Object[] objects : list) {
             if (Constants.convertL(objects[0]) != userId) {
-                session.saveOrUpdate(InDialogDB.createNew(dialogId, userId, (int) (Constants.convertL(objects[2]) + 1)));
+                session.merge(InDialogDB.createNew(dialogId, userId, (int) (Constants.convertL(objects[2]) + 1)));
             }
         }
         session.getTransaction().commit();

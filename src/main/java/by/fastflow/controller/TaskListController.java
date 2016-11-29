@@ -135,7 +135,7 @@ public class TaskListController extends ExceptionHandlerController {
                     throw new RestException(ErrorConstants.NOT_CORRECT_USER_TYPE);
                 if (Constants.convertL(usAccept.get(0)[0]) != Constants.RELATIONSHIP_ACCEPT)
                     throw new RestException(ErrorConstants.NOT_NAVE_PERMISSION);
-                session.saveOrUpdate(TaskListPermissionsDB.createNew(list.getListId(), Constants.convertL(usAccept.get(0)[1])));
+                session.merge(TaskListPermissionsDB.createNew(list.getListId(), Constants.convertL(usAccept.get(0)[1])));
             }
 
             session.getTransaction().commit();

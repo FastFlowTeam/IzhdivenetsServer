@@ -62,6 +62,8 @@ public class RestException extends Exception {
                 return "";
             case ErrorConstants.TASK_IN_PROGRESS:
                 return "";
+            case ErrorConstants.ALREADY_IN_DIALOG:
+                return "";
             case ErrorConstants.NOT_HAVE_GID:
                 return "No such gId";
             case ErrorConstants.NOT_HAVE_ID:

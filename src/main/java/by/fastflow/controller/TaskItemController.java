@@ -59,7 +59,7 @@ public class TaskItemController extends ExceptionHandlerController {
                     throw new RestException(ErrorConstants.WRONG_TASK_STATE);
 
                 session.beginTransaction();
-                session.save(
+                session.saveOrUpdate(
                         taskItemDB
                                 .setState(state)
                                 .setWorkingUser(userId)
@@ -72,7 +72,7 @@ public class TaskItemController extends ExceptionHandlerController {
                     if (taskItemDB.getWorkingUser() != userId)
                         throw new RestException(ErrorConstants.NOT_NAVE_PERMISSION);
                     session.beginTransaction();
-                    session.save(
+                    session.saveOrUpdate(
                             taskItemDB.setState(state)
                     );
                     session.getTransaction().commit();
@@ -124,7 +124,7 @@ public class TaskItemController extends ExceptionHandlerController {
                 throw new RestException(ErrorConstants.NOT_NAVE_PERMISSION);
 
             session.beginTransaction();
-            session.save(
+            session.saveOrUpdate(
                     taskItemDB
                             .setState(Constants.TASK_ITEM_PRAISED)
             );
@@ -297,7 +297,7 @@ public class TaskItemController extends ExceptionHandlerController {
                     throw new RestException(ErrorConstants.NOT_HAVE_GID);
                 if (Constants.convertL(usAccept.get(0)[0]) != Constants.RELATIONSHIP_ACCEPT)
                     throw new RestException(ErrorConstants.NOT_NAVE_PERMISSION);
-                session.saveOrUpdate(TaskPermissionsDB.createNew(taskItemDB.getItemId(), Constants.convertL(usAccept.get(0)[1])));
+                session.merge(TaskPermissionsDB.createNew(taskItemDB.getItemId(), Constants.convertL(usAccept.get(0)[1])));
             }
 
             session.getTransaction().commit();

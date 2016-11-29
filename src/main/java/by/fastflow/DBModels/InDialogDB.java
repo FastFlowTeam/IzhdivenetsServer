@@ -29,7 +29,8 @@ public class InDialogDB {
     public static InDialogDB createNew(long user, long dialogId) {
         return new InDialogDB()
                 .setUserId(user)
-                .setDialogId(dialogId);
+                .setDialogId(dialogId)
+                .setNumber(0);
     }
 
     @Id
