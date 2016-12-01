@@ -10,6 +10,7 @@ import by.fastflow.utils.Constants;
 import by.fastflow.utils.ErrorConstants;
 import by.fastflow.utils.RestException;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import org.hibernate.Session;
 import org.springframework.web.bind.annotation.*;
 
@@ -228,5 +229,62 @@ public class TaskListController extends ExceptionHandlerController {
         } catch (Exception e) {
             throw new RestException(e);
         }
+    }
+
+    @RequestMapping(value = ADDRESS + "/get", method = RequestMethod.GET)
+    public
+    @ResponseBody
+    String permissionUsers(@RequestHeader(value = "user_id") long userId,
+                           @RequestHeader(value = "token") String token) throws RestException {
+        try {
+            Session session = HibernateSessionFactory
+                    .getSessionFactory()
+                    .openSession();
+
+            UserDB up = UserDB.getUser(session, userId, token);
+
+            JsonArray array = new JsonArray();
+            if (up.isParent()) {
+                List<Object[]> list = getMyList(session, userId);
+                for (Object[] objects : list) {
+                    JsonObject object = new JsonObject();
+                    object.add("list", TaskListDB.makeJson((BigInteger) objects[0], (BigInteger) objects[1], (String) objects[2], (String) objects[3]));
+                    object.addProperty("visible", objects[4] == null ? 0 : Constants.convertL(objects[4]));
+                    object.addProperty("inProgress", objects[5] == null ? 0 : Constants.convertL(objects[5]));
+                    object.addProperty("done", objects[6] == null ? 0 : Constants.convertL(objects[6]));
+                    object.addProperty("praised", objects[7] == null ? 0 : Constants.convertL(objects[7]));
+                    object.addProperty("total", objects[8] == null ? 0 : Constants.convertL(objects[8]));
+                    array.add(object);
+                }
+                session.close();
+                return Ajax.successResponseJson(array);
+            }
+
+            session.close();
+            return Ajax.successResponseJson(array);
+        } catch (RestException re) {
+            throw re;
+        } catch (Exception e) {
+            throw new RestException(e);
+        }
+    }
+
+    private List<Object[]> getMyList(Session session, long userId) {
+        return session.createSQLQuery("select distinct " +
+                "tl.list_id as a0, tl.visibility as a1, tl.name as a2, tl.description AS a3, " +
+                "count0 as a4, count1 as a5, count2 as a6, count3 as a7, totalcount as a8 " +
+                "from izh_scheme.task_item ti " +
+                "full join izh_scheme.task_list tl on ti.list_id = tl.list_id " +
+                "full join (select count(item_id) count0, list_id from izh_scheme.task_item where state = " + Constants.TASK_ITEM_VISIBLE + " group by list_id ) t0 " +
+                "on t0.list_id = tl.list_id " +
+                "full join (select count(item_id) count1, list_id from izh_scheme.task_item where state = " + Constants.TASK_ITEM_IN_PROGRESS + " group by list_id ) t1 " +
+                "on t1.list_id = tl.list_id " +
+                "full join (select count(item_id) count2, list_id from izh_scheme.task_item where state = " + Constants.TASK_ITEM_DONE + " group by list_id ) t2 " +
+                "on t2.list_id = tl.list_id " +
+                "full join (select count(item_id) count 3, list_id from izh_scheme.task_item where state = " + Constants.TASK_ITEM_PRAISED + " group by list_id ) t3 " +
+                "on t3.list_id = tl.list_id " +
+                "full join (select count(item_id) totalcount, list_id from izh_scheme.task_item group by list_id ) t4 " +
+                "on t4.list_id = tl.list_id " +
+                "where user_id = " + userId).list();
     }
 }

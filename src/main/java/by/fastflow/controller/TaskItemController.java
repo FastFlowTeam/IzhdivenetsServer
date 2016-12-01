@@ -394,4 +394,19 @@ public class TaskItemController extends ExceptionHandlerController {
             throw new RestException(e);
         }
     }
+
+    /*
+    select title,description,cost,state,user_id,photo,chat_name from izh_scheme.task_item ti
+left join izh_scheme."user" u on u.user_id = ti.working_user
+where ti.list_id = 1
+and target = 1 or (target = 3 and (select count(*) from izh_scheme.task_permissions where user_id = 1 and item_id = ti.item_id) != 0)
+инфа по таскам и работающему над ними юзеру глазами ребенка
+     */
+
+    /*
+    select title,description,cost,state,target,user_id,photo,chat_name from izh_scheme.task_item ti
+left join izh_scheme."user" u on u.user_id = ti.working_user
+where ti.list_id = 1
+список тасок внутри листа глазами родителя, создавшего список (тоже наллами заполняет)
+     */
 }

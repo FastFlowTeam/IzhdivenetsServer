@@ -87,7 +87,7 @@ public class InDialogDB {
 
     public static InDialogDB createNew(long dialogId, long userId, int i) {
         return InDialogDB
-                .createNew(dialogId, userId)
+                .createNew(userId, dialogId)
                 .setNumber(i);
     }
 }

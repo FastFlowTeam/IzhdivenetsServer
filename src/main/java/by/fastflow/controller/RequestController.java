@@ -59,6 +59,10 @@ public class RequestController extends ExceptionHandlerController {
                         new LIST()
                                 .add(message));
             }
+            session.close();
+            session = HibernateSessionFactory
+                    .getSessionFactory()
+                    .openSession();
             return all(session, userF);
         } catch (RestException re) {
             throw re;
@@ -183,10 +187,10 @@ public class RequestController extends ExceptionHandlerController {
                 "r.state as a8, " +
                 "c1.money_amount as a9, c2.money_amount as a10 " +
                 "FROM izh_scheme.relationship r " +
-                "JOIN izh_scheme.user u ON u.user_id = recipient_id " +
-                "JOIN izh_scheme.user s ON s.user_id = sender_id " +
-                "JOIN izh_scheme.card c1 ON u.user_id = c1.user_id " +
-                "JOIN izh_scheme.card c2 ON s.user_id = c2.user_id " +
+                "left JOIN izh_scheme.user u ON u.user_id = recipient_id " +
+                "left JOIN izh_scheme.user s ON s.user_id = sender_id " +
+                "left JOIN izh_scheme.card c1 ON u.user_id = c1.user_id " +
+                "left JOIN izh_scheme.card c2 ON s.user_id = c2.user_id " +
                 "WHERE r.sender_id = " + userId + " OR r.recipient_id = " + userId)
                 .list();
     }
@@ -194,12 +198,12 @@ public class RequestController extends ExceptionHandlerController {
     public static List<Object[]> getAllMyAcceptedRelationship(Session session, long userId) {
         return session.createSQLQuery("SELECT " +
                 "u.user_id as a0, " +
-                "s.user_id as a1 " +
+                "s.user_id as a1, " +
                 "u.g_id as a2, " +
                 "s.g_id as a3 " +
                 "FROM izh_scheme.relationship r " +
-                "JOIN izh_scheme.user u ON u.user_id = recipient_id " +
-                "JOIN izh_scheme.user s ON s.user_id = sender_id " +
+                "left JOIN izh_scheme.user u ON u.user_id = recipient_id " +
+                "left JOIN izh_scheme.user s ON s.user_id = sender_id " +
                 "WHERE r.state = " + Constants.RELATIONSHIP_ACCEPT +
                 " AND ( r.sender_id = " + userId + " OR r.recipient_id = " + userId + " )")
                 .list();

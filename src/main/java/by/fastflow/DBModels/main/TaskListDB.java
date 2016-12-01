@@ -4,9 +4,11 @@ import by.fastflow.utils.Constants;
 import by.fastflow.utils.ErrorConstants;
 import by.fastflow.utils.RestException;
 import by.fastflow.utils.UpdatableDB;
+import com.google.gson.JsonObject;
 import org.hibernate.Session;
 
 import javax.persistence.*;
+import java.math.BigInteger;
 
 /**
  * Created by KuSu on 22.10.2016.
@@ -140,5 +142,14 @@ public class TaskListDB extends UpdatableDB<TaskListDB>{
         if (taskListDB == null)
             throw new RestException(ErrorConstants.NOT_HAVE_ID);
         return taskListDB;
+    }
+
+    public static JsonObject makeJson(BigInteger listId, BigInteger visibility, String name, String description){
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("listId",listId);
+        jsonObject.addProperty("visibility",visibility);
+        jsonObject.addProperty("name",name);
+        jsonObject.addProperty("description",description);
+        return jsonObject;
     }
 }
