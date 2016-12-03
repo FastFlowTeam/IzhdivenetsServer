@@ -11,6 +11,7 @@ import by.fastflow.utils.LIST;
 import by.fastflow.utils.RestException;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import org.aspectj.weaver.loadtime.Aj;
 import org.hibernate.Session;
 import org.springframework.web.bind.annotation.*;
 
@@ -59,11 +60,12 @@ public class RequestController extends ExceptionHandlerController {
                         new LIST()
                                 .add(message));
             }
+            JsonObject object = new JsonObject();
+            object.addProperty("state", Constants.RELATIONSHIP_CREATE);
+            object.add("sender", UserDB.getJson(userF));
+            object.add("recipient", UserDB.getJson(list.get(0)));
             session.close();
-            session = HibernateSessionFactory
-                    .getSessionFactory()
-                    .openSession();
-            return all(session, userF);
+            return Ajax.successResponseJson(object);
         } catch (RestException re) {
             throw re;
         } catch (Exception e) {
@@ -123,7 +125,12 @@ public class RequestController extends ExceptionHandlerController {
                     new LIST()
                             .add(Constants.getRelationshipMethod(state)));
 
-            return all(session, userF);
+            JsonObject object = new JsonObject();
+            object.addProperty("state", state);
+            object.add("sender", UserDB.getJson(list.get(0)));
+            object.add("recipient", UserDB.getJson(userF));
+            session.close();
+            return Ajax.successResponseJson(object);
         } catch (RestException re) {
             throw re;
         } catch (Exception e) {

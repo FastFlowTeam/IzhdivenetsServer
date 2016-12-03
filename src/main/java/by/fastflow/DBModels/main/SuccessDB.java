@@ -136,7 +136,7 @@ public class SuccessDB extends UpdatableDB<SuccessDB>{
     public SuccessDB validate() throws RestException {
         if ((title == null) || (title.isEmpty()) || (title.length() > 30))
             throw new RestException(ErrorConstants.EMPTY_SUCCESS_TITLE);
-        if (!Constants.success_types.contains(state))
+        if (!Constants.contains(Constants.success_types,state))
             throw new RestException(ErrorConstants.WRONG_SUCCESS_STATE);
         if ((photo != null) && photo.length() > 200)
             throw new RestException(ErrorConstants.LONG_SUCCESS_PHOTO);

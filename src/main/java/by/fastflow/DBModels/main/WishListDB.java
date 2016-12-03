@@ -110,7 +110,7 @@ public class WishListDB extends UpdatableDB<WishListDB> {
     public WishListDB validate() throws RestException {
         if ((name == null) || ((name.isEmpty()) || (name.length() > 30)))
             throw new RestException(ErrorConstants.EMPTY_WISH_LIST_NAME);
-        if (!Constants.wishList_visibility.contains(visibility))
+        if (!Constants.contains(Constants.wishList_visibility,visibility))
             throw new RestException(ErrorConstants.WRONG_WISH_ITEM_VISIBILITY);
         if ((description != null) && (description.length() > 200))
             throw new RestException(ErrorConstants.LONG_WISH_LIST_DESCRIPTION);

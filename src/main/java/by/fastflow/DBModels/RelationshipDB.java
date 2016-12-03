@@ -93,7 +93,7 @@ public class RelationshipDB extends UpdatableDB<RelationshipDB> {
 
     @Override
     public RelationshipDB validate() throws RestException {
-        if (!Constants.relationship_types.contains(state))
+        if (!Constants.contains(Constants.relationship_types,state))
             throw new RestException(ErrorConstants.WRONG_RELATIONSHIP_STATE);
         return this;
     }

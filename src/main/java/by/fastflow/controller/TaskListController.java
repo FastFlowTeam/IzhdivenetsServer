@@ -89,7 +89,7 @@ public class TaskListController extends ExceptionHandlerController {
     }
 
     private void permissionInProgresInList(Session session, long listId) throws RestException {
-        if (session.createQuery("from TaskItemDB where listId = " + listId + " and state " + Constants.TASK_ITEM_IN_PROGRESS).list().size() > 0)
+        if (session.createQuery("from TaskItemDB where listId = " + listId + " and state = " + Constants.TASK_ITEM_IN_PROGRESS).list().size() > 0)
             throw new RestException(ErrorConstants.TASK_IN_PROGRESS);
     }
 

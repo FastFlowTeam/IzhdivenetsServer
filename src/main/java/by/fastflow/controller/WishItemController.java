@@ -139,6 +139,8 @@ public class WishItemController extends ExceptionHandlerController {
             return Ajax.emptyResponse();
         } catch (RestException re) {
             throw re;
+        } catch (IndexOutOfBoundsException re) {
+            throw new RestException(ErrorConstants.NOT_HAVE_CARD);
         } catch (Exception e) {
             throw new RestException(e);
         }

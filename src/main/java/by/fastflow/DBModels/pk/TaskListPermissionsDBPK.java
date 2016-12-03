@@ -50,4 +50,11 @@ public class TaskListPermissionsDBPK implements Serializable {
         result = 31 * result + (int) (listId ^ (listId >>> 32));
         return result;
     }
+
+    public static TaskListPermissionsDBPK createKey(long userId, long listId){
+        TaskListPermissionsDBPK taskListPermissionsDBPK = new TaskListPermissionsDBPK();
+        taskListPermissionsDBPK.setListId(listId);
+        taskListPermissionsDBPK.setUserId(userId);
+        return taskListPermissionsDBPK;
+    }
 }

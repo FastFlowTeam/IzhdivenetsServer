@@ -32,7 +32,7 @@ public class PushController extends ExceptionHandlerController {
                     .openSession();
             UserDB up = UserDB.getUser(session, userId, token);
 
-            if (!Constants.device_types.contains(type))
+            if (!Constants.contains(Constants.device_types,type))
                 throw new RestException(ErrorConstants.WRONG_DEVICE);
 
             session.beginTransaction();

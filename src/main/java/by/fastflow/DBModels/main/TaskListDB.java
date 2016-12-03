@@ -103,7 +103,7 @@ public class TaskListDB extends UpdatableDB<TaskListDB>{
     public TaskListDB validate() throws RestException {
         if ((name == null) || (name.isEmpty()) || name.length() > 30)
             throw new RestException(ErrorConstants.EMPTY_TASK_LIST_NAME);
-        if (!Constants.taskList_visibility.contains(visibility))
+        if (!Constants.contains(Constants.taskList_visibility,visibility))
             throw new RestException(ErrorConstants.WRONG_TASK_LIST_VISIBILITY);
         if ((description!= null) && (description.length() > 200))
             throw new RestException(ErrorConstants.WRONG_TASK_LIST_DESCRIPTION);

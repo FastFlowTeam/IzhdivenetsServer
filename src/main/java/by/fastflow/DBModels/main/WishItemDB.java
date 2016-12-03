@@ -153,11 +153,11 @@ public class WishItemDB extends UpdatableDB<WishItemDB> {
     public WishItemDB validate() throws RestException {
         if ((title == null) || ((title.isEmpty()) || (title.length() > 30)))
             throw new RestException(ErrorConstants.EMPTY_WISH_ITEM_TITLE);
-        if (!Constants.wishItem_visibility.contains(visibility))
+        if (!Constants.contains(Constants.wishItem_visibility,visibility))
             throw new RestException(ErrorConstants.WRONG_WISH_ITEM_VISIBILITY);
         if ((cost < 0) || (cost > 1000000000))
             throw new RestException(ErrorConstants.WRONG_WISH_COST);
-        if (!(Constants.wish_rates.contains(wantRate)))
+        if (!(Constants.contains(Constants.wish_rates,wantRate)))
             throw new RestException(ErrorConstants.WRONG_WANT_RATE);
         if ((comment!= null) && (comment.length() > 200))
             throw new RestException(ErrorConstants.LONG_WISH_COMMENT);

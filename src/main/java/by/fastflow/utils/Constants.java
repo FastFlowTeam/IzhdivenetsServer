@@ -150,4 +150,13 @@ public class Constants {
         }
         return "";
     }
+
+    public static boolean contains(HashSet<Integer> message_types, long type) {
+        int temp = (int) type;
+        for (Integer integer : message_types){
+            if (integer.intValue() == temp)
+                return true;
+        }
+        return false;
+    }
 }

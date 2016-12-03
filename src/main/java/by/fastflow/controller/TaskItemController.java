@@ -4,12 +4,15 @@ import by.fastflow.Ajax;
 import by.fastflow.DBModels.TaskListPermissionsDB;
 import by.fastflow.DBModels.TaskPermissionsDB;
 import by.fastflow.DBModels.main.*;
+import by.fastflow.DBModels.pk.TaskListPermissionsDBPK;
 import by.fastflow.repository.HibernateSessionFactory;
 import by.fastflow.utils.Constants;
 import by.fastflow.utils.ErrorConstants;
 import by.fastflow.utils.LIST;
 import by.fastflow.utils.RestException;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import org.hibernate.Session;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,10 +27,6 @@ import java.util.Map;
 public class TaskItemController extends ExceptionHandlerController {
 
     private static final String ADDRESS = Constants.DEF_SERVER + "taskitem";
-
-    // TODO: 21.11.2016 просмотр задач род - все + люди на тех, кто делает
-    // TODO: 21.11.2016 просмотр задач реб - видимые ему задачи + люди на тех, кто делает
-
     // TODO: фиксировать у ребенка кол-во успешных тасок
 
     @RequestMapping(ADDRESS + "/test/")
@@ -198,9 +197,9 @@ public class TaskItemController extends ExceptionHandlerController {
 
             session.beginTransaction();
             session.save(taskItem
-                    .validate()
                     .setState(Constants.TASK_ITEM_VISIBLE)
-                    .setWorkingUser(-1)
+                    .validate()
+                    .setWorkingUser(null)
                     .setNextId(session));
 
             session.close();
@@ -212,28 +211,89 @@ public class TaskItemController extends ExceptionHandlerController {
         }
     }
 
-//    @RequestMapping(value = ADDRESS + "/my/{tasklist_id}", method = RequestMethod.GET)
-//    public
-//    @ResponseBody
-//    String getMy(@RequestHeader(value = "user_id") long userId,
-//                 @RequestHeader(value = "token") String token,
-//                 @PathVariable(value = "tasklist_id") long taskListId) throws RestException {
-//        try {
-//            Session session = HibernateSessionFactory
-//                    .getSessionFactory()
-//                    .openSession();
-//
-//            UserDB.getUser(session, TaskListDB.getTaskList(session, taskListId).getUserId() , token);
-//            List<TaskItemDB> itemDBs = session.createQuery("from TaskItemDB where listId = "+taskListId).list();
-//
-//            session.close();
-//            return Ajax.emptyResponse().toString();
-//        } catch (RestException re) {
-//            throw re;
-//        } catch (Exception e) {
-//            throw new RestException(e);
-//        }
-//    }
+    @RequestMapping(value = ADDRESS + "/my/{tasklist_id}", method = RequestMethod.GET)
+    public
+    @ResponseBody
+    String getMy(@RequestHeader(value = "user_id") long userId,
+                 @RequestHeader(value = "token") String token,
+                 @PathVariable(value = "tasklist_id") long taskListId) throws RestException {
+        try {
+            Session session = HibernateSessionFactory
+                    .getSessionFactory()
+                    .openSession();
+
+            UserDB.getUser(session, TaskListDB.getTaskList(session, taskListId).getUserId(), token);
+            List<Object[]> list = getParentTasksSee(session, taskListId);
+            session.close();
+            return Ajax.successResponseJson(getJsonArray(list));
+        } catch (RestException re) {
+            throw re;
+        } catch (Exception e) {
+            throw new RestException(e);
+        }
+    }
+
+    @RequestMapping(value = ADDRESS + "/parent/{tasklist_id}", method = RequestMethod.GET)
+    public
+    @ResponseBody
+    String getParents(@RequestHeader(value = "user_id") long userId,
+                      @RequestHeader(value = "token") String token,
+                      @PathVariable(value = "tasklist_id") long taskListId) throws RestException {
+        try {
+            Session session = HibernateSessionFactory
+                    .getSessionFactory()
+                    .openSession();
+
+            UserDB userDB = UserDB.getUser(session, userId, token);
+            TaskListDB taskListDB = TaskListDB.getTaskList(session, taskListId);
+            if (taskListDB.getVisibility() == Constants.TASK_LIST_NOBODY)
+                throw new RestException(ErrorConstants.NOT_NAVE_PERMISSION);
+            if (taskListDB.getVisibility() == Constants.TASK_LIST_ALLOWED_USERS) {
+                if (session.get(TaskListPermissionsDB.class, TaskListPermissionsDBPK.createKey(userId, taskListId)) == null)
+                    throw new RestException(ErrorConstants.NOT_NAVE_PERMISSION);
+            }
+            List<Object[]> list = getUserTasksSee(session, taskListId, userId);
+
+            session.close();
+            return Ajax.successResponseJson(getJsonArray(list));
+        } catch (RestException re) {
+            throw re;
+        } catch (Exception e) {
+            throw new RestException(e);
+        }
+    }
+
+    private JsonElement getJsonArray(List<Object[]> list) {
+        JsonArray array = new JsonArray();
+        for (Object[] objects : list) {
+            JsonObject obj = new JsonObject();
+            obj.add("workingUser", objects[0] == null ? null : UserDB.getJson((String) objects[0], (BigInteger) objects[1], (String) objects[2], (BigInteger) objects[3]));
+            obj.add("taskItem", TaskItemDB.makeJson((BigInteger) objects[4], (String) objects[5], (String) objects[6], (String) objects[7], (BigInteger) objects[8], (BigInteger) objects[9], (BigInteger) objects[10]));
+            array.add(obj);
+        }
+        return array;
+    }
+
+    private List<Object[]> getParentTasksSee(Session session, long taskListId) {
+        return session.createSQLQuery("select " +
+                "u.chat_name as a0, u.type as a1, u.photo as a2, u.g_id as a3, " +
+                "ti.item_id as a4, ti.title as a5, ti.description as a6, ti.cost as a7, ti.list_id as a8, ti.state as a9, ti.target as a10 " +
+                "from izh_scheme.task_item ti " +
+                "left join izh_scheme.user u on u.user_id = ti.working_user " +
+                "where ti.list_id = " + taskListId).list();
+    }
+
+    private List<Object[]> getUserTasksSee(Session session, long taskListId, long userId) {
+        return session.createSQLQuery("select " +
+                "u.chat_name as a0, u.type as a1, u.photo as a2, u.g_id as a3, " +
+                "ti.item_id as a4, ti.title as a5, ti.description as a6, ti.cost as a7, ti.list_id as a8, ti.state as a9, ti.target as a10 " +
+                "from izh_scheme.task_item ti " +
+                "left join izh_scheme.user u on u.user_id = ti.working_user " +
+                "where ti.list_id = " + taskListId + " " +
+                "and ti.target = " + Constants.TASK_ITEM_WORK_ALL + " " +
+                "or (ti.target = " + Constants.TASK_ITEM_WORK_ALLOWED_USERS + " " +
+                "and (select count(*) from izh_scheme.task_permissions pe where pe.user_id = " + userId + " and pe.item_id = ti.item_id) != 0)").list();
+    }
 
     @RequestMapping(value = ADDRESS + "/update", method = RequestMethod.PUT)
     public
@@ -384,7 +444,7 @@ public class TaskItemController extends ExceptionHandlerController {
                     .getSessionFactory()
                     .openSession();
             TaskItemDB taskItemDB = TaskItemDB.getTaskItem(session, taskitemId);
-            if ((taskItemDB.getState() == Constants.TASK_ITEM_IN_PROGRESS)||(taskItemDB.getState() == Constants.TASK_ITEM_DONE))
+            if ((taskItemDB.getState() == Constants.TASK_ITEM_IN_PROGRESS) || (taskItemDB.getState() == Constants.TASK_ITEM_DONE))
                 throw new RestException(ErrorConstants.NOT_NAVE_PERMISSION);
             taskItemDB.delete(session, token);
             return Ajax.emptyResponse();

@@ -63,9 +63,9 @@ public class SuccessController extends ExceptionHandlerController {
 
             session.beginTransaction();
             session.save(success
+                    .setState(Constants.SUCCESS_NOT_READED)
                     .validate()
                     .setUserId(userId)
-                    .setState(Constants.SUCCESS_NOT_READED)
                     .setNextId(session));
             session.getTransaction().commit();
 
@@ -99,7 +99,7 @@ public class SuccessController extends ExceptionHandlerController {
 
 
     private String allMy(Session session, UserDB user, int START_NUM) {
-        List<SuccessDB> list = session.createQuery("from SuccessDB order by successId DESC where userId = " + user.getUserId()).setFirstResult(START_NUM).setMaxResults(Constants.PAGE_RESULT).list();
+        List<SuccessDB> list = session.createQuery("from SuccessDB where userId = " + user.getUserId() + " order by successId DESC ").setFirstResult(START_NUM).setMaxResults(Constants.PAGE_RESULT).list();
         JsonArray array = new JsonArray();
         for (SuccessDB item : list)
             array.add(SuccessDB.getJson(item));
@@ -108,7 +108,7 @@ public class SuccessController extends ExceptionHandlerController {
     }
 
     private String allNotMy(Session session, UserDB user, UserDB child, int START_NUM) {
-        List<SuccessDB> list = session.createQuery("from SuccessDB order by successId DESC where userId = " + child.getUserId()).setFirstResult(START_NUM).setMaxResults(Constants.PAGE_RESULT).list();
+        List<SuccessDB> list = session.createQuery("from SuccessDB where userId = " + child.getUserId()+" order by successId DESC ").setFirstResult(START_NUM).setMaxResults(Constants.PAGE_RESULT).list();
         JsonArray array = new JsonArray();
         for (SuccessDB item : list) {
             array.add(SuccessDB.getJson(item));
@@ -246,7 +246,7 @@ public class SuccessController extends ExceptionHandlerController {
             JsonObject object = new JsonObject();
             object.addProperty("number", (BigInteger) objects[0]);
             object.add("user", UserDB.getJson((String) objects[1], (BigInteger) objects[2], (String) objects[3], (BigInteger) objects[4]));
-            object.add("success", SuccessDB.getJson((BigInteger) objects[5], (String) objects[6], (String) objects[7], (String) objects[8], (String) objects[9], (BigInteger) objects[20]));
+            object.add("success", SuccessDB.getJson((BigInteger) objects[5], (String) objects[6], (String) objects[7], (String) objects[8], (String) objects[9], (BigInteger) objects[10]));
             array.add(object);
         }
         return array;

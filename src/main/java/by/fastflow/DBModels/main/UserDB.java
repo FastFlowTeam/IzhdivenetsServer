@@ -125,8 +125,8 @@ public class UserDB extends UpdatableDB<UserDB> {
 
     @Override
     public UserDB validate() throws RestException {
-        if (!Constants.user_types.contains(type))
-            throw new RestException(ErrorConstants.USER_TYPE);
+//        if (!Constants.contains(Constants.user_types,type))
+//            throw new RestException(ErrorConstants.USER_TYPE);
         if ((chatName == null) || (chatName.isEmpty()) || (chatName.length() > 30))
             throw new RestException(ErrorConstants.USER_CHAT_NAME);
         if ((photo != null) && (photo.length() > 200))
@@ -215,6 +215,15 @@ public class UserDB extends UpdatableDB<UserDB> {
         json.addProperty("type", type);
         json.addProperty("photo", photo);
         json.addProperty("gId", gId);
+        return json;
+    }
+
+    public static JsonObject getJson(UserDB userDB) {
+        JsonObject json = new JsonObject();
+        json.addProperty("chatName", userDB.chatName);
+        json.addProperty("type", userDB.type);
+        json.addProperty("photo", userDB.photo);
+        json.addProperty("gId", userDB.gId);
         return json;
     }
 

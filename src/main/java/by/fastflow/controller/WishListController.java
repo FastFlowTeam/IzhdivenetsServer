@@ -160,23 +160,22 @@ public class WishListController extends ExceptionHandlerController {
                 "u.chat_name as a3, u.type as a4, u.photo as a5, u.g_id as a6, " +
                 "cou as a7 " +
                 "from izh_scheme.relationship r " +
-                "join izh_scheme.wish_list w_l on user_id = sender_id and visibility = " + Constants.WISH_LIST_VISIBLE +
+                "join izh_scheme.wish_list w_l on user_id = sender_id and visibility = " + Constants.WISH_LIST_VISIBLE + " " +
                 "left join (select count(item_id) as cou, list_id from izh_scheme.wish_item where visibility = " + Constants.WISH_ITEM_VISIBLE + " group by list_id) t1 " +
                 "on t1.list_id = w_l.list_id " +
                 "join izh_scheme.user u on u.user_id = w_l.user_id " +
-                "where r.recipient_id = " + parentId + " and r.state = " + Constants.RELATIONSHIP_ACCEPT +
+                "where r.recipient_id = " + parentId + " and r.state = " + Constants.RELATIONSHIP_ACCEPT + " " +
                 "union " +
                 "select " +
-                "w_l.name as a0, w_l.description as a1, " +
-                "u.chat_name as a2, u.type as a3, u.photo as a4, u.g_id as a5, " +
-                "count as a6 " +
+                "w_l.name as a0, w_l.list_id as a1, w_l.description as a2, " +
+                "u.chat_name as a3, u.type as a4, u.photo as a5, u.g_id as a6, " +
+                "cou as a7 " +
                 "from izh_scheme.relationship r " +
-                "join izh_scheme.wish_list w_l on user_id = recipient_id and visibility = " + Constants.WISH_LIST_VISIBLE +
+                "join izh_scheme.wish_list w_l on user_id = recipient_id and visibility = " + Constants.WISH_LIST_VISIBLE + " "+
                 "left join (select count(item_id) as cou, list_id from izh_scheme.wish_item where visibility = " + Constants.WISH_ITEM_VISIBLE + " group by list_id ) t1 " +
                 "on t1.list_id = w_l.list_id " +
                 "join izh_scheme.user u on u.user_id = w_l.user_id " +
                 "where r.sender_id = " + parentId + " and r.state = " + Constants.RELATIONSHIP_ACCEPT).list();
-
     }
 
     private JsonArray getArrayJson(List<WishListDB> list) {
