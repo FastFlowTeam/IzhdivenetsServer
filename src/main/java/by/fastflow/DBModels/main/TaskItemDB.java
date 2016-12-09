@@ -7,6 +7,7 @@ import by.fastflow.utils.UpdatableDB;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.hibernate.Session;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.math.BigInteger;
@@ -17,7 +18,7 @@ import java.math.BigInteger;
 @Entity
 @Table(name = "task_item", schema = "izh_scheme", catalog = "db")
 public class TaskItemDB extends UpdatableDB<TaskItemDB>{
-    private long itemId;
+    private Long itemId;
     private String title;
     private String description;
     private String cost;
@@ -28,12 +29,15 @@ public class TaskItemDB extends UpdatableDB<TaskItemDB>{
 
     @Id
     @Column(name = "item_id", nullable = false)
-    public long getItemId() {
+    @GenericGenerator(name="kaugen", strategy = "increment")
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    public Long getItemId() {
         return itemId;
     }
 
-    public void setItemId(long itemId) {
+    public TaskItemDB setItemId(Long itemId) {
         this.itemId = itemId;
+        return this;
     }
 
     @Basic
@@ -116,13 +120,13 @@ public class TaskItemDB extends UpdatableDB<TaskItemDB>{
 
         TaskItemDB that = (TaskItemDB) o;
 
-        if (itemId != that.itemId) return false;
         if (state != that.state) return false;
         if (target != that.target) return false;
         if (listId != that.listId) return false;
         if (title != null ? !title.equals(that.title) : that.title != null) return false;
         if (description != null ? !description.equals(that.description) : that.description != null) return false;
         if (workingUser != null ? !workingUser.equals(that.workingUser) : that.workingUser != null) return false;
+        if (itemId != null ? !itemId.equals(that.itemId) : that.itemId != null) return false;
         if (cost != null ? !cost.equals(that.cost) : that.cost != null) return false;
 
         return true;
@@ -130,13 +134,13 @@ public class TaskItemDB extends UpdatableDB<TaskItemDB>{
 
     @Override
     public int hashCode() {
-        int result = (int) (itemId ^ (itemId >>> 32));
-        result = 31 * result + (title != null ? title.hashCode() : 0);
+        int result = (title != null ? title.hashCode() : 0);
         result = 31 * result + (description != null ? description.hashCode() : 0);
         result = 31 * result + (cost != null ? cost.hashCode() : 0);
         result = 31 * result + (int) (state ^ (state >>> 32));
         result = 31 * result + (int) (listId ^ (listId >>> 32));
         result = 31 * result + (workingUser != null ? workingUser.hashCode() : 0);
+        result = 31 * result + (itemId != null ? itemId.hashCode() : 0);
         result = 31 * result + (int) (target ^ (target >>> 32));
         return result;
     }
@@ -158,16 +162,6 @@ public class TaskItemDB extends UpdatableDB<TaskItemDB>{
     @Override
     public void havePermissionToDelete(Session session, String token) throws RestException {
         UserDB.getUser(session, WishListDB.getWishList(session, listId).getUserId(), token);
-    }
-
-    @Override
-    public TaskItemDB setNextId(Session session) {
-        try {
-            itemId = ((TaskItemDB) session.createQuery("from TaskItemDB ORDER BY itemId DESC").setMaxResults(1).uniqueResult()).getItemId() + 1;
-        } catch (Exception e) {
-            itemId = 1;
-        }
-        return this;
     }
 
     @Override

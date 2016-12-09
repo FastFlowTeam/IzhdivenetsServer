@@ -3,6 +3,7 @@ package by.fastflow.DBModels.main;
 import by.fastflow.utils.*;
 import com.google.gson.JsonObject;
 import org.hibernate.Session;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.math.BigInteger;
@@ -19,9 +20,10 @@ public class UserDB extends UpdatableDB<UserDB> {
     // TODO: 28.11.2016 добавить счетчик подтвержденных задач
 
     @Id
+    @GenericGenerator(name="kaugen", strategy = "increment")
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "user_id", nullable = false, unique = true)
-    private long userId;
+    private Long userId;
 
     private String token;
     private String photo;
@@ -42,11 +44,11 @@ public class UserDB extends UpdatableDB<UserDB> {
         return this;
     }
 
-    public long getUserId() {
+    public Long getUserId() {
         return userId;
     }
 
-    public UserDB setUserId(long userId) {
+    public UserDB setUserId(Long userId) {
         this.userId = userId;
         return this;
     }
@@ -80,7 +82,7 @@ public class UserDB extends UpdatableDB<UserDB> {
     }
 
     public UserDB setChatName(String chatName) {
-        this.chatName = chatName;
+        this.chatName = chatName.length()>30 ? chatName.substring(0,30) : chatName;
         return this;
     }
 
@@ -102,11 +104,11 @@ public class UserDB extends UpdatableDB<UserDB> {
 
         UserDB userDB = (UserDB) o;
 
-        if (userId != userDB.userId) return false;
         if (type != userDB.type) return false;
         if (gId != userDB.gId) return false;
         if (token != null ? !token.equals(userDB.token) : userDB.token != null) return false;
         if (photo != null ? !photo.equals(userDB.photo) : userDB.photo != null) return false;
+        if (userId != null ? !userId.equals(userDB.userId) : userDB.userId != null) return false;
         if (chatName != null ? !chatName.equals(userDB.chatName) : userDB.chatName != null) return false;
 
         return true;
@@ -114,11 +116,11 @@ public class UserDB extends UpdatableDB<UserDB> {
 
     @Override
     public int hashCode() {
-        int result = (int) (userId ^ (userId >>> 32));
+        int result = (int) (type ^ (type >>> 32));
         result = 31 * result + (token != null ? token.hashCode() : 0);
         result = 31 * result + (photo != null ? photo.hashCode() : 0);
         result = 31 * result + (chatName != null ? chatName.hashCode() : 0);
-        result = 31 * result + (int) (type ^ (type >>> 32));
+        result = 31 * result + (userId!= null ? userId.hashCode() : 0);
         result = 31 * result + (int) (gId ^ (gId >>> 32));
         return result;
     }
@@ -131,6 +133,8 @@ public class UserDB extends UpdatableDB<UserDB> {
             throw new RestException(ErrorConstants.USER_CHAT_NAME);
         if ((photo != null) && (photo.length() > 200))
             throw new RestException(ErrorConstants.LONG_USER_PHOTO);
+        if (photo == null)
+            photo = "";
         return this;
     }
 
@@ -146,16 +150,6 @@ public class UserDB extends UpdatableDB<UserDB> {
         havePermissionToModify(session, token);
     }
 
-    @Override
-    public UserDB setNextId(Session session) {
-        try {
-            userId = ((UserDB) session.createQuery("from UserDB ORDER BY userId DESC").setMaxResults(1).uniqueResult()).getUserId() + 1;
-        } catch (Exception e) {
-            userId = 1;
-        }
-        return this;
-    }
-
     public UserDB updateToken() {
         token = hashCode() + Calendar.getInstance().getTimeInMillis() + "" + userId;
         return this;
@@ -165,6 +159,8 @@ public class UserDB extends UpdatableDB<UserDB> {
     public void updateBy(UserDB up) {
         this.chatName = up.chatName;
         this.photo = up.photo;
+        if (photo == null)
+            photo = "";
         updateToken();
     }
 
@@ -173,7 +169,8 @@ public class UserDB extends UpdatableDB<UserDB> {
                 .setChatName(s)
                 .setType(type)
                 .setgId(GenerateGID())
-                .updateToken();
+                .updateToken()
+                .setUserId(null);
     }
 
     public static long GenerateGID() {

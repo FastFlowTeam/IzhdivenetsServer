@@ -3,6 +3,7 @@ package by.fastflow.DBModels.main;
 import by.fastflow.utils.*;
 import com.google.gson.JsonObject;
 import org.hibernate.Session;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.math.BigInteger;
@@ -13,7 +14,7 @@ import java.math.BigInteger;
 @Entity
 @Table(name = "success", schema = "izh_scheme", catalog = "db")
 public class SuccessDB extends UpdatableDB<SuccessDB>{
-    private long successId;
+    private Long successId;
     private long userId;
     private String title;
     private String description;
@@ -23,12 +24,15 @@ public class SuccessDB extends UpdatableDB<SuccessDB>{
 
     @Id
     @Column(name = "success_id", nullable = false)
-    public long getSuccessId() {
+    @GenericGenerator(name="kaugen", strategy = "increment")
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    public Long getSuccessId() {
         return successId;
     }
 
-    public void setSuccessId(long successId) {
+    public SuccessDB setSuccessId(Long successId) {
         this.successId = successId;
+        return this;
     }
 
     @Basic
@@ -114,12 +118,12 @@ public class SuccessDB extends UpdatableDB<SuccessDB>{
 
     @Override
     public int hashCode() {
-        int result = (int) (successId ^ (successId >>> 32));
-        result = 31 * result + (int) (userId ^ (userId >>> 32));
+        int result = (int) (userId ^ (userId >>> 32));
         result = 31 * result + (title != null ? title.hashCode() : 0);
         result = 31 * result + (description != null ? description.hashCode() : 0);
         result = 31 * result + (photo != null ? photo.hashCode() : 0);
         result = 31 * result + (link != null ? link.hashCode() : 0);
+        result = 31 * result + (successId != null ? successId.hashCode() : 0);
         result = 31 * result + (int) (state ^ (state >>> 32));
         return result;
     }
@@ -162,16 +166,6 @@ public class SuccessDB extends UpdatableDB<SuccessDB>{
         if (success == null)
             throw new RestException(ErrorConstants.NOT_HAVE_ID);
         return success;
-    }
-
-    @Override
-    public SuccessDB setNextId(Session session) {
-        try {
-            successId = ((SuccessDB) session.createQuery("from SuccessDB ORDER BY successId DESC").setMaxResults(1).uniqueResult()).getSuccessId() + 1;
-        } catch (Exception e) {
-            successId = 1;
-        }
-        return this;
     }
 
     public static JsonObject getJson(SuccessDB s) {

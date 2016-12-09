@@ -1,9 +1,10 @@
 package by.fastflow.DBModels.main;
 
 import by.fastflow.utils.ErrorConstants;
-import by.fastflow.utils.NextableId;
 import by.fastflow.utils.RestException;
+import by.fastflow.utils.Validatable;
 import org.hibernate.Session;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 
@@ -12,18 +13,20 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "card", schema = "izh_scheme", catalog = "db")
-public class CardDB extends NextableId {
-    private long cardId;
+public class CardDB extends Validatable<CardDB> {
+    private Long cardId;
     private long userId;
     private long moneyAmount;
 
     @Id
     @Column(name = "card_id", nullable = false)
-    public long getCardId() {
+    @GenericGenerator(name="kaugen", strategy = "increment")
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    public Long getCardId() {
         return cardId;
     }
 
-    public CardDB setCardId(long cardId) {
+    public CardDB setCardId(Long cardId) {
         this.cardId = cardId;
         return this;
     }
@@ -57,18 +60,18 @@ public class CardDB extends NextableId {
 
         CardDB cardDB = (CardDB) o;
 
-        if (cardId != cardDB.cardId) return false;
         if (moneyAmount != cardDB.moneyAmount) return false;
         if (userId != cardDB.userId) return false;
+        if (cardId != null ? !cardId.equals(cardDB.cardId) : cardDB.cardId != null) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = (int) (cardId ^ (cardId >>> 32));
-        result = 31 * result + (int) (userId ^ (userId >>> 32));
+        int result = (int) (userId ^ (userId >>> 32));
         result = 31 * result + (int) (moneyAmount ^ (moneyAmount >>> 32));
+        result = 31 * result + (cardId != null ? cardId.hashCode() : 0);
         return result;
     }
 
@@ -79,20 +82,11 @@ public class CardDB extends NextableId {
         return this;
     }
 
-    @Override
-    public CardDB setNextId(Session session) {
-        try {
-            cardId = ((CardDB) session.createQuery("from CardDB ORDER BY cardId DESC").setMaxResults(1).uniqueResult()).getUserId() + 1;
-        } catch (Exception e) {
-            cardId = 1;
-        }
-        return this;
-    }
-
     public static CardDB createNew(long userId, int i) {
         return new CardDB()
                 .setUserId(userId)
-                .setMoneyAmount(i);
+                .setMoneyAmount(i)
+                .setCardId(null);
     }
 
     public CardDB sub(long money) {

@@ -53,7 +53,7 @@ public class TaskListController extends ExceptionHandlerController {
             session.save(taskList
                     .validate()
                     .setUserId(userId)
-                    .setNextId(session));
+                    .setListId(null));
 
             session.close();
             return Ajax.successResponse(taskList);

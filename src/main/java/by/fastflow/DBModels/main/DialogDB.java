@@ -6,6 +6,7 @@ import by.fastflow.utils.ErrorConstants;
 import by.fastflow.utils.RestException;
 import by.fastflow.utils.UpdatableDB;
 import org.hibernate.Session;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.util.List;
@@ -16,17 +17,20 @@ import java.util.List;
 @Entity
 @Table(name = "dialog", schema = "izh_scheme", catalog = "db")
 public class DialogDB extends UpdatableDB<DialogDB> {
-    private long dialogId;
+    private Long dialogId;
     private String name;
 
     @Id
     @Column(name = "dialog_id", nullable = false)
-    public long getDialogId() {
+    @GenericGenerator(name="kaugen", strategy = "increment")
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    public Long getDialogId() {
         return dialogId;
     }
 
-    public void setDialogId(long dialogId) {
+    public DialogDB setDialogId(Long dialogId) {
         this.dialogId = dialogId;
+        return this;
     }
 
     @Basic
@@ -47,16 +51,16 @@ public class DialogDB extends UpdatableDB<DialogDB> {
 
         DialogDB dialogDB = (DialogDB) o;
 
-        if (dialogId != dialogDB.dialogId) return false;
         if (name != null ? !name.equals(dialogDB.name) : dialogDB.name != null) return false;
+        if (dialogId != null ? !dialogId.equals(dialogDB.dialogId) : dialogDB.dialogId != null) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = (int) (dialogId ^ (dialogId >>> 32));
-        result = 31 * result + (name != null ? name.hashCode() : 0);
+        int result = (name != null ? name.hashCode() : 0);
+        result = 31 * result + (dialogId != null ? dialogId.hashCode() : 0);
         return result;
     }
 
@@ -79,7 +83,8 @@ public class DialogDB extends UpdatableDB<DialogDB> {
 
     public static DialogDB createNew(String name) {
         return new DialogDB()
-                .setName(name);
+                .setName(name)
+                .setDialogId(null);
     }
 
     @Override
@@ -92,16 +97,6 @@ public class DialogDB extends UpdatableDB<DialogDB> {
                 return;
         }
         throw new RestException(ErrorConstants.NOT_NAVE_PERMISSION);
-    }
-
-    @Override
-    public DialogDB setNextId(Session session) {
-        try {
-            dialogId = ((DialogDB) session.createQuery("from DialogDB ORDER BY dialogId DESC").setMaxResults(1).uniqueResult()).getDialogId() + 1;
-        } catch (Exception e) {
-            dialogId = 1;
-        }
-        return this;
     }
 
     public static DialogDB getDialog(Session session, long dialogId) throws RestException {

@@ -200,7 +200,7 @@ public class TaskItemController extends ExceptionHandlerController {
                     .setState(Constants.TASK_ITEM_VISIBLE)
                     .validate()
                     .setWorkingUser(null)
-                    .setNextId(session));
+                    .setItemId(null));
 
             session.close();
             return Ajax.successResponse(taskItem);

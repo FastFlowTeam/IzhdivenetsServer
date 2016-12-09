@@ -114,9 +114,4 @@ public class RelationshipDB extends UpdatableDB<RelationshipDB> {
     public boolean notAccepted() {
         return state != Constants.RELATIONSHIP_ACCEPT;
     }
-
-    @Override
-    public RelationshipDB setNextId(Session session) {
-        return null;
-    }
 }

@@ -5,6 +5,7 @@ import by.fastflow.utils.ErrorConstants;
 import by.fastflow.utils.RestException;
 import by.fastflow.utils.UpdatableDB;
 import org.hibernate.Session;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 
@@ -14,7 +15,7 @@ import javax.persistence.*;
 @Entity
 @Table(name = "wish_item", schema = "izh_scheme", catalog = "db")
 public class WishItemDB extends UpdatableDB<WishItemDB> {
-    private long itemId;
+    private Long itemId;
     private String title;
     private String comment;
     private String link;
@@ -26,12 +27,15 @@ public class WishItemDB extends UpdatableDB<WishItemDB> {
 
     @Id
     @Column(name = "item_id", nullable = false)
-    public long getItemId() {
+    @GenericGenerator(name="kaugen", strategy = "increment")
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    public Long getItemId() {
         return itemId;
     }
 
-    public void setItemId(long itemId) {
+    public WishItemDB setItemId(Long itemId) {
         this.itemId = itemId;
+        return this;
     }
 
     @Basic
@@ -122,7 +126,6 @@ public class WishItemDB extends UpdatableDB<WishItemDB> {
 
         WishItemDB that = (WishItemDB) o;
 
-        if (itemId != that.itemId) return false;
         if (listId != that.listId) return false;
         if (cost != that.cost) return false;
         if (wantRate != that.wantRate) return false;
@@ -131,17 +134,18 @@ public class WishItemDB extends UpdatableDB<WishItemDB> {
         if (comment != null ? !comment.equals(that.comment) : that.comment != null) return false;
         if (link != null ? !link.equals(that.link) : that.link != null) return false;
         if (photo != null ? !photo.equals(that.photo) : that.photo != null) return false;
+        if (itemId != null ? !itemId.equals(that.itemId) : that.itemId != null) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = (int) (itemId ^ (itemId >>> 32));
-        result = 31 * result + (title != null ? title.hashCode() : 0);
+        int result = (title != null ? title.hashCode() : 0);
         result = 31 * result + (comment != null ? comment.hashCode() : 0);
         result = 31 * result + (link != null ? link.hashCode() : 0);
         result = 31 * result + (photo != null ? photo.hashCode() : 0);
+        result = 31 * result + (itemId != null ? itemId.hashCode() : 0);
         result = 31 * result + (int) (visibility ^ (visibility >>> 32));
         result = 31 * result + (int) (listId ^ (listId >>> 32));
         result = 31 * result + (int) (wantRate ^ (cost >>> 32));
@@ -194,15 +198,5 @@ public class WishItemDB extends UpdatableDB<WishItemDB> {
         if (wishItemDB == null)
             throw new RestException(ErrorConstants.NOT_HAVE_ID);
         return wishItemDB;
-    }
-
-    @Override
-    public WishItemDB setNextId(Session session) {
-        try {
-            itemId = ((WishItemDB) session.createQuery("from WishItemDB ORDER BY itemId DESC").setMaxResults(1).uniqueResult()).getItemId() + 1;
-        } catch (Exception e) {
-            itemId = 1;
-        }
-        return this;
     }
 }

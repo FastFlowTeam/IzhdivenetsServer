@@ -91,10 +91,10 @@ public class CardController extends ExceptionHandlerController {
         }
     }
 
-    public static CardDB createCard(Session session, UserDB userDB) {
+    public static CardDB createCard(UserDB userDB) {
         return CardDB
                 .createNew(userDB.getUserId(), userDB.getType() == Constants.USER_PARENT ? 10000 : 0)
-                .setNextId(session);
+                .setCardId(null);
     }
 
     @RequestMapping(ADDRESS + "/test/")

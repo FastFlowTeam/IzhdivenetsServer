@@ -7,6 +7,7 @@
     <class name="by.fastflow.DBModels.main.WishItemDB" table="wish_item" schema="izh_scheme" catalog="db">
         <id name="itemId">
             <column name="item_id" sql-type="bigint"/>
+            <generator class="identity"/>
         </id>
         <property name="title">
             <column name="title" sql-type="varchar(30)" length="30"/>

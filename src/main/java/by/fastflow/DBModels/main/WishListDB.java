@@ -6,6 +6,7 @@ import by.fastflow.utils.RestException;
 import by.fastflow.utils.UpdatableDB;
 import com.google.gson.JsonObject;
 import org.hibernate.Session;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.math.BigInteger;
@@ -16,7 +17,7 @@ import java.math.BigInteger;
 @Entity
 @Table(name = "wish_list", schema = "izh_scheme", catalog = "db")
 public class WishListDB extends UpdatableDB<WishListDB> {
-    private long listId;
+    private Long listId;
     private long userId;
     private String name;
     private String description;
@@ -24,12 +25,15 @@ public class WishListDB extends UpdatableDB<WishListDB> {
 
     @Id
     @Column(name = "list_id", nullable = false)
-    public long getListId() {
+    @GenericGenerator(name="kaugen", strategy = "increment")
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    public Long getListId() {
         return listId;
     }
 
-    public void setListId(long listId) {
+    public WishListDB setListId(Long listId) {
         this.listId = listId;
+        return this;
     }
 
     @Basic
@@ -80,20 +84,20 @@ public class WishListDB extends UpdatableDB<WishListDB> {
 
         WishListDB that = (WishListDB) o;
 
-        if (listId != that.listId) return false;
         if (visibility != that.visibility) return false;
         if (userId != that.userId) return false;
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
         if (description != null ? !description.equals(that.description) : that.description != null) return false;
+        if (listId != null ? !listId.equals(that.listId) : that.listId != null) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = (int) (listId ^ (listId >>> 32));
-        result = 31 * result + (name != null ? name.hashCode() : 0);
+        int result = (name != null ? name.hashCode() : 0);
         result = 31 * result + (description != null ? description.hashCode() : 0);
+        result = 31 * result + (listId != null ? listId.hashCode() : 0);
         result = 31 * result + (int) (visibility ^ (visibility >>> 32));
         result = 31 * result + (int) (userId ^ (userId >>> 32));
         return result;
@@ -125,16 +129,6 @@ public class WishListDB extends UpdatableDB<WishListDB> {
     @Override
     public void havePermissionToDelete(Session session, String token) throws RestException {
         UserDB.getUser(session, userId, token);
-    }
-
-    @Override
-    public WishListDB setNextId(Session session) {
-        try {
-            listId = ((WishListDB) session.createQuery("from WishListDB ORDER BY listId DESC").setMaxResults(1).uniqueResult()).getListId() + 1;
-        } catch (Exception e) {
-            listId = 1;
-        }
-        return this;
     }
 
     public static WishListDB getWishList(Session session, long wishListId) throws RestException {

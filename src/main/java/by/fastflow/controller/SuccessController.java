@@ -66,7 +66,7 @@ public class SuccessController extends ExceptionHandlerController {
                     .setState(Constants.SUCCESS_NOT_READED)
                     .validate()
                     .setUserId(userId)
-                    .setNextId(session));
+                    .setSuccessId(null));
             session.getTransaction().commit();
 
             updateNotReaded(session, user);

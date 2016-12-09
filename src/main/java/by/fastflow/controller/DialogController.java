@@ -46,7 +46,7 @@ public class DialogController extends ExceptionHandlerController {
 
             session.beginTransaction();
             session.save(dialog
-                    .setNextId(session));
+                    .setDialogId(null));
             session.getTransaction().commit();
 
             HashSet<Long> users = new HashSet<>();
@@ -324,7 +324,7 @@ public class DialogController extends ExceptionHandlerController {
         List<Object[]> list = getTwainDialog(session, userFId, userSId);
         if (list.size() == 0) {
             session.beginTransaction();
-            DialogDB dialog = DialogDB.createNew("").setNextId(session);
+            DialogDB dialog = DialogDB.createNew("").setDialogId(null);
             session.save(dialog);
             session.save(InDialogTwainDB.createNew(userFId, userSId, dialog.getDialogId()));
             session.save(InDialogTwainDB.createNew(userSId, userFId, dialog.getDialogId()));

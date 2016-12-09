@@ -50,7 +50,7 @@ public class MessageController extends ExceptionHandlerController {
             session.save(message
                     .validate()
                     .setUserId(up.getUserId())
-                    .setNextId(session));
+                    .setMessageId(null));
             session.getTransaction().commit();
 
             updateNotReadedMessages(session, message.getDialogId(), userId);
@@ -96,7 +96,7 @@ public class MessageController extends ExceptionHandlerController {
         session.beginTransaction();
         session.save(MessageDB
                 .createNew(msg_type, userId, dialogId, list)
-                .setNextId(session));
+                .setMessageId(null));
         session.getTransaction().commit();
 
         updateNotReadedMessages(session, dialogId, userId);

@@ -2,6 +2,7 @@ package by.fastflow.DBModels.main;
 
 import by.fastflow.utils.*;
 import org.hibernate.Session;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 
@@ -10,20 +11,23 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "auth", schema = "izh_scheme", catalog = "db")
-public class AuthDB extends NextableId {
-    private long authId;
+public class AuthDB extends Validatable<AuthDB>{
+    private Long authId;
     private long type;
     private long userId;
     private String token;
 
     @Id
     @Column(name = "auth_id", nullable = false)
-    public long getAuthId() {
+    @GenericGenerator(name="kaugen", strategy = "increment")
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    public Long getAuthId() {
         return authId;
     }
 
-    public void setAuthId(long authId) {
+    public AuthDB setAuthId(Long authId) {
         this.authId = authId;
+        return this;
     }
 
     @Basic
@@ -66,39 +70,29 @@ public class AuthDB extends NextableId {
 
         AuthDB authDB = (AuthDB) o;
 
-        if (authId != authDB.authId) return false;
         if (type != authDB.type) return false;
         if (userId != authDB.userId) return false;
         if (token != null ? !token.equals(authDB.token) : authDB.token != null) return false;
+        if (authId != null ? !authId.equals(authDB.authId) : authDB.authId != null) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = (int) (authId ^ (authId >>> 32));
-        result = 31 * result + (int) (type ^ (type >>> 32));
+        int result = (int) (type ^ (type >>> 32));
         result = 31 * result + (int) (userId ^ (userId >>> 32));
         result = 31 * result + (token != null ? token.hashCode() : 0);
+        result = 31 * result + (authId != null ? authId.hashCode() : 0);
         return result;
     }
 
-    public static AuthDB createNew(Session session, int type, String token, long userId) {
+    public static AuthDB createNew(int type, String token, long userId) {
         return new AuthDB()
                 .setToken(token)
                 .setType((long) type)
                 .setUserId(userId)
-                .setNextId(session);
-    }
-
-    @Override
-    public AuthDB setNextId(Session session) {
-        try {
-            authId = ((AuthDB) session.createQuery("from AuthDB ORDER BY authId DESC").setMaxResults(1).uniqueResult()).getAuthId() + 1;
-        } catch (Exception e) {
-            authId = 1;
-        }
-        return this;
+                .setAuthId(null);
     }
 
     @Override

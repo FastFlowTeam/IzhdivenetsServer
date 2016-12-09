@@ -81,11 +81,11 @@ public class UserController extends ExceptionHandlerController {
             if (list.size() == 0) {
                 userDB = UserDB
                         .createNew(userSettings.getFirstName() + " " + userSettings.getLastName(), type)
-                        .setNextId(session);
+                        .setUserId(null);
                 session.save(userDB);
                 session.saveOrUpdate(AuthDB
-                        .createNew(session, Constants.LOGIN_TYPE_VK, userId + "", userDB.getUserId()));
-                session.saveOrUpdate(CardController.createCard(session, userDB));
+                        .createNew(Constants.LOGIN_TYPE_VK, userId + "", userDB.getUserId()));
+                session.saveOrUpdate(CardController.createCard(userDB));
             } else {
                 userDB = UserDB.getUser(session, list.get(0).getUserId())
                         .updateToken();

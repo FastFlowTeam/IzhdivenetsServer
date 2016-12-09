@@ -4,6 +4,7 @@ import by.fastflow.utils.*;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.hibernate.Session;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.math.BigInteger;
@@ -16,7 +17,7 @@ import java.util.TimeZone;
 @Entity
 @Table(name = "message", schema = "izh_scheme", catalog = "db")
 public class MessageDB extends UpdatableDB<MessageDB> {
-    private long messageId;
+    private Long messageId;
     private long dialogId;
     private long userId;
     private long date;
@@ -26,11 +27,13 @@ public class MessageDB extends UpdatableDB<MessageDB> {
 
     @Id
     @Column(name = "message_id", nullable = false)
-    public long getMessageId() {
+    @GenericGenerator(name="kaugen", strategy = "increment")
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    public Long getMessageId() {
         return messageId;
     }
 
-    public MessageDB setMessageId(long messageId) {
+    public MessageDB setMessageId(Long messageId) {
         this.messageId = messageId;
         return this;
     }
@@ -108,12 +111,12 @@ public class MessageDB extends UpdatableDB<MessageDB> {
 
         MessageDB messageDB = (MessageDB) o;
 
-        if (messageId != messageDB.messageId) return false;
         if (type != messageDB.type) return false;
         if (dialogId != messageDB.dialogId) return false;
         if (userId != messageDB.userId) return false;
         if (date != messageDB.date) return false;
         if (text != null ? !text.equals(messageDB.text) : messageDB.text != null) return false;
+        if (messageId != null ? !messageId.equals(messageDB.messageId) : messageDB.messageId != null) return false;
         if (link != null ? !link.equals(messageDB.link) : messageDB.link != null) return false;
 
         return true;
@@ -121,8 +124,8 @@ public class MessageDB extends UpdatableDB<MessageDB> {
 
     @Override
     public int hashCode() {
-        int result = (int) (messageId ^ (messageId >>> 32));
-        result = 31 * result + (text != null ? text.hashCode() : 0);
+        int result = (text != null ? text.hashCode() : 0);
+        result = 31 * result + (messageId != null ? messageId.hashCode() : 0);
         result = 31 * result + (int) (type ^ (type >>> 32));
         result = 31 * result + (int) (dialogId ^ (dialogId >>> 32));
         result = 31 * result + (int) (userId ^ (userId >>> 32));
@@ -163,17 +166,6 @@ public class MessageDB extends UpdatableDB<MessageDB> {
         throw new RestException(ErrorConstants.NOT_NAVE_PERMISSION);
     }
 
-    @Override
-    public MessageDB setNextId(Session session) {
-        date = Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTimeInMillis();
-        try {
-            messageId = ((MessageDB) session.createQuery("from MessageDB ORDER BY messageId DESC").setMaxResults(1).uniqueResult()).getMessageId() + 1;
-        } catch (Exception e) {
-            messageId = 1;
-        }
-        return this;
-    }
-
     public static MessageDB createNew(int msg_type, long userId, long dialogId, LIST list) {
         return new MessageDB()
                 .setDialogId(dialogId)
@@ -182,7 +174,8 @@ public class MessageDB extends UpdatableDB<MessageDB> {
                 .setUserId(userId)
                 .setDialogId(dialogId)
                 .setLink("")
-                .setDate(Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTimeInMillis());
+                .setDate(Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTimeInMillis())
+                .setMessageId(null);
     }
 
     public static JsonElement getJson(BigInteger date, BigInteger type, BigInteger messageId, String text, String link) {

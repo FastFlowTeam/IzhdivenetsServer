@@ -7,6 +7,7 @@
     <class name="by.fastflow.DBModels.main.AuthDB" table="auth" schema="izh_scheme" catalog="db">
         <id name="authId">
             <column name="auth_id" sql-type="bigint"/>
+            <generator class="identity"/>
         </id>
         <property name="userId">
             <column name="user_id" sql-type="bigint" not-null="true"/>

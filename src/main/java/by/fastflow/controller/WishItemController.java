@@ -44,7 +44,7 @@ public class WishItemController extends ExceptionHandlerController {
             session.beginTransaction();
             session.save(wishitem
                     .validate()
-                    .setNextId(session));
+                    .setItemId(null));
 
             session.close();
             return Ajax.successResponse(wishitem);

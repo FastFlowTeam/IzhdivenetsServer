@@ -43,7 +43,7 @@ public class WishListController extends ExceptionHandlerController {
             session.save(wishlist
                     .validate()
                     .setUserId(userId)
-                    .setNextId(session));
+                    .setListId(null));
 
             session.close();
             return Ajax.successResponse(wishlist);

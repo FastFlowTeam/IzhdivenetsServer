@@ -7,6 +7,7 @@
     <class name="by.fastflow.DBModels.main.UserDB" table="user" schema="izh_scheme" catalog="db">
         <id name="userId" >
             <column name="user_id" sql-type="bigint" />
+            <generator class="identity"/>
         </id>
         <property name="token">
             <column name="token" sql-type="varchar(200)" length="200"/>

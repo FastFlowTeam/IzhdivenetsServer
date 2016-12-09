@@ -16,7 +16,7 @@ import java.math.BigInteger;
 @Entity
 @Table(name = "task_list", schema = "izh_scheme", catalog = "db")
 public class TaskListDB extends UpdatableDB<TaskListDB>{
-    private long listId;
+    private Long listId;
     private long userId;
     private long visibility;
     private String name;
@@ -24,12 +24,13 @@ public class TaskListDB extends UpdatableDB<TaskListDB>{
 
     @Id
     @Column(name = "list_id", nullable = false)
-    public long getListId() {
+    public Long getListId() {
         return listId;
     }
 
-    public void setListId(long listId) {
+    public TaskListDB setListId(Long listId) {
         this.listId = listId;
+        return this;
     }
 
     @Basic
@@ -80,22 +81,22 @@ public class TaskListDB extends UpdatableDB<TaskListDB>{
 
         TaskListDB that = (TaskListDB) o;
 
-        if (listId != that.listId) return false;
         if (visibility != that.visibility) return false;
         if (userId != that.userId) return false;
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
         if (description != null ? !description.equals(that.description) : that.description != null) return false;
+        if (listId != null ? !listId.equals(that.listId) : that.listId != null) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = (int) (listId ^ (listId >>> 32));
-        result = 31 * result + (int) (visibility ^ (visibility >>> 32));
+        int result = (int) (visibility ^ (visibility >>> 32));
         result = 31 * result + (int) (userId ^ (userId >>> 32));
         result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (description != null ? description.hashCode() : 0);
+        result = 31 * result + (listId != null ? listId.hashCode() : 0);
         return result;
     }
 
@@ -125,16 +126,6 @@ public class TaskListDB extends UpdatableDB<TaskListDB>{
     @Override
     public void havePermissionToDelete(Session session, String token) throws RestException {
         UserDB.getUser(session, userId, token);
-    }
-
-    @Override
-    public TaskListDB setNextId(Session session) {
-        try {
-            listId = ((TaskListDB) session.createQuery("from TaskListDB ORDER BY listId DESC").setMaxResults(1).uniqueResult()).getUserId() + 1;
-        } catch (Exception e) {
-            listId = 1;
-        }
-        return this;
     }
 
     public static TaskListDB getTaskList(Session session, long listId) throws RestException {
