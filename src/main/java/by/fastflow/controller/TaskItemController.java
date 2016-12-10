@@ -184,7 +184,7 @@ public class TaskItemController extends ExceptionHandlerController {
     @RequestMapping(value = ADDRESS + "/create", method = RequestMethod.POST)
     public
     @ResponseBody
-    Map<String, Object> create(@RequestHeader(value = "user_id") long userId,
+    String create(@RequestHeader(value = "user_id") long userId,
                                @RequestHeader(value = "token") String token,
                                @RequestBody TaskItemDB taskItem) throws RestException {
         try {
@@ -204,7 +204,7 @@ public class TaskItemController extends ExceptionHandlerController {
             session.getTransaction().commit();
 
             session.close();
-            return Ajax.successResponse(taskItem);
+            return Ajax.successResponseJson(taskItem.makeJson());
         } catch (RestException re) {
             throw re;
         } catch (Exception e) {
@@ -269,7 +269,7 @@ public class TaskItemController extends ExceptionHandlerController {
         for (Object[] objects : list) {
             JsonObject obj = new JsonObject();
             obj.add("workingUser", objects[0] == null ? null : UserDB.getJson((String) objects[0], (BigInteger) objects[1], (String) objects[2], (BigInteger) objects[3]));
-            obj.add("taskItem", TaskItemDB.makeJson((BigInteger) objects[4], (String) objects[5], (String) objects[6], (String) objects[7], (BigInteger) objects[8], (BigInteger) objects[9], (BigInteger) objects[10]));
+            obj.add("taskItem", TaskItemDB.getJson((BigInteger) objects[4], (String) objects[5], (String) objects[6], (String) objects[7], (BigInteger) objects[8], (BigInteger) objects[9], (BigInteger) objects[10]));
             array.add(obj);
         }
         return array;
@@ -299,7 +299,7 @@ public class TaskItemController extends ExceptionHandlerController {
     @RequestMapping(value = ADDRESS + "/update", method = RequestMethod.PUT)
     public
     @ResponseBody
-    Map<String, Object> update(@RequestHeader(value = "user_id") long userId,
+    String update(@RequestHeader(value = "user_id") long userId,
                                @RequestHeader(value = "token") String token,
                                @RequestBody TaskItemDB taskItemDB) throws RestException {
         try {
@@ -311,7 +311,7 @@ public class TaskItemController extends ExceptionHandlerController {
                 throw new RestException(ErrorConstants.NOT_NAVE_PERMISSION);
             TaskItemDB up = taskItemDB.mergeInBDWithToken(session, taskItemDB, token);
             session.close();
-            return Ajax.successResponse(up);
+            return Ajax.successResponseJson(up.makeJson());
         } catch (RestException re) {
             throw re;
         } catch (Exception e) {

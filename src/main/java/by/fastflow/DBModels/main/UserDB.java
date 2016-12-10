@@ -233,4 +233,15 @@ public class UserDB extends UpdatableDB<UserDB> {
     public boolean isParent() {
         return type == Constants.USER_PARENT;
     }
+
+    public JsonObject makeFullJson() {
+        JsonObject object = new JsonObject();
+        object.addProperty("chatName", chatName);
+        object.addProperty("type", type);
+        object.addProperty("photo", photo);
+        object.addProperty("gId", gId);
+        object.addProperty("userId", userId);
+        object.addProperty("token", token);
+        return object;
+    }
 }

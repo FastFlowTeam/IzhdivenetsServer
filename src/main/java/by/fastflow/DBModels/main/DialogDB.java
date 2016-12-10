@@ -5,6 +5,8 @@ import by.fastflow.DBModels.pk.InDialogDBPK;
 import by.fastflow.utils.ErrorConstants;
 import by.fastflow.utils.RestException;
 import by.fastflow.utils.UpdatableDB;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import org.hibernate.Session;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -22,7 +24,7 @@ public class DialogDB extends UpdatableDB<DialogDB> {
 
     @Id
     @Column(name = "dialog_id", nullable = false)
-    @GenericGenerator(name="kaugen", strategy = "increment")
+    @GenericGenerator(name = "kaugen", strategy = "increment")
     @GeneratedValue(strategy = GenerationType.AUTO)
     public Long getDialogId() {
         return dialogId;
@@ -89,7 +91,7 @@ public class DialogDB extends UpdatableDB<DialogDB> {
 
     @Override
     public void havePermissionToModify(Session session, String token) throws RestException {
-        List<UserDB> list = session.createQuery("from UserDB where token = '" + token+"'").list();
+        List<UserDB> list = session.createQuery("from UserDB where token = '" + token + "'").list();
         if (list.size() == 0)
             throw new RestException(ErrorConstants.NOT_NAVE_PERMISSION);
         for (UserDB user : list) {
@@ -104,5 +106,12 @@ public class DialogDB extends UpdatableDB<DialogDB> {
         if (dialog == null)
             throw new RestException(ErrorConstants.NOT_HAVE_ID);
         return dialog;
+    }
+
+    public JsonElement makeJson() {
+        JsonObject object = new JsonObject();
+        object.addProperty("dialogId", dialogId);
+        object.addProperty("name", name);
+        return object;
     }
 }

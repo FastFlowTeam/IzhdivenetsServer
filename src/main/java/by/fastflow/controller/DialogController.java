@@ -33,10 +33,10 @@ public class DialogController extends ExceptionHandlerController {
     @RequestMapping(value = ADDRESS + "/create", method = RequestMethod.POST)
     public
     @ResponseBody
-    Map<String, Object> create(@RequestHeader(value = "user_id") long userId,
-                               @RequestBody List<Long> userGId,
-                               @RequestHeader(value = "token") String token,
-                               @RequestParam(value = "name") String name) throws RestException {
+    String create(@RequestHeader(value = "user_id") long userId,
+                  @RequestBody List<Long> userGId,
+                  @RequestHeader(value = "token") String token,
+                  @RequestParam(value = "name") String name) throws RestException {
         try {
             Session session = HibernateSessionFactory
                     .getSessionFactory()
@@ -70,7 +70,7 @@ public class DialogController extends ExceptionHandlerController {
                             .add(name));
 
             session.close();
-            return Ajax.successResponse(dialog);
+            return Ajax.successResponseJson(dialog.makeJson());
         } catch (RestException re) {
             throw re;
         } catch (Exception e) {
@@ -170,7 +170,7 @@ public class DialogController extends ExceptionHandlerController {
     @RequestMapping(value = ADDRESS + "/update", method = RequestMethod.PUT)
     public
     @ResponseBody
-    Map<String, Object> update(@RequestHeader(value = "user_id") long userId,
+    String update(@RequestHeader(value = "user_id") long userId,
                                @RequestBody DialogDB dialogDB,
                                @RequestHeader(value = "token") String token) throws RestException {
         try {
@@ -185,7 +185,7 @@ public class DialogController extends ExceptionHandlerController {
                             .add(dialogDB.getName()));
 
             session.close();
-            return Ajax.successResponse(up);
+            return Ajax.successResponseJson(up.makeJson());
         } catch (RestException re) {
             throw re;
         } catch (Exception e) {

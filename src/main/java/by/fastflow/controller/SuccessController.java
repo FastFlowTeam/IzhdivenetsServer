@@ -30,7 +30,7 @@ public class SuccessController extends ExceptionHandlerController {
     @RequestMapping(value = ADDRESS + "/update", method = RequestMethod.PUT)
     public
     @ResponseBody
-    Map<String, Object> update(@RequestHeader(value = "user_id") long userId,
+    String update(@RequestHeader(value = "user_id") long userId,
                                @RequestBody SuccessDB success,
                                @RequestHeader(value = "token") String token) throws RestException {
         try {
@@ -39,7 +39,7 @@ public class SuccessController extends ExceptionHandlerController {
                     .openSession();
             SuccessDB up = success.updateInBDWithToken(session, SuccessDB.getSuccess(session, success.getSuccessId()), token);
             session.close();
-            return Ajax.successResponse(up);
+            return Ajax.successResponseJson(up.makeJson());
         } catch (RestException re) {
             throw re;
         } catch (Exception e) {
@@ -50,7 +50,7 @@ public class SuccessController extends ExceptionHandlerController {
     @RequestMapping(value = ADDRESS + "/create", method = RequestMethod.POST)
     public
     @ResponseBody
-    Map<String, Object> create(@RequestHeader(value = "user_id") long userId,
+    String create(@RequestHeader(value = "user_id") long userId,
                                @RequestBody SuccessDB success,
                                @RequestHeader(value = "token") String token) throws RestException {
         try {
@@ -72,7 +72,7 @@ public class SuccessController extends ExceptionHandlerController {
             updateNotReaded(session, user);
 
             session.close();
-            return Ajax.successResponse(success);
+            return Ajax.successResponseJson(success.makeJson());
         } catch (RestException re) {
             throw re;
         } catch (Exception e) {

@@ -27,7 +27,7 @@ public class WishListController extends ExceptionHandlerController {
     @RequestMapping(value = ADDRESS + "/create", method = RequestMethod.POST)
     public
     @ResponseBody
-    Map<String, Object> create(@RequestHeader(value = "user_id") long userId,
+    String create(@RequestHeader(value = "user_id") long userId,
                                @RequestHeader(value = "token") String token,
                                @RequestBody WishListDB wishlist) throws RestException {
         try {
@@ -46,7 +46,7 @@ public class WishListController extends ExceptionHandlerController {
                     .setListId(null));
             session.getTransaction().commit();
             session.close();
-            return Ajax.successResponse(wishlist);
+            return Ajax.successResponseJson(wishlist.makeJson());
         } catch (RestException re) {
             throw re;
         } catch (Exception e) {
@@ -57,7 +57,7 @@ public class WishListController extends ExceptionHandlerController {
     @RequestMapping(value = ADDRESS + "/update", method = RequestMethod.PUT)
     public
     @ResponseBody
-    Map<String, Object> update(@RequestHeader(value = "user_id") long userId,
+    String update(@RequestHeader(value = "user_id") long userId,
                                @RequestHeader(value = "token") String token,
                                @RequestBody WishListDB wishListDB) throws RestException {
         try {
@@ -66,7 +66,7 @@ public class WishListController extends ExceptionHandlerController {
                     .openSession();
             WishListDB up = wishListDB.updateInBDWithToken(session, WishListDB.getWishList(session, wishListDB.getListId()), token);
             session.close();
-            return Ajax.successResponse(up);
+            return Ajax.successResponseJson(up.makeJson());
         } catch (RestException re) {
             throw re;
         } catch (Exception e) {

@@ -37,7 +37,7 @@ public class TaskListController extends ExceptionHandlerController {
     @RequestMapping(value = ADDRESS + "/create", method = RequestMethod.POST)
     public
     @ResponseBody
-    Map<String, Object> create(@RequestHeader(value = "user_id") long userId,
+    String create(@RequestHeader(value = "user_id") long userId,
                                @RequestHeader(value = "token") String token,
                                @RequestBody TaskListDB taskList) throws RestException {
         try {
@@ -55,7 +55,7 @@ public class TaskListController extends ExceptionHandlerController {
                     .setListId(null));
             session.getTransaction().commit();
             session.close();
-            return Ajax.successResponse(taskList);
+            return Ajax.successResponseJson(taskList.makeJson());
         } catch (RestException re) {
             throw re;
         } catch (Exception e) {
@@ -66,7 +66,7 @@ public class TaskListController extends ExceptionHandlerController {
     @RequestMapping(value = ADDRESS + "/update", method = RequestMethod.PUT)
     public
     @ResponseBody
-    Map<String, Object> update(@RequestHeader(value = "user_id") long userId,
+    String update(@RequestHeader(value = "user_id") long userId,
                                @RequestHeader(value = "token") String token,
                                @RequestBody TaskListDB taskList) throws RestException {
         try {
@@ -79,7 +79,7 @@ public class TaskListController extends ExceptionHandlerController {
                     permissionInProgresInList(session, taskList.getListId());
             TaskListDB up = taskList.updateInBDWithToken(session, listDB, token);
             session.close();
-            return Ajax.successResponse(up);
+            return Ajax.successResponseJson(up.makeJson());
         } catch (RestException re) {
             throw re;
         } catch (Exception e) {
@@ -247,7 +247,7 @@ public class TaskListController extends ExceptionHandlerController {
                 List<Object[]> list = getMyList(session, userId);
                 for (Object[] objects : list) {
                     JsonObject object = new JsonObject();
-                    object.add("list", TaskListDB.makeJson((BigInteger) objects[0], (BigInteger) objects[1], (String) objects[2], (String) objects[3]));
+                    object.add("list", TaskListDB.getJson((BigInteger) objects[0], (BigInteger) objects[1], (String) objects[2], (String) objects[3]));
                     object.addProperty("visible", objects[4] == null ? 0 : Constants.convertL(objects[4]));
                     object.addProperty("inProgress", objects[5] == null ? 0 : Constants.convertL(objects[5]));
                     object.addProperty("done", objects[6] == null ? 0 : Constants.convertL(objects[6]));

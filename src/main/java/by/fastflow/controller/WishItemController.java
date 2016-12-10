@@ -29,7 +29,7 @@ public class WishItemController extends ExceptionHandlerController {
     @RequestMapping(value = ADDRESS + "/create/{wishlist_id}", method = RequestMethod.POST)
     public
     @ResponseBody
-    Map<String, Object> create(@RequestHeader(value = "user_id") long userId,
+    String create(@RequestHeader(value = "user_id") long userId,
                                @RequestHeader(value = "token") String token,
                                @RequestBody WishItemDB wishitem) throws RestException {
         try {
@@ -47,7 +47,7 @@ public class WishItemController extends ExceptionHandlerController {
                     .setItemId(null));
             session.getTransaction().commit();
             session.close();
-            return Ajax.successResponse(wishitem);
+            return Ajax.successResponseJson(wishitem.makeJson());
         } catch (RestException re) {
             throw re;
         } catch (Exception e) {
@@ -58,7 +58,7 @@ public class WishItemController extends ExceptionHandlerController {
     @RequestMapping(value = ADDRESS + "/update", method = RequestMethod.PUT)
     public
     @ResponseBody
-    Map<String, Object> update(@RequestHeader(value = "user_id") long userId,
+    String update(@RequestHeader(value = "user_id") long userId,
                                @RequestHeader(value = "token") String token,
                                @RequestBody WishItemDB wishItemDB) throws RestException {
         try {
@@ -69,7 +69,7 @@ public class WishItemController extends ExceptionHandlerController {
             WishItemDB up = wishItemDB.updateInBDWithToken(session, WishItemDB.getWishItem(session, wishItemDB.getItemId()), token);
 
             session.close();
-            return Ajax.successResponse(up);
+            return Ajax.successResponseJson(up.makeJson());
         } catch (RestException re) {
             throw re;
         } catch (Exception e) {
@@ -149,7 +149,7 @@ public class WishItemController extends ExceptionHandlerController {
     @RequestMapping(value = ADDRESS + "/get/{wishlist_id}", method = RequestMethod.GET)
     public
     @ResponseBody
-    Map<String, Object> getAll(@RequestHeader(value = "user_id") long userId,
+    String getAll(@RequestHeader(value = "user_id") long userId,
                                @RequestHeader(value = "token") String token,
                                @PathVariable(value = "wishlist_id") long wishlistId) throws RestException {
         try {
@@ -172,7 +172,7 @@ public class WishItemController extends ExceptionHandlerController {
                     (up.isParent() ? " and visibility = " + Constants.WISH_ITEM_VISIBLE : "")).list();
 
             session.close();
-            return Ajax.successResponse(list);
+            return Ajax.successResponseJson(WishItemDB.makeJsonArray(list));
         } catch (RestException re) {
             throw re;
         } catch (Exception e) {

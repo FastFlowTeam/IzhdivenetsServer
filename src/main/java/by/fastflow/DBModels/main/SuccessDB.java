@@ -1,6 +1,7 @@
 package by.fastflow.DBModels.main;
 
 import by.fastflow.utils.*;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.hibernate.Session;
 import org.hibernate.annotations.GenericGenerator;
@@ -13,7 +14,7 @@ import java.math.BigInteger;
  */
 @Entity
 @Table(name = "success", schema = "izh_scheme", catalog = "db")
-public class SuccessDB extends UpdatableDB<SuccessDB>{
+public class SuccessDB extends UpdatableDB<SuccessDB> {
     private Long successId;
     private long userId;
     private String title;
@@ -24,7 +25,7 @@ public class SuccessDB extends UpdatableDB<SuccessDB>{
 
     @Id
     @Column(name = "success_id", nullable = false)
-    @GenericGenerator(name="kaugen", strategy = "increment")
+    @GenericGenerator(name = "kaugen", strategy = "increment")
     @GeneratedValue(strategy = GenerationType.AUTO)
     public Long getSuccessId() {
         return successId;
@@ -146,7 +147,7 @@ public class SuccessDB extends UpdatableDB<SuccessDB>{
     public SuccessDB validate() throws RestException {
         if ((title == null) || (title.isEmpty()) || (title.length() > 30))
             throw new RestException(ErrorConstants.EMPTY_SUCCESS_TITLE);
-        if (!Constants.contains(Constants.success_types,state))
+        if (!Constants.contains(Constants.success_types, state))
             throw new RestException(ErrorConstants.WRONG_SUCCESS_STATE);
         if ((photo != null) && photo.length() > 200)
             throw new RestException(ErrorConstants.LONG_SUCCESS_PHOTO);
@@ -213,5 +214,14 @@ public class SuccessDB extends UpdatableDB<SuccessDB>{
     public SuccessDB praised() {
         state = Constants.SUCCESS_PRAISED;
         return this;
+    }
+
+    public JsonElement makeJson() {
+        return getJson(BigInteger.valueOf(successId),
+                title,
+                description,
+                photo,
+                link,
+                BigInteger.valueOf(state));
     }
 }

@@ -24,7 +24,7 @@ public class CardController extends ExceptionHandlerController {
     @RequestMapping(value = ADDRESS + "/get", method = RequestMethod.GET)
     public
     @ResponseBody
-    Map<String, Object> get(@RequestHeader(value = "user_id") long userId,
+    String get(@RequestHeader(value = "user_id") long userId,
                             @RequestHeader(value = "token") String token) throws RestException {
         try {
             Session session = HibernateSessionFactory
@@ -33,7 +33,7 @@ public class CardController extends ExceptionHandlerController {
             UserDB up = UserDB.getUser(session, userId, token);
             CardDB cardDB = (CardDB) session.createQuery("from CardDB where userId = " + userId).list().get(0);
             session.close();
-            return Ajax.successResponse(cardDB);
+            return Ajax.successResponseJson(cardDB.makeJson());
         } catch (RestException re) {
             throw re;
         } catch (IndexOutOfBoundsException re) {

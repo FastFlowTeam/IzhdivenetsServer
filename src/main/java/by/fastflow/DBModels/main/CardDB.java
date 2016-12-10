@@ -3,6 +3,9 @@ package by.fastflow.DBModels.main;
 import by.fastflow.utils.ErrorConstants;
 import by.fastflow.utils.RestException;
 import by.fastflow.utils.Validatable;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import org.hibernate.Session;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -20,7 +23,7 @@ public class CardDB extends Validatable<CardDB> {
 
     @Id
     @Column(name = "card_id", nullable = false)
-    @GenericGenerator(name="kaugen", strategy = "increment")
+    @GenericGenerator(name = "kaugen", strategy = "increment")
     @GeneratedValue(strategy = GenerationType.AUTO)
     public Long getCardId() {
         return cardId;
@@ -97,5 +100,12 @@ public class CardDB extends Validatable<CardDB> {
     public CardDB add(long money) {
         moneyAmount += money;
         return this;
+    }
+
+    public JsonElement makeJson() {
+        JsonObject object = new JsonObject();
+        object.addProperty("cardId", cardId);
+        object.addProperty("moneyAmount", moneyAmount);
+        return object;
     }
 }

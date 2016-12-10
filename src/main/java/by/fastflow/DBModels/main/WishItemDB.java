@@ -4,10 +4,14 @@ import by.fastflow.utils.Constants;
 import by.fastflow.utils.ErrorConstants;
 import by.fastflow.utils.RestException;
 import by.fastflow.utils.UpdatableDB;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import org.hibernate.Session;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import java.util.List;
 
 /**
  * Created by KuSu on 22.10.2016.
@@ -27,7 +31,7 @@ public class WishItemDB extends UpdatableDB<WishItemDB> {
 
     @Id
     @Column(name = "item_id", nullable = false)
-    @GenericGenerator(name="kaugen", strategy = "increment")
+    @GenericGenerator(name = "kaugen", strategy = "increment")
     @GeneratedValue(strategy = GenerationType.AUTO)
     public Long getItemId() {
         return itemId;
@@ -157,17 +161,17 @@ public class WishItemDB extends UpdatableDB<WishItemDB> {
     public WishItemDB validate() throws RestException {
         if ((title == null) || ((title.isEmpty()) || (title.length() > 30)))
             throw new RestException(ErrorConstants.EMPTY_WISH_ITEM_TITLE);
-        if (!Constants.contains(Constants.wishItem_visibility,visibility))
+        if (!Constants.contains(Constants.wishItem_visibility, visibility))
             throw new RestException(ErrorConstants.WRONG_WISH_ITEM_VISIBILITY);
         if ((cost < 0) || (cost > 1000000000))
             throw new RestException(ErrorConstants.WRONG_WISH_COST);
-        if (!(Constants.contains(Constants.wish_rates,wantRate)))
+        if (!(Constants.contains(Constants.wish_rates, wantRate)))
             throw new RestException(ErrorConstants.WRONG_WANT_RATE);
-        if ((comment!= null) && (comment.length() > 200))
+        if ((comment != null) && (comment.length() > 200))
             throw new RestException(ErrorConstants.LONG_WISH_COMMENT);
-        if ((link!= null) && (link.length() > 200))
+        if ((link != null) && (link.length() > 200))
             throw new RestException(ErrorConstants.LONG_WISH_LINK);
-        if ((photo!= null) && (photo.length() > 200))
+        if ((photo != null) && (photo.length() > 200))
             throw new RestException(ErrorConstants.LONG_WISH_PHOTO);
         if (photo == null)
             photo = "";
@@ -210,5 +214,26 @@ public class WishItemDB extends UpdatableDB<WishItemDB> {
         if (wishItemDB == null)
             throw new RestException(ErrorConstants.NOT_HAVE_ID);
         return wishItemDB;
+    }
+
+    public JsonElement makeJson() {
+        JsonObject object = new JsonObject();
+        object.addProperty("itemId", itemId);
+        object.addProperty("title", title);
+        object.addProperty("comment", comment);
+        object.addProperty("link", link);
+        object.addProperty("photo", photo);
+        object.addProperty("cost", cost);
+        object.addProperty("wantRate", wantRate);
+        object.addProperty("visibility", visibility);
+        object.addProperty("listId", listId);
+        return object;
+    }
+
+    public static JsonElement makeJsonArray(List<WishItemDB> list) {
+        JsonArray array = new JsonArray();
+        for (WishItemDB itemDB : list)
+            array.add(itemDB.makeJson());
+        return array;
     }
 }

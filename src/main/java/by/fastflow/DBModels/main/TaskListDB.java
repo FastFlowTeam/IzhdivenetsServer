@@ -15,7 +15,7 @@ import java.math.BigInteger;
  */
 @Entity
 @Table(name = "task_list", schema = "izh_scheme", catalog = "db")
-public class TaskListDB extends UpdatableDB<TaskListDB>{
+public class TaskListDB extends UpdatableDB<TaskListDB> {
     private Long listId;
     private long userId;
     private long visibility;
@@ -104,9 +104,9 @@ public class TaskListDB extends UpdatableDB<TaskListDB>{
     public TaskListDB validate() throws RestException {
         if ((name == null) || (name.isEmpty()) || name.length() > 30)
             throw new RestException(ErrorConstants.EMPTY_TASK_LIST_NAME);
-        if (!Constants.contains(Constants.taskList_visibility,visibility))
+        if (!Constants.contains(Constants.taskList_visibility, visibility))
             throw new RestException(ErrorConstants.WRONG_TASK_LIST_VISIBILITY);
-        if ((description!= null) && (description.length() > 200))
+        if ((description != null) && (description.length() > 200))
             throw new RestException(ErrorConstants.WRONG_TASK_LIST_DESCRIPTION);
         if (description == null)
             description = "";
@@ -139,12 +139,21 @@ public class TaskListDB extends UpdatableDB<TaskListDB>{
         return taskListDB;
     }
 
-    public static JsonObject makeJson(BigInteger listId, BigInteger visibility, String name, String description){
+    public static JsonObject getJson(BigInteger listId, BigInteger visibility, String name, String description) {
         JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("listId",listId);
-        jsonObject.addProperty("visibility",visibility);
-        jsonObject.addProperty("name",name);
-        jsonObject.addProperty("description",description);
+        jsonObject.addProperty("listId", listId);
+        jsonObject.addProperty("visibility", visibility);
+        jsonObject.addProperty("name", name);
+        jsonObject.addProperty("description", description);
         return jsonObject;
+    }
+
+    public JsonObject makeJson() {
+        return getJson(
+                BigInteger.valueOf(listId),
+                BigInteger.valueOf(visibility),
+                name,
+                description
+        );
     }
 }

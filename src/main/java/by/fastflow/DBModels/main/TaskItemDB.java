@@ -17,7 +17,7 @@ import java.math.BigInteger;
  */
 @Entity
 @Table(name = "task_item", schema = "izh_scheme", catalog = "db")
-public class TaskItemDB extends UpdatableDB<TaskItemDB>{
+public class TaskItemDB extends UpdatableDB<TaskItemDB> {
     private Long itemId;
     private String title;
     private String description;
@@ -29,7 +29,7 @@ public class TaskItemDB extends UpdatableDB<TaskItemDB>{
 
     @Id
     @Column(name = "item_id", nullable = false)
-    @GenericGenerator(name="kaugen", strategy = "increment")
+    @GenericGenerator(name = "kaugen", strategy = "increment")
     @GeneratedValue(strategy = GenerationType.AUTO)
     public Long getItemId() {
         return itemId;
@@ -168,15 +168,15 @@ public class TaskItemDB extends UpdatableDB<TaskItemDB>{
 
     @Override
     public TaskItemDB validate() throws RestException {
-        if ((title == null) || (title.isEmpty())||title.length()>30)
+        if ((title == null) || (title.isEmpty()) || title.length() > 30)
             throw new RestException(ErrorConstants.EMPTY_TASK_TITLE);
-        if ((description != null) && description.length()>200)
+        if ((description != null) && description.length() > 200)
             throw new RestException(ErrorConstants.LONG_TASK_DESCRIPTION);
-        if ((cost == null) || (cost.isEmpty())||cost.length()>30)
+        if ((cost == null) || (cost.isEmpty()) || cost.length() > 30)
             throw new RestException(ErrorConstants.EMPTY_TASK_COST);
-        if(!Constants.contains(Constants.taskItem_state,state))
+        if (!Constants.contains(Constants.taskItem_state, state))
             throw new RestException(ErrorConstants.WRONG_TASK_STATE);
-        if(!Constants.contains(Constants.taskItem_target,target))
+        if (!Constants.contains(Constants.taskItem_target, target))
             throw new RestException(ErrorConstants.WRONG_TASK_TARGET);
         if (description == null)
             description = "";
@@ -190,15 +190,26 @@ public class TaskItemDB extends UpdatableDB<TaskItemDB>{
         return taskItemDB;
     }
 
-    public static JsonElement makeJson(BigInteger itemId, String title, String description, String cost, BigInteger listId, BigInteger state, BigInteger target) {
+    public static JsonElement getJson(BigInteger itemId, String title, String description, String cost, BigInteger listId, BigInteger state, BigInteger target) {
         JsonObject obj = new JsonObject();
-        obj.addProperty("itemId",itemId);
-        obj.addProperty("title",title);
-        obj.addProperty("description",description);
-        obj.addProperty("cost",cost);
-        obj.addProperty("listId",listId);
-        obj.addProperty("state",state);
-        obj.addProperty("target",target);
+        obj.addProperty("itemId", itemId);
+        obj.addProperty("title", title);
+        obj.addProperty("description", description);
+        obj.addProperty("cost", cost);
+        obj.addProperty("listId", listId);
+        obj.addProperty("state", state);
+        obj.addProperty("target", target);
         return obj;
     }
+
+    public JsonElement makeJson() {
+        return getJson(BigInteger.valueOf(itemId),
+                title,
+                description,
+                cost,
+                BigInteger.valueOf(listId),
+                BigInteger.valueOf(state),
+                BigInteger.valueOf(target));
+    }
+
 }

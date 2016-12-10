@@ -31,7 +31,7 @@ public class UserController extends ExceptionHandlerController {
     @RequestMapping(value = ADDRESS + "/loginVk", method = RequestMethod.POST)
     public
     @ResponseBody
-    Map<String, Object> loginVk(@RequestHeader(value = "token") String token, @RequestHeader(value = "userId") int userId) throws RestException {
+    String loginVk(@RequestHeader(value = "token") String token, @RequestHeader(value = "userId") int userId) throws RestException {
         try {
             TransportClient transportClient = HttpTransportClient.getInstance();
             VkApiClient vk = new VkApiClient(transportClient);
@@ -54,7 +54,7 @@ public class UserController extends ExceptionHandlerController {
             session.getTransaction().commit();
             session.close();
 
-            return Ajax.successResponse(userDB);
+            return Ajax.successResponseJson(userDB.makeFullJson());
         } catch (RestException re) {
             throw re;
         } catch (Exception e) {
@@ -65,7 +65,7 @@ public class UserController extends ExceptionHandlerController {
     @RequestMapping(value = ADDRESS + "/registerVk", method = RequestMethod.POST)
     public
     @ResponseBody
-    Map<String, Object> registerVk(@RequestHeader(value = "token") String token, @RequestHeader(value = "userId") int userId, @RequestParam(value = "type") int type) throws RestException {
+    String registerVk(@RequestHeader(value = "token") String token, @RequestHeader(value = "userId") int userId, @RequestParam(value = "type") int type) throws RestException {
         try {
             TransportClient transportClient = HttpTransportClient.getInstance();
             VkApiClient vk = new VkApiClient(transportClient);
@@ -93,7 +93,7 @@ public class UserController extends ExceptionHandlerController {
             }
             session.getTransaction().commit();
             session.close();
-            return Ajax.successResponse(userDB);
+            return Ajax.successResponseJson(userDB.makeFullJson());
         } catch (RestException re) {
             throw re;
         } catch (Exception e) {
@@ -104,16 +104,16 @@ public class UserController extends ExceptionHandlerController {
     @RequestMapping(value = ADDRESS + "/update", method = RequestMethod.PUT)
     public
     @ResponseBody
-    Map<String, Object> update(@RequestHeader(value = "user_id") long userId,
-                               @RequestBody UserDB user,
-                               @RequestHeader(value = "token") String token) throws RestException {
+    String update(@RequestHeader(value = "user_id") long userId,
+                  @RequestBody UserDB user,
+                  @RequestHeader(value = "token") String token) throws RestException {
         try {
             Session session = HibernateSessionFactory
                     .getSessionFactory()
                     .openSession();
             UserDB up = user.updateInBDWithToken(session, UserDB.getUser(session, userId), token);
             session.close();
-            return Ajax.successResponse(up);
+            return Ajax.successResponseJson(up.makeFullJson());
         } catch (RestException re) {
             throw re;
         } catch (Exception e) {
