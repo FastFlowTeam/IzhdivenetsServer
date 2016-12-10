@@ -23,6 +23,16 @@ public abstract class UpdatableDB<T extends UpdatableDB> extends Validatable<T> 
         return up;
     }
 
+    public T mergeInBDWithToken(Session session, T up, String token) throws RestException {
+        up.havePermissionToModify(session, token);
+        up.updateBy(this
+                .validate());
+        session.beginTransaction();
+        session.merge(up);
+        session.getTransaction().commit();
+        return up;
+    }
+
     public void delete(Session session, String token) throws RestException {
         havePermissionToDelete(session, token);
         session.beginTransaction();

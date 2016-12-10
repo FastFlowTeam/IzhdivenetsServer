@@ -309,7 +309,7 @@ public class TaskItemController extends ExceptionHandlerController {
             TaskItemDB taskItemFromDB = TaskItemDB.getTaskItem(session, taskItemDB.getItemId());
             if (taskItemFromDB.getWorkingUser() != null)
                 throw new RestException(ErrorConstants.NOT_NAVE_PERMISSION);
-            TaskItemDB up = taskItemDB.updateInBDWithToken(session, taskItemDB, token);
+            TaskItemDB up = taskItemDB.mergeInBDWithToken(session, taskItemDB, token);
             session.close();
             return Ajax.successResponse(up);
         } catch (RestException re) {
