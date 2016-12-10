@@ -45,7 +45,7 @@ public class WishItemController extends ExceptionHandlerController {
             session.save(wishitem
                     .validate()
                     .setItemId(null));
-
+            session.getTransaction().commit();
             session.close();
             return Ajax.successResponse(wishitem);
         } catch (RestException re) {
@@ -132,8 +132,8 @@ public class WishItemController extends ExceptionHandlerController {
                     userId,
                     DialogController.getTwainDialogId(session, userId, wishList.getUserId()),
                     new LIST()
-                    .add(item.getTitle())
                     .add(Constants.getStringMoney(money))
+                    .add(item.getTitle())
                     .add(message)
             );
             return Ajax.emptyResponse();

@@ -108,6 +108,8 @@ public class TaskListDB extends UpdatableDB<TaskListDB>{
             throw new RestException(ErrorConstants.WRONG_TASK_LIST_VISIBILITY);
         if ((description!= null) && (description.length() > 200))
             throw new RestException(ErrorConstants.WRONG_TASK_LIST_DESCRIPTION);
+        if (description == null)
+            description = "";
         return this;
     }
 
@@ -116,6 +118,8 @@ public class TaskListDB extends UpdatableDB<TaskListDB>{
         visibility = up.visibility;
         name = up.name;
         description = up.description;
+        if (description == null)
+            description = "";
     }
 
     @Override

@@ -169,6 +169,12 @@ public class WishItemDB extends UpdatableDB<WishItemDB> {
             throw new RestException(ErrorConstants.LONG_WISH_LINK);
         if ((photo!= null) && (photo.length() > 200))
             throw new RestException(ErrorConstants.LONG_WISH_PHOTO);
+        if (photo == null)
+            photo = "";
+        if (link == null)
+            link = "";
+        if (comment == null)
+            comment = "";
         return this;
     }
 
@@ -181,6 +187,12 @@ public class WishItemDB extends UpdatableDB<WishItemDB> {
         cost = up.cost;
         wantRate = up.wantRate;
         visibility = up.visibility;
+        if (photo == null)
+            photo = "";
+        if (link == null)
+            link = "";
+        if (comment == null)
+            comment = "";
     }
 
     @Override

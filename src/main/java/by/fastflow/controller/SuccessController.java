@@ -108,7 +108,7 @@ public class SuccessController extends ExceptionHandlerController {
     }
 
     private String allNotMy(Session session, UserDB user, UserDB child, int START_NUM) {
-        List<SuccessDB> list = session.createQuery("from SuccessDB where userId = " + child.getUserId()+" order by successId DESC ").setFirstResult(START_NUM).setMaxResults(Constants.PAGE_RESULT).list();
+        List<SuccessDB> list = session.createQuery("from SuccessDB where userId = " + child.getUserId() + " order by successId DESC ").setFirstResult(START_NUM).setMaxResults(Constants.PAGE_RESULT).list();
         JsonArray array = new JsonArray();
         for (SuccessDB item : list) {
             array.add(SuccessDB.getJson(item));
@@ -290,7 +290,7 @@ public class SuccessController extends ExceptionHandlerController {
                 "u.chat_name as a1, u.type as a2, u.photo as a3, u.g_id as a4, " +
                 "s.success_id as a5, s.title as a6, s.description as a7, s.photo as a8, s.link as a9, s.state as a10 " +
                 "from izh_scheme.relationship r " +
-                "join izh_scheme.not_readed_success on parent_id = 1 and child_id = recipient_id " +
+                "join izh_scheme.not_readed_success on parent_id = " + parent_id + " and child_id = recipient_id " +
                 "join izh_scheme.user as u on u.user_id = recipient_id " +
                 "join izh_scheme.success as s on s.user_id = recipient_id and s.success_id = " +
                 "(select max(success_id) from izh_scheme.success s where s.user_id = recipient_id) " +

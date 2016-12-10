@@ -44,7 +44,7 @@ public class WishListController extends ExceptionHandlerController {
                     .validate()
                     .setUserId(userId)
                     .setListId(null));
-
+            session.getTransaction().commit();
             session.close();
             return Ajax.successResponse(wishlist);
         } catch (RestException re) {

@@ -201,6 +201,7 @@ public class TaskItemController extends ExceptionHandlerController {
                     .validate()
                     .setWorkingUser(null)
                     .setItemId(null));
+            session.getTransaction().commit();
 
             session.close();
             return Ajax.successResponse(taskItem);
@@ -306,7 +307,7 @@ public class TaskItemController extends ExceptionHandlerController {
                     .getSessionFactory()
                     .openSession();
             TaskItemDB taskItemFromDB = TaskItemDB.getTaskItem(session, taskItemDB.getItemId());
-            if (taskItemFromDB.getWorkingUser() != -1)
+            if (taskItemFromDB.getWorkingUser() != null)
                 throw new RestException(ErrorConstants.NOT_NAVE_PERMISSION);
             TaskItemDB up = taskItemDB.updateInBDWithToken(session, taskItemDB, token);
             session.close();

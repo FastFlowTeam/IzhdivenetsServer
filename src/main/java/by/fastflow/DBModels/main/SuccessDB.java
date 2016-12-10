@@ -134,6 +134,12 @@ public class SuccessDB extends UpdatableDB<SuccessDB>{
         description = up.description;
         photo = up.photo;
         link = up.link;
+        if (photo == null)
+            photo = "";
+        if (link == null)
+            link = "";
+        if (description == null)
+            description = "";
     }
 
     @Override
@@ -148,6 +154,12 @@ public class SuccessDB extends UpdatableDB<SuccessDB>{
             throw new RestException(ErrorConstants.LONG_SUCCESS_DESCRIPTION);
         if ((link != null) && link.length() > 200)
             throw new RestException(ErrorConstants.LONG_SUCCESS_LINK);
+        if (photo == null)
+            photo = "";
+        if (link == null)
+            link = "";
+        if (description == null)
+            description = "";
         return this;
     }
 

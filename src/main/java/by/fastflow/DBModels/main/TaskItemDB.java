@@ -152,16 +152,18 @@ public class TaskItemDB extends UpdatableDB<TaskItemDB>{
         cost = up.cost;
         state = up.state;
         target = up.target;
+        if (description == null)
+            description = "";
     }
 
     @Override
     public void havePermissionToModify(Session session, String token) throws RestException {
-        UserDB.getUser(session, WishListDB.getWishList(session, listId).getUserId(), token);
+        UserDB.getUser(session, TaskListDB.getTaskList(session, listId).getUserId(), token);
     }
 
     @Override
     public void havePermissionToDelete(Session session, String token) throws RestException {
-        UserDB.getUser(session, WishListDB.getWishList(session, listId).getUserId(), token);
+        UserDB.getUser(session, TaskListDB.getTaskList(session, listId).getUserId(), token);
     }
 
     @Override
@@ -176,6 +178,8 @@ public class TaskItemDB extends UpdatableDB<TaskItemDB>{
             throw new RestException(ErrorConstants.WRONG_TASK_STATE);
         if(!Constants.contains(Constants.taskItem_target,target))
             throw new RestException(ErrorConstants.WRONG_TASK_TARGET);
+        if (description == null)
+            description = "";
         return this;
     }
 

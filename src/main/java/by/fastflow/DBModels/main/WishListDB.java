@@ -108,6 +108,8 @@ public class WishListDB extends UpdatableDB<WishListDB> {
         name = up.name;
         description = up.description;
         visibility = up.visibility;
+        if (description == null)
+            description = "";
     }
 
     @Override
@@ -118,6 +120,8 @@ public class WishListDB extends UpdatableDB<WishListDB> {
             throw new RestException(ErrorConstants.WRONG_WISH_ITEM_VISIBILITY);
         if ((description != null) && (description.length() > 200))
             throw new RestException(ErrorConstants.LONG_WISH_LIST_DESCRIPTION);
+        if (description == null)
+            description = "";
         return this;
     }
 

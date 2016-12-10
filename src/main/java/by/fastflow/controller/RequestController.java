@@ -178,8 +178,8 @@ public class RequestController extends ExceptionHandlerController {
         for (Object[] objects : list) {
             JsonObject jsonObject = new JsonObject();
             jsonObject.addProperty("state", (BigInteger) objects[8]);
-            jsonObject.add("sender", UserDB.getJson((String) objects[0], (BigInteger) objects[1], (String) objects[2], (BigInteger) objects[3]));
-            jsonObject.add("recipient", UserDB.getJson((String) objects[4], (BigInteger) objects[5], (String) objects[6], (BigInteger) objects[7]));
+            jsonObject.add("recipient", UserDB.getJson((String) objects[0], (BigInteger) objects[1], (String) objects[2], (BigInteger) objects[3]));
+            jsonObject.add("sender", UserDB.getJson((String) objects[4], (BigInteger) objects[5], (String) objects[6], (BigInteger) objects[7]));
             if ((parent) && (Constants.convertL(objects[8]) == Constants.RELATIONSHIP_ACCEPT))
                 jsonObject.addProperty("moneyAmount", Constants.convertL(objects[Constants.convertL(objects[3]) == gid ? 10 : 9]));
             array.add(jsonObject);

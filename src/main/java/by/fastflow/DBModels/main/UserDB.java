@@ -27,7 +27,11 @@ public class UserDB extends UpdatableDB<UserDB> {
 
     private String token;
     private String photo;
+
+    @Basic
+    @Column(name = "chat_name", nullable = true, length = 30)
     private String chatName;
+
     private long type;
 
     @Basic
@@ -75,8 +79,6 @@ public class UserDB extends UpdatableDB<UserDB> {
         return this;
     }
 
-    @Basic
-    @Column(name = "chat_name", nullable = true, length = 30)
     public String getChatName() {
         return chatName;
     }

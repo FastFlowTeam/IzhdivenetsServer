@@ -27,7 +27,6 @@ public class TaskListController extends ExceptionHandlerController {
     private static final String ADDRESS = Constants.DEF_SERVER + "tasklist";
 
     // TODO: 21.11.2016 просмотр списков - ребенок, получить еще количества все/выполняются/выполнено/отмечено, + родителя
-    // TODO: 21.11.2016 просмотр списков - родитель, получить еще количества все/выполняются/выполнено/отмечено
 
     @RequestMapping(ADDRESS + "/test/")
     String home() {
@@ -54,7 +53,7 @@ public class TaskListController extends ExceptionHandlerController {
                     .validate()
                     .setUserId(userId)
                     .setListId(null));
-
+            session.getTransaction().commit();
             session.close();
             return Ajax.successResponse(taskList);
         } catch (RestException re) {
