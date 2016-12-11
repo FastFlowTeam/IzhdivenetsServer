@@ -326,8 +326,8 @@ public class DialogController extends ExceptionHandlerController {
             session.beginTransaction();
             DialogDB dialog = DialogDB.createNew("").setDialogId(null);
             session.save(dialog);
-            session.save(InDialogTwainDB.createNew(userFId, userSId, dialog.getDialogId()));
-            session.save(InDialogTwainDB.createNew(userSId, userFId, dialog.getDialogId()));
+            session.merge(InDialogTwainDB.createNew(userFId, userSId, dialog.getDialogId()));
+            session.merge(InDialogTwainDB.createNew(userSId, userFId, dialog.getDialogId()));
             session.getTransaction().commit();
             return dialog.getDialogId();
         } else
