@@ -66,7 +66,7 @@ public class TaskItemController extends ExceptionHandlerController {
                 session.getTransaction().commit();
             } else {
                 if (state == Constants.TASK_ITEM_DONE) {
-                    if ((taskItemDB.getState() != Constants.TASK_ITEM_IN_PROGRESS) || (taskItemDB.getWorkingUser() != userId))
+                    if (taskItemDB.getState() != Constants.TASK_ITEM_IN_PROGRESS)
                         throw new RestException(ErrorConstants.WRONG_TASK_STATE);
                     if (taskItemDB.getWorkingUser() != userId)
                         throw new RestException(ErrorConstants.NOT_NAVE_PERMISSION);
@@ -117,7 +117,7 @@ public class TaskItemController extends ExceptionHandlerController {
                 throw new RestException(ErrorConstants.NOT_CORRECT_USER_TYPE);
 
             TaskItemDB taskItemDB = TaskItemDB.getTaskItem(session, taskitemId);
-            if ((taskItemDB.getState() != Constants.TASK_ITEM_DONE) || (taskItemDB.getState() != Constants.TASK_ITEM_PRAISED))
+            if ((taskItemDB.getState() != Constants.TASK_ITEM_DONE) && (taskItemDB.getState() != Constants.TASK_ITEM_PRAISED))
                 throw new RestException(ErrorConstants.WRONG_TASK_STATE);
             if (TaskListDB.getTaskList(session, taskItemDB.getListId()).getUserId() != userId)
                 throw new RestException(ErrorConstants.NOT_NAVE_PERMISSION);
@@ -339,7 +339,7 @@ public class TaskItemController extends ExceptionHandlerController {
                 throw new RestException(ErrorConstants.NOT_NAVE_PERMISSION);
             if (taskItemDB.getTarget() != Constants.TASK_LIST_ALLOWED_USERS)
                 throw new RestException(ErrorConstants.NOT_CORRECT_TYPE);
-            if (taskItemDB.getWorkingUser() != -1)
+            if (taskItemDB.getWorkingUser() != null)
                 throw new RestException(ErrorConstants.NOT_NAVE_PERMISSION);
 
             session.beginTransaction();
@@ -455,19 +455,4 @@ public class TaskItemController extends ExceptionHandlerController {
             throw new RestException(e);
         }
     }
-
-    /*
-    select title,description,cost,state,user_id,photo,chat_name from izh_scheme.task_item ti
-left join izh_scheme."user" u on u.user_id = ti.working_user
-where ti.list_id = 1
-and target = 1 or (target = 3 and (select count(*) from izh_scheme.task_permissions where user_id = 1 and item_id = ti.item_id) != 0)
-инфа по таскам и работающему над ними юзеру глазами ребенка
-     */
-
-    /*
-    select title,description,cost,state,target,user_id,photo,chat_name from izh_scheme.task_item ti
-left join izh_scheme."user" u on u.user_id = ti.working_user
-where ti.list_id = 1
-список тасок внутри листа глазами родителя, создавшего список (тоже наллами заполняет)
-     */
 }
