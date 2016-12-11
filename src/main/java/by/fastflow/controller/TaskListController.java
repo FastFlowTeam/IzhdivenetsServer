@@ -272,7 +272,7 @@ public class TaskListController extends ExceptionHandlerController {
             UserDB up = UserDB.getUser(session, userId, token);
 
             JsonArray array = new JsonArray();
-            if (up.isParent()) {
+            if (up.isChild()) {
                 List<Object[]> list = getParentsList(session, userId);
                 for (Object[] objects : list) {
                     JsonObject object = getListObject(objects);
@@ -305,13 +305,12 @@ public class TaskListController extends ExceptionHandlerController {
 
     private List<Object[]> getParentsList(Session session, long userId) {
         return session.createSQLQuery("select " +
-                "select " +
                 "t_l.list_id as a0, t_l.visibility as a1, t_l.name  as a2, t_l.description AS a3, " +
                 "count1 as a4, count2 as a5, count3 as a6, count4 as a7, totalcount as a8, u.chat_name as a9, u.type as a10, " +
                 "u.photo as a11, u.g_id as a12 " +
                 "from izh_scheme.relationship r " +
                 "full join izh_scheme.task_list t_l on t_l.user_id = r.sender_id and visibility = " + Constants.TASK_LIST_ALL + " or " +
-                "(visibility = " + Constants.TASK_LIST_ALLOWED_USERS + " and (select count(*) from task_list_permissions tlp where tlp.user_id = " + userId + " and tlp.list_id = t_l.list_id)!=0) " +
+                "(visibility = " + Constants.TASK_LIST_ALLOWED_USERS + " and (select count(*) from izh_scheme.task_list_permissions tlp where tlp.user_id = " + userId + " and tlp.list_id = t_l.list_id)!=0) " +
                 "full join (select count(*) count1,list_id from izh_scheme.task_item t_i where (state = " + Constants.TASK_ITEM_VISIBLE + " and target = " + Constants.TASK_ITEM_WORK_ALL + ") or " +
                 "(state = " + Constants.TASK_ITEM_VISIBLE + " and target = " + Constants.TASK_ITEM_WORK_ALLOWED_USERS + " and (select count(*) from izh_scheme.task_permissions tp where tp.user_id = " + userId + " and tp.item_id = t_i.item_id)!=0) group by list_id) t1 on t1.list_id = t_l.list_id " +
                 "full join (select count(*) count2,list_id from izh_scheme.task_item t_i where (state = " + Constants.TASK_ITEM_IN_PROGRESS + " and target = " + Constants.TASK_ITEM_WORK_ALL + ") " +
@@ -331,9 +330,10 @@ public class TaskListController extends ExceptionHandlerController {
                 "u.photo as a11, u.g_id as a12 " +
                 "from izh_scheme.relationship r " +
                 "full join izh_scheme.task_list t_l on t_l.user_id = r.recipient_id and visibility = " + Constants.TASK_LIST_ALL + " or " +
-                "(visibility = " + Constants.TASK_LIST_ALLOWED_USERS + " and (select count(*) from task_list_permissions tlp where tlp.user_id = " + userId + " and tlp.list_id = t_l.list_id)!=0) " +
+                "(visibility = " + Constants.TASK_LIST_ALLOWED_USERS + " and (select count(*) from izh_scheme.task_list_permissions tlp where tlp.user_id = " + userId + " and tlp.list_id = t_l.list_id)!=0) " +
                 "full join (select count(*) count1,list_id from izh_scheme.task_item t_i where (state = " + Constants.TASK_ITEM_VISIBLE + " and target = " + Constants.TASK_ITEM_WORK_ALL + ") or " +
-                "(state = " + Constants.TASK_ITEM_VISIBLE + " and target = " + Constants.TASK_ITEM_WORK_ALLOWED_USERS + " and (select count(*) from izh_scheme.task_permissions tp where tp.user_id = " + userId + " and tp.item_id = t_i.item_id)!=0) group by list_id) t1 on t1.list_id = t_l.list_id " +
+                "(state = " + Constants.TASK_ITEM_VISIBLE +
+                " and target = " + Constants.TASK_ITEM_WORK_ALLOWED_USERS + " and (select count(*) from izh_scheme.task_permissions tp where tp.user_id = " + userId + " and tp.item_id = t_i.item_id)!=0) group by list_id) t1 on t1.list_id = t_l.list_id " +
                 "full join (select count(*) count2,list_id from izh_scheme.task_item t_i where (state = " + Constants.TASK_ITEM_IN_PROGRESS + " and target = " + Constants.TASK_ITEM_WORK_ALL + ") " +
                 "or (state = " + Constants.TASK_ITEM_IN_PROGRESS + " and target = " + Constants.TASK_ITEM_WORK_ALLOWED_USERS + " and (select count(*) from izh_scheme.task_permissions tp where tp.user_id = " + userId + " and tp.item_id = t_i.item_id)!=0) group by list_id) t2 on t2.list_id = t_l.list_id " +
                 "full join (select count(*) count3,list_id from izh_scheme.task_item t_i where (state = " + Constants.TASK_ITEM_DONE + " and target = " + Constants.TASK_ITEM_WORK_ALL + ") " +
