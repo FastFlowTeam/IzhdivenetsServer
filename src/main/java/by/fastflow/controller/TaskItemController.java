@@ -212,7 +212,7 @@ public class TaskItemController extends ExceptionHandlerController {
         }
     }
 
-    @RequestMapping(value = ADDRESS + "/my/{tasklist_id}", method = RequestMethod.GET)
+    @RequestMapping(value = ADDRESS + "/get/{tasklist_id}", method = RequestMethod.GET)
     public
     @ResponseBody
     String getMy(@RequestHeader(value = "user_id") long userId,
@@ -222,39 +222,21 @@ public class TaskItemController extends ExceptionHandlerController {
             Session session = HibernateSessionFactory
                     .getSessionFactory()
                     .openSession();
-
-            UserDB.getUser(session, TaskListDB.getTaskList(session, taskListId).getUserId(), token);
-            List<Object[]> list = getParentTasksSee(session, taskListId);
-            session.close();
-            return Ajax.successResponseJson(getJsonArray(list));
-        } catch (RestException re) {
-            throw re;
-        } catch (Exception e) {
-            throw new RestException(e);
-        }
-    }
-
-    @RequestMapping(value = ADDRESS + "/parent/{tasklist_id}", method = RequestMethod.GET)
-    public
-    @ResponseBody
-    String getParents(@RequestHeader(value = "user_id") long userId,
-                      @RequestHeader(value = "token") String token,
-                      @PathVariable(value = "tasklist_id") long taskListId) throws RestException {
-        try {
-            Session session = HibernateSessionFactory
-                    .getSessionFactory()
-                    .openSession();
-
             UserDB userDB = UserDB.getUser(session, userId, token);
-            TaskListDB taskListDB = TaskListDB.getTaskList(session, taskListId);
-            if (taskListDB.getVisibility() == Constants.TASK_LIST_NOBODY)
-                throw new RestException(ErrorConstants.NOT_NAVE_PERMISSION);
-            if (taskListDB.getVisibility() == Constants.TASK_LIST_ALLOWED_USERS) {
-                if (session.get(TaskListPermissionsDB.class, TaskListPermissionsDBPK.createKey(userId, taskListId)) == null)
+            List<Object[]> list;
+            if (userDB.isParent()) {
+                UserDB.getUser(session, TaskListDB.getTaskList(session, taskListId).getUserId(), token);
+                list = getParentTasksSee(session, taskListId);
+            }else{
+                TaskListDB taskListDB = TaskListDB.getTaskList(session, taskListId);
+                if (taskListDB.getVisibility() == Constants.TASK_LIST_NOBODY)
                     throw new RestException(ErrorConstants.NOT_NAVE_PERMISSION);
+                if (taskListDB.getVisibility() == Constants.TASK_LIST_ALLOWED_USERS) {
+                    if (session.get(TaskListPermissionsDB.class, TaskListPermissionsDBPK.createKey(userId, taskListId)) == null)
+                        throw new RestException(ErrorConstants.NOT_NAVE_PERMISSION);
+                }
+                list = getUserTasksSee(session, taskListId, userId);
             }
-            List<Object[]> list = getUserTasksSee(session, taskListId, userId);
-
             session.close();
             return Ajax.successResponseJson(getJsonArray(list));
         } catch (RestException re) {

@@ -93,50 +93,29 @@ public class WishListController extends ExceptionHandlerController {
         }
     }
 
-    @RequestMapping(value = ADDRESS + "/getMy", method = RequestMethod.GET)
+    @RequestMapping(value = ADDRESS + "/get", method = RequestMethod.GET)
     public
     @ResponseBody
-    String getAllMy(@RequestHeader(value = "user_id") long userId,
+    String getAll(@RequestHeader(value = "user_id") long userId,
                     @RequestHeader(value = "token") String token) throws RestException {
         try {
             Session session = HibernateSessionFactory
                     .getSessionFactory()
                     .openSession();
             UserDB up = UserDB.getUser(session, userId, token);
-            if (up.isParent())
-                throw new RestException(ErrorConstants.NOT_CORRECT_USER_TYPE);
-            List<WishListDB> list = session.createQuery("from WishListDB where userId = " + userId).list();
-            session.close();
-            return Ajax.successResponseJson(getArrayJson(list));
+            JsonArray array;
+            if (up.isParent()){
+                List<Object[]> list = getChildsWishLists(session, userId);
+                session.close();
+                array = getArrayBigJson(list);
+            }else {
+                List<WishListDB> list = session.createQuery("from WishListDB where userId = " + userId).list();
+                session.close();
+                array = getArrayJson(list);
+            }
+            return Ajax.successResponseJson(array);
         } catch (RestException re) {
             throw re;
-        } catch (Exception e) {
-            throw new RestException(e);
-        }
-    }
-
-    @RequestMapping(value = ADDRESS + "/getNotMy", method = RequestMethod.GET)
-    public
-    @ResponseBody
-    String getAllNotMy(@RequestHeader(value = "user_id") long userId,
-                       @RequestHeader(value = "token") String token) throws RestException {
-        try {
-            Session session = HibernateSessionFactory
-                    .getSessionFactory()
-                    .openSession();
-            UserDB up = UserDB.getUser(session, userId, token);
-            if (up.isChild())
-                throw new RestException(ErrorConstants.NOT_CORRECT_USER_TYPE);
-
-            //выводит null последним столбцом, если count = 0
-            List<Object[]> list = getChildsWishLists(session, userId);
-
-            session.close();
-            return Ajax.successResponseJson(getArrayBigJson(list));
-        } catch (RestException re) {
-            throw re;
-        } catch (IndexOutOfBoundsException re) {
-            throw new RestException(ErrorConstants.NOT_HAVE_CARD);
         } catch (Exception e) {
             throw new RestException(e);
         }

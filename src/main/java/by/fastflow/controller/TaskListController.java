@@ -246,43 +246,14 @@ public class TaskListController extends ExceptionHandlerController {
                 for (Object[] objects : list) {
                     array.add(getListObject(objects));
                 }
-                session.close();
-                return Ajax.successResponseJson(array);
-            }
-
-            session.close();
-            return Ajax.successResponseJson(array);
-        } catch (RestException re) {
-            throw re;
-        } catch (Exception e) {
-            throw new RestException(e);
-        }
-    }
-
-    @RequestMapping(value = ADDRESS + "/getParents", method = RequestMethod.GET)
-    public
-    @ResponseBody
-    String getParents(@RequestHeader(value = "user_id") long userId,
-                      @RequestHeader(value = "token") String token) throws RestException {
-        try {
-            Session session = HibernateSessionFactory
-                    .getSessionFactory()
-                    .openSession();
-
-            UserDB up = UserDB.getUser(session, userId, token);
-
-            JsonArray array = new JsonArray();
-            if (up.isChild()) {
+            } else {
                 List<Object[]> list = getParentsList(session, userId);
                 for (Object[] objects : list) {
                     JsonObject object = getListObject(objects);
                     object.add("user", UserDB.getJson((String) objects[9], (BigInteger) objects[10], (String) objects[11], (BigInteger) objects[12]));
                     array.add(object);
                 }
-                session.close();
-                return Ajax.successResponseJson(array);
             }
-
             session.close();
             return Ajax.successResponseJson(array);
         } catch (RestException re) {
