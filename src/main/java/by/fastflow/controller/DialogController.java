@@ -171,8 +171,8 @@ public class DialogController extends ExceptionHandlerController {
     public
     @ResponseBody
     String update(@RequestHeader(value = "user_id") long userId,
-                               @RequestBody DialogDB dialogDB,
-                               @RequestHeader(value = "token") String token) throws RestException {
+                  @RequestBody DialogDB dialogDB,
+                  @RequestHeader(value = "token") String token) throws RestException {
         try {
             Session session = HibernateSessionFactory
                     .getSessionFactory()
@@ -243,7 +243,10 @@ public class DialogController extends ExceptionHandlerController {
         JsonArray array = new JsonArray();
         for (Object[] objects : list) {
             JsonObject obj = new JsonObject();
-            obj.addProperty("name", (String) objects[0]);
+            if ((objects[5] != null))
+                obj.addProperty("name", (String) (objects[8] == null ? objects[9] : objects[8]));
+            else
+                obj.addProperty("name", (String) objects[0]);
             obj.addProperty("dialogId", (BigInteger) objects[1]);
             obj.addProperty("not_readed", (BigInteger) objects[2]);
             obj.add("photos", generateJsonPhotos((String) objects[4], user, (objects[5] != null), Constants.convertL(objects[3])));
@@ -289,18 +292,32 @@ public class DialogController extends ExceptionHandlerController {
     }
 
     public static List<Object[]> getAllDialogs(Session session, long userId) {
-        return session.createSQLQuery("select d.name as a0, " +
+        return session.createSQLQuery("select d.name  as a0, " +
                 "i_d.dialog_id as a1, i_d.not_readed_messages as a2, " +
                 "d2.count as a3, photos as a4, is_private as a5, " +
-                "m.text as a6, m.user_id as a7 " +
+                "m.text as a6, m.user_id as a7, c_n_f as a8, c_n_s as a9 " +
                 "from izh_scheme.dialog as d " +
-                "join izh_scheme.in_dialog as i_d on d.dialog_id = i_d.dialog_id and user_id = " + userId + " " +
-                "join izh_scheme.message as m on m.dialog_id = d.dialog_id and m.user_id = " + userId + " and m.message_id = " +
-                "(select max(message_id) from izh_scheme.message m where m.user_id = " + userId + " and m.dialog_id = d.dialog_id) " +
-                "join (select dialog_id, count(user_id) as count from izh_scheme.in_dialog group by dialog_id) d2 on d2.dialog_id = i_d.dialog_id " +
+                "left join izh_scheme.in_dialog  as i_d on d.dialog_id = i_d.dialog_id and user_id = " + userId + " " +
+                "left join izh_scheme.message as m on m.dialog_id = d.dialog_id and m.message_id = " +
+                "(select max(message_id) from izh_scheme.message m where m.dialog_id = d.dialog_id) " +
+                "left join (select dialog_id, count(user_id) as count from izh_scheme.in_dialog  group by dialog_id) d2 on d2.dialog_id = i_d.dialog_id " +
                 "left join (select count(first_user) is_private, dialog_id from in_dialog_twain group by dialog_id) d4 on d4.dialog_id = i_d.dialog_id " +
-                "join (select string_agg(photo,';') photos, dialog_id from izh_scheme.user u " +
-                "join izh_scheme.in_dialog i_d on i_d.user_id = u.user_id group by dialog_id) d3 on d3.dialog_id = i_d.dialog_id ").list();
+                "left join (select chat_name c_n_f, dialog_id from izh_scheme.in_dialog_twain  in_d_t join izh_scheme.user us on us.user_id = in_d_t.first_user where second_user = " + userId + ") d5 on d5.dialog_id = i_d.dialog_id " +
+                "left join (select chat_name c_n_s, dialog_id from izh_scheme.in_dialog_twain  in_d_t join izh_scheme.user us on us.user_id = in_d_t.second_user where first_user = " + userId + ") d6 on d6.dialog_id = i_d.dialog_id " +
+                "left join (select string_agg(photo,';') photos, dialog_id from izh_scheme.user u " +
+                "left join izh_scheme.in_dialog  i_d on i_d.user_id = u.user_id group by dialog_id) d3 on d3.dialog_id = i_d.dialog_id ").list();
+//        return session.createSQLQuery("select d.name as a0, " +
+//                "i_d.dialog_id as a1, i_d.not_readed_messages as a2, " +
+//                "d2.count as a3, photos as a4, is_private as a5, " +
+//                "m.text as a6, m.user_id as a7 " +
+//                "from izh_scheme.dialog as d " +
+//                "join izh_scheme.in_dialog as i_d on d.dialog_id = i_d.dialog_id and user_id = " + userId + " " +
+//                "join izh_scheme.message as m on m.dialog_id = d.dialog_id and m.user_id = " + userId + " and m.message_id = " +
+//                "(select max(message_id) from izh_scheme.message m where m.user_id = " + userId + " and m.dialog_id = d.dialog_id) " +
+//                "join (select dialog_id, count(user_id) as count from izh_scheme.in_dialog group by dialog_id) d2 on d2.dialog_id = i_d.dialog_id " +
+//                "left join (select count(first_user) is_private, dialog_id from in_dialog_twain group by dialog_id) d4 on d4.dialog_id = i_d.dialog_id " +
+//                "join (select string_agg(photo,';') photos, dialog_id from izh_scheme.user u " +
+//                "join izh_scheme.in_dialog i_d on i_d.user_id = u.user_id group by dialog_id) d3 on d3.dialog_id = i_d.dialog_id ").list();
     }
 
     private List<Object[]> getAllUserInDialog(Session session, long dialogId) {
@@ -328,6 +345,8 @@ public class DialogController extends ExceptionHandlerController {
             session.save(dialog);
             session.merge(InDialogTwainDB.createNew(userFId, userSId, dialog.getDialogId()));
             session.merge(InDialogTwainDB.createNew(userSId, userFId, dialog.getDialogId()));
+            session.merge(InDialogDB.createNew(dialog.getDialogId(), userSId, 0));
+            session.merge(InDialogDB.createNew(dialog.getDialogId(), userFId, 0));
             session.getTransaction().commit();
             return dialog.getDialogId();
         } else

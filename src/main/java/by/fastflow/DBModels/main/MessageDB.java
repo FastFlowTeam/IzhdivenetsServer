@@ -145,7 +145,7 @@ public class MessageDB extends UpdatableDB<MessageDB> {
             throw new RestException(ErrorConstants.EMPTY_MESSAGE);
         if (text.length() > 500)
             throw new RestException(ErrorConstants.TOO_LONG_MESSAGE);
-        if (Constants.contains(Constants.message_types,type))
+        if (!Constants.contains(Constants.message_types,type))
             throw new RestException(ErrorConstants.MESSAGE_TYPE);
         if ((link != null) && (link.length() > 200))
             throw new RestException(ErrorConstants.LONG_MESSAGE_LINK);
