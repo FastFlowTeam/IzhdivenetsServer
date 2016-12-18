@@ -243,7 +243,8 @@ public class DialogController extends ExceptionHandlerController {
         JsonArray array = new JsonArray();
         for (Object[] objects : list) {
             JsonObject obj = new JsonObject();
-            if ((objects[5] != null))
+            boolean isPrivate = objects[9] != null || objects[8] != null;
+            if (isPrivate)
                 obj.addProperty("name", (String) (objects[8] == null ? objects[9] : objects[8]));
             else
                 obj.addProperty("name", (String) objects[0]);
@@ -251,7 +252,7 @@ public class DialogController extends ExceptionHandlerController {
             obj.addProperty("not_readed", (BigInteger) objects[2]);
             obj.add("photos", generateJsonPhotos((String) objects[4], user, (objects[5] != null), Constants.convertL(objects[3])));
             obj.addProperty("count", (BigInteger) objects[3]);
-            obj.addProperty("is_private", (objects[5] != null));
+            obj.addProperty("is_private", isPrivate);
             obj.addProperty("text", (String) objects[6]);
             obj.addProperty("my", Constants.convertL(objects[7]) == user.getUserId());
             array.add(obj);

@@ -79,6 +79,45 @@ public class RequestController extends ExceptionHandlerController {
         return Ajax.successResponseJson(generateJson(list, userF.isParent(), userF.getgId()));
     }
 
+    @RequestMapping(value = ADDRESS + "/accepted", method = RequestMethod.GET)
+    public
+    @ResponseBody
+    String getAccepted(@RequestHeader(value = "token") String token,
+                 @RequestHeader(value = "user_id") long userId) throws RestException {
+        try {
+            Session session = HibernateSessionFactory
+                    .getSessionFactory()
+                    .openSession();
+            UserDB userF = UserDB.getUser(session, userId, token);
+            List<Object[]> list = getAllMyAcceptedRelationship(session, userF.getUserId());
+            session.close();
+            /*
+               "u.user_id as a0, " +
+                "s.user_id as a1, " +
+                "u.g_id as a2, " +
+                "s.g_id as a3, " +
+                "u.chat_name as a4, " +
+                "s.chat_name as a5, " +
+                "u.type as a6, " +
+                "s.type as a7, " +
+                "u.photo as a8, " +
+                "s.photo as a9 " +
+             */
+            JsonArray array = new JsonArray();
+            for (Object[] objects : list){
+                if (Constants.convertL(objects[0])==userId)
+                    array.add(UserDB.getJson((String) objects[5],(BigInteger) objects[7], (String) objects[9], (BigInteger) objects[3]));
+                else
+                    array.add(UserDB.getJson((String) objects[4],(BigInteger) objects[6], (String) objects[8], (BigInteger) objects[2]));
+            }
+            return Ajax.successResponseJson(array);
+        } catch (RestException re) {
+            throw re;
+        } catch (Exception e) {
+            throw new RestException(e);
+        }
+    }
+
     @RequestMapping(value = ADDRESS + "/my", method = RequestMethod.GET)
     public
     @ResponseBody
@@ -207,7 +246,13 @@ public class RequestController extends ExceptionHandlerController {
                 "u.user_id as a0, " +
                 "s.user_id as a1, " +
                 "u.g_id as a2, " +
-                "s.g_id as a3 " +
+                "s.g_id as a3, " +
+                "u.chat_name as a4, " +
+                "s.chat_name as a5, " +
+                "u.type as a6, " +
+                "s.type as a7, " +
+                "u.photo as a8, " +
+                "s.photo as a9 " +
                 "FROM izh_scheme.relationship r " +
                 "left JOIN izh_scheme.user u ON u.user_id = recipient_id " +
                 "left JOIN izh_scheme.user s ON s.user_id = sender_id " +
