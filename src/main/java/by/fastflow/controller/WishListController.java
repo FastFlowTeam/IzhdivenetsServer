@@ -109,7 +109,7 @@ public class WishListController extends ExceptionHandlerController {
                 session.close();
                 array = getArrayBigJson(list);
             }else {
-                List<WishListDB> list = session.createQuery("from WishListDB where userId = " + userId).list();
+                List<Object[]> list = getMyWishLists(session, userId);
                 session.close();
                 array = getArrayJson(list);
             }
@@ -131,6 +131,17 @@ public class WishListController extends ExceptionHandlerController {
             array.add(object);
         }
         return array;
+    }
+
+    public static List<Object[]> getMyWishLists(Session session, long childId) {
+        return session.createSQLQuery("select " +
+                "w_l.name as a0, w_l.list_id as a1, w_l.description as a2, w_l.visibility as a3, " +
+                "cou as a4 " +
+                "from izh_scheme.wish_list w_l "+
+                "left join (select count(item_id) as cou, list_id from izh_scheme.wish_item where visibility = " + Constants.WISH_ITEM_VISIBLE + " group by list_id) t1 " +
+                "on t1.list_id = w_l.list_id "+
+                "WHERE w_l.user_id = " + childId
+        ).list();
     }
 
     public static List<Object[]> getChildsWishLists(Session session, long parentId) {
@@ -157,10 +168,14 @@ public class WishListController extends ExceptionHandlerController {
                 "where r.sender_id = " + parentId + " and r.state = " + Constants.RELATIONSHIP_ACCEPT).list();
     }
 
-    private JsonArray getArrayJson(List<WishListDB> list) {
+    private JsonArray getArrayJson(List<Object[]> list) {
         JsonArray array = new JsonArray();
-        for (WishListDB item : list) {
-            array.add(WishListDB.makeJson(item));
+        for (Object[] objects : list) {
+            JsonObject object = new JsonObject();
+            object.add("list", WishListDB.makeJson((String) objects[0], (BigInteger) objects[1], (String) objects[2], (BigInteger) objects[3]));
+            object.add("user", null);
+            object.addProperty("count", objects[4] == null ? 0 : Constants.convertL(objects[4]));
+            array.add(object);
         }
         return array;
     }

@@ -78,6 +78,7 @@ public class Constants {
     public static final int MSG_SEND_MONEY_FOR_ITEM = 9;
     public static final int MSG_CHANGE_WORK_STATE = 10;
     public static final int MSG_PRAISED = 11;
+    public static final int DELTA_TIME = 60 * 1000;
 
     public static long convertL(Object object) {
         return ((BigInteger) object).longValue();

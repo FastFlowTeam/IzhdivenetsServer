@@ -153,11 +153,19 @@ public class WishListDB extends UpdatableDB<WishListDB> {
     }
 
     public static JsonObject makeJson(String name, BigInteger listId, String description) {
+        return makeJson(name, listId, description, Constants.WISH_LIST_VISIBLE);
+    }
+
+    public static JsonObject makeJson(String name, BigInteger listId, String description, BigInteger visibility) {
+        return makeJson(name, listId, description, visibility.intValue());
+    }
+
+    public static JsonObject makeJson(String name, BigInteger listId, String description, int visibility) {
         JsonObject object = new JsonObject();
         object.addProperty("listId", listId);
         object.addProperty("name", name);
         object.addProperty("description", description);
-        object.addProperty("visibility", Constants.WISH_LIST_VISIBLE);
+        object.addProperty("visibility", visibility);
         return object;
     }
 

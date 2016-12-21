@@ -244,7 +244,9 @@ public class TaskListController extends ExceptionHandlerController {
             if (up.isParent()) {
                 List<Object[]> list = getMyList(session, userId);
                 for (Object[] objects : list) {
-                    array.add(getListObject(objects));
+                    JsonObject object = getListObject(objects);
+                    object.add("user", null);
+                    array.add(object);
                 }
             } else {
                 List<Object[]> list = getParentsList(session, userId);

@@ -64,6 +64,10 @@ public class RestException extends Exception {
                 return "";
             case ErrorConstants.ALREADY_IN_DIALOG:
                 return "";
+            case ErrorConstants.INVALIDE_TIME:
+                return "";
+            case ErrorConstants.INVALIDE_SALT:
+                return "";
             case ErrorConstants.NOT_HAVE_GID:
                 return "No such gId";
             case ErrorConstants.NOT_HAVE_ID:

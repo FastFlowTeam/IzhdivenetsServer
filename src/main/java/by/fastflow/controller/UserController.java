@@ -4,9 +4,13 @@ import by.fastflow.Ajax;
 import by.fastflow.DBModels.main.AuthDB;
 import by.fastflow.DBModels.main.UserDB;
 import by.fastflow.repository.HibernateSessionFactory;
+import by.fastflow.utils.Authorisation;
 import by.fastflow.utils.Constants;
 import by.fastflow.utils.ErrorConstants;
 import by.fastflow.utils.RestException;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 import com.vk.api.sdk.client.TransportClient;
 import com.vk.api.sdk.client.VkApiClient;
 import com.vk.api.sdk.client.actors.UserActor;
@@ -15,6 +19,12 @@ import com.vk.api.sdk.objects.account.UserSettings;
 import org.hibernate.Session;
 import org.springframework.web.bind.annotation.*;
 
+import javax.crypto.*;
+import javax.crypto.spec.SecretKeySpec;
+import java.math.BigInteger;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.List;
 import java.util.Map;
 
@@ -28,20 +38,20 @@ public class UserController extends ExceptionHandlerController {
 
     private static final String ADDRESS = Constants.DEF_SERVER + "user";
 
-    @RequestMapping(value = ADDRESS + "/loginVk", method = RequestMethod.POST)
+    @RequestMapping(value = ADDRESS + "/loginCrypto", method = RequestMethod.POST)
     public
     @ResponseBody
-    String loginVk(@RequestHeader(value = "token") String token, @RequestHeader(value = "userId") int userId) throws RestException {
+    String loginCrypto(@RequestHeader(value = "token") String token) throws RestException {
         try {
-            TransportClient transportClient = HttpTransportClient.getInstance();
-            VkApiClient vk = new VkApiClient(transportClient);
-            UserActor actor = new UserActor(userId, token);
-            UserSettings userSettings = vk.account().getProfileInfo(actor).execute();
 
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            Authorisation auth = gson.fromJson(decodeString(new BigInteger(token, 16).toByteArray()), Authorisation.class);
             Session session = HibernateSessionFactory
                     .getSessionFactory()
                     .openSession();
-            List<AuthDB> list = session.createQuery("from AuthDB where type = " + Constants.LOGIN_TYPE_VK + " and token = '" + (userId + "'")).list();
+
+            auth.validate();
+            List<AuthDB> list = session.createQuery("from AuthDB where type = " + auth.getAuth() + " and token = '" + (auth.getId() + "'")).list();
 
             if (list.size() == 0) {
                 throw new RestException(ErrorConstants.NOT_HAVE_ID);
@@ -62,29 +72,41 @@ public class UserController extends ExceptionHandlerController {
         }
     }
 
-    @RequestMapping(value = ADDRESS + "/registerVk", method = RequestMethod.POST)
+    private String decodeString(byte[] text) {
+        byte[] result = new byte[text.length];
+        byte[] keyarr = "dymgoVEso9Vfjneyc".getBytes();
+        for (int i = 0; i < text.length; i++) {
+            result[i] = (byte) (text[i] ^ keyarr[i % keyarr.length]);
+        }
+        return new String(result);
+    }
+
+    @RequestMapping(value = ADDRESS + "/registerCrypto", method = RequestMethod.POST)
     public
     @ResponseBody
-    String registerVk(@RequestHeader(value = "token") String token, @RequestHeader(value = "userId") int userId, @RequestParam(value = "type") int type) throws RestException {
+    String registerCrypto(@RequestHeader(value = "token") String token) throws RestException {
         try {
-            TransportClient transportClient = HttpTransportClient.getInstance();
-            VkApiClient vk = new VkApiClient(transportClient);
-            UserActor actor = new UserActor(userId, token);
-            UserSettings userSettings = vk.account().getProfileInfo(actor).execute();
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            Authorisation auth = gson.fromJson(decodeString(new BigInteger(token, 16).toByteArray()), Authorisation.class);
 
             Session session = HibernateSessionFactory
                     .getSessionFactory()
                     .openSession();
-            List<AuthDB> list = session.createQuery("from AuthDB where type = " + Constants.LOGIN_TYPE_VK + " and token = '" + (userId + "'")).list();
+
+            auth.validate();
+            List<AuthDB> list = session.createQuery("from AuthDB where type = " + auth.getAuth() + " and token = '" + (auth.getId() + "'")).list();
             UserDB userDB = null;
             session.beginTransaction();
+            if (!Constants.contains(Constants.user_types, auth.getType()))
+                throw new RestException(ErrorConstants.NOT_CORRECT_USER_TYPE);
             if (list.size() == 0) {
                 userDB = UserDB
-                        .createNew(userSettings.getFirstName() + " " + userSettings.getLastName(), type)
+                        .createNew(auth.getName(), auth.getType())
+                        .validate()
                         .setUserId(null);
                 session.save(userDB);
                 session.saveOrUpdate(AuthDB
-                        .createNew(Constants.LOGIN_TYPE_VK, userId + "", userDB.getUserId()));
+                        .createNew(Constants.LOGIN_TYPE_VK, auth.getId() + "", userDB.getUserId()));
                 session.saveOrUpdate(CardController.createCard(userDB));
             } else {
                 userDB = UserDB.getUser(session, list.get(0).getUserId())
