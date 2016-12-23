@@ -243,6 +243,8 @@ public class DialogController extends ExceptionHandlerController {
         JsonArray array = new JsonArray();
         for (Object[] objects : list) {
             JsonObject obj = new JsonObject();
+            if (objects[1]== null)
+                break;
             boolean isPrivate = objects[9] != null || objects[8] != null;
             if (isPrivate)
                 obj.addProperty("name", (String) (objects[8] == null ? objects[9] : objects[8]));
@@ -298,8 +300,8 @@ public class DialogController extends ExceptionHandlerController {
                 "d2.count as a3, photos as a4, is_private as a5, " +
                 "m.text as a6, m.user_id as a7, c_n_f as a8, c_n_s as a9 " +
                 "from izh_scheme.dialog as d " +
-                "left join izh_scheme.in_dialog  as i_d on d.dialog_id = i_d.dialog_id and user_id = " + userId + " " +
-                "left join izh_scheme.message as m on m.dialog_id = d.dialog_id and m.message_id = " +
+                "join izh_scheme.in_dialog  as i_d on d.dialog_id = i_d.dialog_id and user_id = " + userId + " " +
+                "join izh_scheme.message as m on m.dialog_id = d.dialog_id and m.message_id = " +
                 "(select max(message_id) from izh_scheme.message m where m.dialog_id = d.dialog_id) " +
                 "left join (select dialog_id, count(user_id) as count from izh_scheme.in_dialog  group by dialog_id) d2 on d2.dialog_id = i_d.dialog_id " +
                 "left join (select count(first_user) is_private, dialog_id from in_dialog_twain group by dialog_id) d4 on d4.dialog_id = i_d.dialog_id " +
